@@ -5,12 +5,13 @@ import lombok.Data;
 import javax.persistence.*;
 
 /**
- * Сущность для тегов
+ * Сущность для связи тегов и постов
  */
 @Data
 @Entity
-@Table(name = "tags")
-public class Tags {
+@Table(name = "tag2post")
+public class TagToPost {
+
     /**
      * Уникальный ключ, генерируется автоматически
      */
@@ -19,7 +20,14 @@ public class Tags {
     private Integer id;
 
     /**
-     * название тега
+     * Id поста
      */
-    private String name;
+    @Column(name = "post_id")
+    private Integer postId;
+
+    /**
+     * Id тега
+     */
+    @Column(name = "tag_id")
+    private Integer tagId;
 }

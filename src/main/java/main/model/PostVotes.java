@@ -1,61 +1,46 @@
 package main.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * Сущность для лайков и дизлайков
+ */
+@Data
 @Entity
 @Table(name = "post_votes")
 public class PostVotes {
+
+    /**
+     * Уникальный ключ, генерируется автоматически
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
+    /**
+     * Id пользователя кто поставил лайк/дизлайк
+     */
     @Column(name =  "user_id")
     private Integer userId;
 
+    /**
+     * Id поста которому поставлен лайк/дизлайк
+     */
     @Column(name = "post_id")
     private Integer postId;
 
+    /**
+     * Дата и время лайка/дизлайка
+     */
     private Date time;
+
+    /**
+     * Значение:
+     * 1 - лайк
+     * -1 - дизлайк
+     */
     private Byte value;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getPostId() {
-        return postId;
-    }
-
-    public void setPostId(Integer postId) {
-        this.postId = postId;
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
-    public void setTime(Date time) {
-        this.time = time;
-    }
-
-    public Byte getValue() {
-        return value;
-    }
-
-    public void setValue(Byte value) {
-        this.value = value;
-    }
 }
