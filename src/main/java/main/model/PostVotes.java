@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * Сущьность для лайков и дизлайков
+ * Сущность для лайков и дизлайков
  */
 @Data
 @Entity

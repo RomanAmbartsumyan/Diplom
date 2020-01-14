@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- * Сущьность для постов
+ * Сущность для постов
  */
 @Data
 @Entity
