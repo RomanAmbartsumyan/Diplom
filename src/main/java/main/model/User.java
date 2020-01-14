@@ -1,77 +1,56 @@
 package main.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * Сущность для пользователей
+ */
+@Data
 @Entity
+@Table(name = "user")
 public class User {
+
+    /**
+     * Уникальный ключ, генерируется автоматически
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
+    /**
+     * Имя пользователя
+     */
     private String name;
+
+    /**
+     * Пароль пользователя
+     */
     private String password;
+
+    /**
+     * Аватар пользователя
+     */
     private String photo;
 
+    /**
+     * Дата и время регистрации
+     */
     @Column(name = "reg_time")
     private Date regTime;
+
+    /**
+     * Код восстановления пароля
+     */
     private String code;
 
+    /**
+     * Является ли пользователем модератером
+     * 1 - является
+     * 0 - не является
+     */
     @Column(name = "is_moderator")
-    private Byte Moderator;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Date getRegTime() {
-        return regTime;
-    }
-
-    public void setRegTime(Date regTime) {
-        this.regTime = regTime;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public byte getModerator() {
-        return Moderator;
-    }
-
-    public void setModerator(byte isMderator) {
-        this.Moderator = isMderator;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
+    private Byte moderator;
 }
