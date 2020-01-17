@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Контроллер аутентификации
  */
 @RestController
-@RequestMapping("/api/auth/*")
+@RequestMapping("/api/auth/")
 public class ApiAuthController {
 
 }

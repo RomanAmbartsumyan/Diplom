@@ -1,5 +1,6 @@
 package main.controllers.rest;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -7,6 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
  * Контроллер постов
  */
 @RestController
-@RequestMapping("/api/post/*")
+@RequestMapping("/api/post/")
 public class ApiPostController {
 }
