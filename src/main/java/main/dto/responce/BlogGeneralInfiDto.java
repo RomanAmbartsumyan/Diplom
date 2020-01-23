@@ -7,11 +7,11 @@ import lombok.Data;
 @AllArgsConstructor
 public class BlogGeneralInfiDto {
 
-    String title;
-    String subtitle;
-    String phone;
-    String email;
-    String copyright;
-    String copyrightFrom;
+    private String title;
+    private String subtitle;
+    private String phone;
+    private String email;
+    private String copyright;
+    private String copyrightFrom;
 
 }

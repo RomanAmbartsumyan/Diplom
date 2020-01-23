@@ -1,8 +1,10 @@
 package main.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -41,5 +43,6 @@ public class PostComment {
     /**
      * Дата и время комментария
      */
-    private Date time;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
+    private LocalDateTime time;
 }

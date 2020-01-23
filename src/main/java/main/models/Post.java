@@ -1,8 +1,10 @@
 package main.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -30,7 +32,8 @@ public class Post {
     /**
      * дата и время публикации поста
      */
-    private Date time;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
+    private LocalDateTime time;
 
     /**
      * Заголовок поста
