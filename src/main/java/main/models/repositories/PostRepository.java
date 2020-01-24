@@ -8,6 +8,9 @@ import javax.xml.crypto.Data;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Репозиторий постов
+ */
 @Repository
 public interface PostRepository extends CrudRepository<Post, Integer> {
 }

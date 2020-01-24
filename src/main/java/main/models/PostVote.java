@@ -43,7 +43,12 @@ public class PostVote {
     /**
      * Значение:
      * 1 - лайк
-     * -1 - дизлайк
      */
-    private Byte value;
+    private Byte like;
+
+    /**
+     * Значение:
+     * 1 - лайк
+     */
+    private Byte dislike;
 }

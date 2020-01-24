@@ -1,30 +1,54 @@
 package main.services;
 
-import main.models.ModerationStatus;
 import main.models.Post;
-import main.models.repositories.PostCommentRepository;
 import main.models.repositories.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+/**
+ * Сервис для работы с БД постов
+ */
 @Service
 public class PostService {
-    private PostCommentRepository postCommentRepository;
+    /**
+     * Репозиторий постов
+     */
     private PostRepository postRepository;
 
-    @PostConstruct
-    public void init(){
-        Post post = new Post();
-        post.setText("HiThere!");
-        post.setModerationStatus(ModerationStatus.ACCEPTED);
-        postRepository.save(post);
-    }
-
-    public PostService(PostCommentRepository postCommentRepository,
-                       PostRepository postRepository) {
-        this.postCommentRepository = postCommentRepository;
+    /**
+     * Конструктор для репозитория
+     */
+    public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
+
+    /**
+     * Возвращает коллекцию всех постов
+     */
+    public List<Post> allPosts(){
+        Iterable<Post> posts = postRepository.findAll();
+        List<Post> postList = new ArrayList<>();
+        posts.forEach(postList::add);
+        return postList;
+    }
+
+    /**
+     * Выдает пост по id
+     */
+    public ResponseEntity getPost (Integer id){
+        Optional<Post> postById = postRepository.findById(id);
+
+        return postById.map(post ->
+                new ResponseEntity(post, HttpStatus.OK))
+                .orElseGet(() ->
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+
 }

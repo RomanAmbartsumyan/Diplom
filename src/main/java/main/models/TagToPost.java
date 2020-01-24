@@ -11,20 +11,17 @@ import javax.persistence.*;
 @Entity
 @Table(name = "tag2post")
 public class TagToPost {
-
     /**
      * Уникальный ключ, генерируется автоматически
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-
     /**
      * Id поста
      */
     @Column(name = "post_id")
     private Integer postId;
-
     /**
      * Id тега
      */

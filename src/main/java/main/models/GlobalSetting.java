@@ -11,7 +11,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "global_setting")
 public class GlobalSetting {
-
     /**
      * Уникальный ключ, генерируется автоматически
      */

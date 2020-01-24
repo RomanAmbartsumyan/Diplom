@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/")
 public class DefaultController {
 
+    /**
+     * Разворачивает фронт
+     */
     public String index(){
         return "index";
     }

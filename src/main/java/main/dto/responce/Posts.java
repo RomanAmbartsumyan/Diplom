@@ -7,18 +7,48 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * Класс для работы с постом
+ * Все параметры беруться из БД
+ */
 @Data
 @AllArgsConstructor
 public class Posts {
+    /**
+     * Id поста
+     */
     private Integer id;
-
+    /**
+     * Время публикации
+     */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime time;
-    private User user;
+    /**
+     * Объект пользователя
+     */
+    private UserDto user;
+    /**
+     * Заголовок поста
+     */
     private String title;
+    /**
+     * Текст поста
+     */
     private String announce;
-    private Integer likeCount;
-    private Integer dislikeCount;
+    /**
+     * Количество лайков
+     */
+    private Byte likeCount;
+    /**
+     * Количество дизлайков
+     */
+    private Byte dislikeCount;
+    /**
+     * Количество комментариев
+     */
     private Integer commentCount;
+    /**
+     * Количество просмотров
+     */
     private Integer viewCount;
 }

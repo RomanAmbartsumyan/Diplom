@@ -14,7 +14,6 @@ import java.util.Date;
 @Entity
 @Table(name = "captcha_code")
 public class CaptchaCode {
-
     /**
      * Уникальный ключ, генерируется автоматически
      */

@@ -8,12 +8,10 @@ public enum ModerationStatus {
      * Новый
      */
     NEW,
-
     /**
      * Подтвержден
      */
     ACCEPTED,
-
     /**
      * Отклонен
      */
