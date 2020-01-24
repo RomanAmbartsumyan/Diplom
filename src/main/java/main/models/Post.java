@@ -30,6 +30,7 @@ public class Post {
     /**
      * дата и время публикации поста
      */
+    @Column(updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime time;
     /**

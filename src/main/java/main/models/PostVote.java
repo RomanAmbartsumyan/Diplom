@@ -37,6 +37,7 @@ public class PostVote {
     /**
      * Дата и время лайка/дизлайка
      */
+    @Column(updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime time;
 
@@ -44,11 +45,13 @@ public class PostVote {
      * Значение:
      * 1 - лайк
      */
-    private Byte like;
+    @Column(name = "like_count")
+    private Byte likeCount;
 
     /**
      * Значение:
      * 1 - лайк
      */
-    private Byte dislike;
+    @Column(name = "dislike_count")
+    private Byte dislikeCount;
 }

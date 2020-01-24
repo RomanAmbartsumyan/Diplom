@@ -38,6 +38,7 @@ public class PostComment {
     /**
      * Дата и время комментария
      */
+    @Column(updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime time;
 }

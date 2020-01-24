@@ -35,7 +35,7 @@ public class User {
     /**
      * Дата и время регистрации
      */
-    @Column(name = "reg_time")
+    @Column(name = "reg_time", updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime regTime;
     /**

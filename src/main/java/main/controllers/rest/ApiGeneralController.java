@@ -71,7 +71,7 @@ public class ApiGeneralController {
 
             postsList.add(new Posts(post.getId(), post.getTime(), userDto,
                     post.getTitle(), post.getText(),
-                    postVote.getLike(), postVote.getDislike(), count, post.getViewCount()));
+                    postVote.getLikeCount(), postVote.getDislikeCount(), count, post.getViewCount()));
         });
 
         Integer postCount = postsList.size();
