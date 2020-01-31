@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис для работы с БД постов
@@ -50,7 +51,7 @@ public class PostService {
     /**
      * Возвращает коллекцию всех постов
      */
-    public List<Post> findAll(Integer offset, Integer limit, String mode) {
+    public Set<Post> findAll(Integer offset, Integer limit, String mode) {
         Sort sort = Sort.by(Sort.Direction.DESC, "time");
 
         switch (mode) {

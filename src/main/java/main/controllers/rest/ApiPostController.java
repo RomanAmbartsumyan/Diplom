@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Контроллер постов
@@ -41,7 +42,7 @@ public class ApiPostController {
                                              @RequestParam Integer limit,
                                              @RequestParam String mode) {
         List<Posts> allPosts = new ArrayList<>();
-        List<Post> posts = postService.findAll(offset, limit, mode);
+        Set<Post> posts = postService.findAll(offset, limit, mode);
 
         posts.forEach(post -> {
                     User user = userService.getUserById(post.getUserId());
