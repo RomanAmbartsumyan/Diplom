@@ -1,10 +1,7 @@
 package main.services;
 
-import main.models.Post;
 import main.models.User;
 import main.models.repositories.UserRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,7 +14,7 @@ public class UserService {
     /**
      * Репозиторий пользователей
      */
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -26,7 +23,7 @@ public class UserService {
     /**
      * Выдает пользователя по id
      */
-    public User getUserById(Integer id){
+    public User getUserById(Integer id) {
         Optional<User> postById = userRepository.findById(id);
         return postById.orElse(null);
     }

@@ -5,7 +5,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * Сущность для лайков и дизлайков
@@ -25,14 +24,15 @@ public class PostVote {
     /**
      * Id пользователя кто поставил лайк/дизлайк
      */
-    @Column(name =  "user_id")
+    @Column(name = "user_id")
     private Integer userId;
 
     /**
      * Id поста которому поставлен лайк/дизлайк
      */
-    @Column(name = "post_id")
-    private Integer postId;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "post_id")
+    private Post postId;
 
     /**
      * Дата и время лайка/дизлайка
@@ -44,14 +44,8 @@ public class PostVote {
     /**
      * Значение:
      * 1 - лайк
+     * -1 - дизлайк
      */
-    @Column(name = "like_count")
-    private Byte likeCount;
-
-    /**
-     * Значение:
-     * 1 - лайк
-     */
-    @Column(name = "dislike_count")
-    private Byte dislikeCount;
+    @Column(name = "value")
+    private Byte value;
 }

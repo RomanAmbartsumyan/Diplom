@@ -1,54 +1,75 @@
 package main.services;
 
+import lombok.AllArgsConstructor;
 import main.models.Post;
 import main.models.repositories.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Сервис для работы с БД постов
  */
 @Service
+@AllArgsConstructor
 public class PostService {
     /**
      * Репозиторий постов
      */
     private PostRepository postRepository;
 
-    /**
-     * Конструктор для репозитория
-     */
-    public PostService(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+//    @PostConstruct
+//    public void init() {
+//        Post post = new Post();
+//        PostVote postVote = new PostVote();
+//        postVote.setPostId(post);
+//        postVote.setValue((byte) 1);
+//        postVote.setTime(LocalDateTime.now());
+//
+//        List<PostVote> postVotes = new ArrayList<>();
+//
+//
+//        post.setPostVotes(postVotes);
+//
+//        post.setActive((byte) 1);
+//        post.setText("asdw");
+//        post.setTitle("qwew4sdf");
+//        post.setTime(LocalDateTime.now());
+//        post.setModerationStatus(ModerationStatus.ACCEPTED);
+//        postRepository.save(post);
+//
+//        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "time"));
+//        postRepository.findAllBy(pageable);
+//        System.out.println();
+//
+//    }
 
     /**
      * Возвращает коллекцию всех постов
      */
-    public List<Post> allPosts(){
-        Iterable<Post> posts = postRepository.findAll();
-        List<Post> postList = new ArrayList<>();
-        posts.forEach(postList::add);
-        return postList;
+    public List<Post> findAll(Integer offset, Integer limit, String mode) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "time");
+
+        switch (mode) {
+            case "recent":
+                sort = Sort.by(Sort.Direction.DESC, "time");
+                break;
+            case "best":
+                sort = Sort.by(Sort.Direction.ASC, "postVotes");
+                break;
+            case "popular":
+                sort = Sort.by(Sort.Direction.ASC, "postComment");
+                break;
+            case "early":
+                sort = Sort.by(Sort.Direction.ASC, "time");
+                break;
+        }
+
+        Pageable pageable = PageRequest.of(offset, limit, sort);
+
+        return postRepository.findAllBy(pageable);
     }
-
-    /**
-     * Выдает пост по id
-     */
-    public ResponseEntity getPost (Integer id){
-        Optional<Post> postById = postRepository.findById(id);
-
-        return postById.map(post ->
-                new ResponseEntity(post, HttpStatus.OK))
-                .orElseGet(() ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
-    }
-
-
 }

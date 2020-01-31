@@ -5,7 +5,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * Сущность для комментариев
@@ -28,8 +27,9 @@ public class PostComment {
     /**
      * Id поста на который оставлен комментарий
      */
-    @Column(name = "post_id")
-    private Integer postId;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "post_id")
+    private Post postId;
     /**
      * Id автора комментария
      */

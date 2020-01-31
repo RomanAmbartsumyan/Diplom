@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TagService {
-    TagRepository tagRepository;
+    private TagRepository tagRepository;
 
     public TagService(TagRepository tagRepository) {
         this.tagRepository = tagRepository;

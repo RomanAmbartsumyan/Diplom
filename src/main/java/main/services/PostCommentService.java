@@ -1,11 +1,9 @@
 package main.services;
 
-import main.models.Post;
 import main.models.PostComment;
 import main.models.repositories.PostCommentRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,10 +14,11 @@ public class PostCommentService {
     /**
      * Репозиторий комментариев к постам
      */
-    PostCommentRepository postCommentRepository;
+    private PostCommentRepository postCommentRepository;
     /**
      * Конструктор для репозитория
      */
+
     public PostCommentService(PostCommentRepository postCommentRepository) {
         this.postCommentRepository = postCommentRepository;
     }
@@ -27,10 +26,7 @@ public class PostCommentService {
      * Возвращает коллекцию всех комментариев к посту
      */
     public List<PostComment> allPostComments(Integer id){
-        Iterable<PostComment> posts = postCommentRepository.findAllById(id);
-        List<PostComment> postCommentList = new ArrayList<>();
-        posts.forEach(postCommentList::add);
-        return postCommentList;
+        return postCommentRepository.findAllByPostId(id);
     }
 
 

@@ -1,13 +1,12 @@
 package main.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Сущность для постов
@@ -63,4 +62,17 @@ public class Post {
      */
     @Column(name = "moderator_id")
     private Integer moderatorId;
+
+    /**
+     * Получаем данные из сущности PostVote
+     */
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "postId", cascade = CascadeType.ALL)
+    @Where(clause = "value = 1")
+    private List<PostVote> postVotes;
+
+    /**
+     * Получаем данные из сущности PostComment
+     */
+    @OneToMany(mappedBy = "postId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PostComment> postComments;
 }
