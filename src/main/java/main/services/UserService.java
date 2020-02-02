@@ -1,5 +1,6 @@
 package main.services;
 
+import main.dto.responce.UserDto;
 import main.models.User;
 import main.models.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -23,8 +24,9 @@ public class UserService {
     /**
      * Выдает пользователя по id
      */
-    public User getUserById(Integer id) {
+    public UserDto getUserById(Integer id) {
         Optional<User> postById = userRepository.findById(id);
-        return postById.orElse(null);
+        return postById.map(user -> new UserDto(user.getId(), user.getName()))
+                .orElse(null);
     }
 }

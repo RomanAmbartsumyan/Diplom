@@ -1,6 +1,7 @@
 package main.services;
 
 import lombok.AllArgsConstructor;
+import main.models.ModerationStatus;
 import main.models.Post;
 import main.models.repositories.PostRepository;
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
@@ -30,7 +32,7 @@ public class PostService {
 //        postVote.setTime(LocalDateTime.now());
 //
 //        List<PostVote> postVotes = new ArrayList<>();
-//
+//        postVotes.add(postVote);
 //
 //        post.setPostVotes(postVotes);
 //
@@ -38,13 +40,11 @@ public class PostService {
 //        post.setText("asdw");
 //        post.setTitle("qwew4sdf");
 //        post.setTime(LocalDateTime.now());
-//        post.setModerationStatus(ModerationStatus.ACCEPTED);
+//        post.setModerationStatus(ModerationStatus.DECLINED);
 //        postRepository.save(post);
-//
-//        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "time"));
-//        postRepository.findAllBy(pageable);
-//        System.out.println();
-//
+
+//        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "postVotes"));
+//        postRepository.findDistinctByActiveAndModerationStatus((byte)1,ModerationStatus.ACCEPTED,pageable);
 //    }
 
     /**
@@ -70,6 +70,6 @@ public class PostService {
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
 
-        return postRepository.findAllBy(pageable);
+        return postRepository.findDistinctByActiveAndModerationStatus((byte)1,ModerationStatus.ACCEPTED,pageable);
     }
 }

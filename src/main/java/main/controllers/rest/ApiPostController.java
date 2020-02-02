@@ -6,7 +6,6 @@ import main.dto.responce.Posts;
 import main.dto.responce.UserDto;
 import main.models.Post;
 import main.models.PostVote;
-import main.models.User;
 import main.services.PostCommentService;
 import main.services.PostService;
 import main.services.PostVoteService;
@@ -44,8 +43,7 @@ public class ApiPostController {
         List<Post> posts = postService.findAll(offset, limit, mode);
 
         posts.forEach(post -> {
-                    User user = userService.getUserById(post.getUserId());
-                    UserDto userDto = new UserDto(post.getUserId(), user.getName());
+                    UserDto userDto = userService.getUserById(post.getUserId());
                     List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post.getId());
 
                     int quantityComment = postCommentService.allPostComments(post.getId()).size();
