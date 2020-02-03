@@ -1,22 +1,13 @@
 package main.controllers.rest;
 
 import lombok.AllArgsConstructor;
-import main.dto.responce.PostList;
-import main.dto.responce.PostSearch;
-import main.dto.responce.Posts;
-import main.dto.responce.UserDto;
-import main.models.Post;
-import main.models.PostVote;
-import main.services.PostCommentService;
-import main.services.PostService;
-import main.services.PostVoteService;
-import main.services.UserService;
+import main.dto.responce.*;
+import main.models.*;
+import main.services.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +22,8 @@ public class ApiPostController {
     private final UserService userService;
     private final PostCommentService postCommentService;
     private final PostVoteService postVoteService;
+    private final TagService tagService;
+    private final TagToPostService tagToPostService;
 
 
     /**
@@ -42,25 +35,67 @@ public class ApiPostController {
                                              @RequestParam String mode) {
 
         List<Post> posts = postService.findAll(offset, limit, mode);
-        List<Posts> allPosts = tranformCollectionForFront(posts);
+        List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
         return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, mode));
     }
 
+    /**
+     * Выдает посты удовлетворяющие поиску
+     */
     @GetMapping("search")
     public ResponseEntity<PostSearch> postSearch(@RequestParam Integer offset,
                                                  @RequestParam Integer limit,
                                                  @RequestParam String query) {
         List<Post> findingPost = postService.findBySearch(offset, limit, query);
-        List<Posts> allFindingPost= tranformCollectionForFront(findingPost);
+        List<PostDto> allFindingPost = transformCollectionForFront(findingPost);
         Integer quantityPosts = allFindingPost.size();
 
         return ResponseEntity.ok(new PostSearch(quantityPosts, allFindingPost, offset, limit, query));
     }
 
-    public List<Posts> tranformCollectionForFront(List<Post> posts) {
-        List<Posts> allPosts = new ArrayList<>();
+    /**
+     * Выдает пост по id
+     */
+    @GetMapping("{id}")
+    public ResponseEntity<PostByIdDto> getPostById(@PathVariable Integer id) {
+        Post postById = postService.getPostFromRepositoryById(id);
+        UserDto userDto = userService.getUserById(postById.getUserId());
+        Integer postId = postById.getId();
+        LocalDateTime time = postById.getTime();
+        String title = postById.getTitle();
+        String text = postById.getText();
+        Integer viewCount = postById.getViewCount();
+        List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(postById.getId());
+
+        byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
+        byte quantityDislike = (byte) (postVotes.size() - quantityLike);
+
+        List<PostComment> postComments = postCommentService.allPostComments(id);
+        List<CommentsDto> comments = new ArrayList<>();
+
+        postComments.forEach(postComment -> {
+            UserFullInformation user = userService.getFullInformationById(postComment.getUserId());
+            comments.add(new CommentsDto(postComment.getId(), postComment.getTime(), user, ""));
+        });
+
+        List<String> tagNames = new ArrayList<>();
+        List<TagToPost> tagToPosts = tagToPostService.getTagtoPostById(postById.getId());
+        tagToPosts.forEach(tagToPost -> {
+            Tag tag = tagService.getTagById(tagToPost.getTagId());
+            tagNames.add(tag.getName());
+        });
+
+        return ResponseEntity.ok(new PostByIdDto(postId, time, userDto, title, text,
+                quantityLike, quantityDislike, viewCount, comments, tagNames));
+    }
+
+    /**
+     * Метод устраняет дублирование
+     */
+    private List<PostDto> transformCollectionForFront(List<Post> posts) {
+        List<PostDto> allPosts = new ArrayList<>();
         posts.forEach(post -> {
             UserDto userDto = userService.getUserById(post.getUserId());
             List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post.getId());
@@ -69,7 +104,7 @@ public class ApiPostController {
             byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
             byte quantityDislike = (byte) (postVotes.size() - quantityLike);
 
-            allPosts.add(new Posts(post.getId(), post.getTime(), userDto,
+            allPosts.add(new PostDto(post.getId(), post.getTime(), userDto,
                     post.getTitle(), post.getText(), quantityLike,
                     quantityDislike, quantityComment, post.getViewCount()));
         });

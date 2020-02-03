@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -71,24 +72,33 @@ public class PostService {
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
 
-        return postRepository.findDistinctByActiveAndModerationStatus((byte)1,ModerationStatus.ACCEPTED,pageable);
+        return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
     }
 
-    public List<Post> findBySearch(Integer offset, Integer limit, String query){
-        Pageable pageable = PageRequest.of(offset, limit);
-        List<Post> distinctByActiveAndModerationStatus = postRepository
-                .findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
+    public List<Post> findBySearch(Integer offset, Integer limit, String query) {
+        if (!query.isEmpty()) {
+            Pageable pageable = PageRequest.of(offset, limit);
+            List<Post> distinctByActiveAndModerationStatus = postRepository
+                    .findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
 
-        return distinctByActiveAndModerationStatus.stream().filter(post -> {
-            String[] stringsTitle = post.getTitle().split("\\s+");
-            for (String s : stringsTitle) {
-                if (s.equals(query)) {
-                    return true;
+            return distinctByActiveAndModerationStatus.stream().filter(post -> {
+                String[] stringsTitle = post.getTitle().split("\\s+");
+                for (String s : stringsTitle) {
+                    if (s.equals(query)) {
+                        return true;
+                    }
                 }
-            }
-            return false;
-        }).collect(toList());
+                return false;
+            }).collect(toList());
+        }
+        return findAll(offset, limit, "");
     }
 
+
+    public Post getPostFromRepositoryById(Integer id) {
+        Optional<Post> optionalPost = postRepository
+                .findByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
+        return optionalPost.orElse(null);
+    }
 
 }

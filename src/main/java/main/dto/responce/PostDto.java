@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @AllArgsConstructor
-public class Posts {
+public class PostDto {
     /**
      * Id поста
      */

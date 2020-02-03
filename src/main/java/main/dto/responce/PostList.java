@@ -18,7 +18,7 @@ public class PostList {
     /**
      * Список постов
      */
-    private List<Posts> posts;
+    private List<PostDto> posts;
     /**
      * Параметр передается с фронта
      */
