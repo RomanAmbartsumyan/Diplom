@@ -2,6 +2,7 @@ package main.controllers.rest;
 
 import lombok.AllArgsConstructor;
 import main.dto.responce.PostList;
+import main.dto.responce.PostSearch;
 import main.dto.responce.Posts;
 import main.dto.responce.UserDto;
 import main.models.Post;
@@ -39,24 +40,39 @@ public class ApiPostController {
     public ResponseEntity<PostList> postList(@RequestParam Integer offset,
                                              @RequestParam Integer limit,
                                              @RequestParam String mode) {
-        List<Posts> allPosts = new ArrayList<>();
+
         List<Post> posts = postService.findAll(offset, limit, mode);
+        List<Posts> allPosts = tranformCollectionForFront(posts);
+        Integer quantityPosts = allPosts.size();
 
+        return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, mode));
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<PostSearch> postSearch(@RequestParam Integer offset,
+                                                 @RequestParam Integer limit,
+                                                 @RequestParam String query) {
+        List<Post> findingPost = postService.findBySearch(offset, limit, query);
+        List<Posts> allFindingPost= tranformCollectionForFront(findingPost);
+        Integer quantityPosts = allFindingPost.size();
+
+        return ResponseEntity.ok(new PostSearch(quantityPosts, allFindingPost, offset, limit, query));
+    }
+
+    public List<Posts> tranformCollectionForFront(List<Post> posts) {
+        List<Posts> allPosts = new ArrayList<>();
         posts.forEach(post -> {
-                    UserDto userDto = userService.getUserById(post.getUserId());
-                    List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post.getId());
+            UserDto userDto = userService.getUserById(post.getUserId());
+            List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post.getId());
 
-                    int quantityComment = postCommentService.allPostComments(post.getId()).size();
-                    byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
-                    byte quantityDislike = (byte) (postVotes.size() - quantityLike);
+            int quantityComment = postCommentService.allPostComments(post.getId()).size();
+            byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
+            byte quantityDislike = (byte) (postVotes.size() - quantityLike);
 
             allPosts.add(new Posts(post.getId(), post.getTime(), userDto,
                     post.getTitle(), post.getText(), quantityLike,
                     quantityDislike, quantityComment, post.getViewCount()));
-                });
-
-        Integer postCount = allPosts.size();
-
-        return ResponseEntity.ok(new PostList(postCount, allPosts, offset, limit, mode));
+        });
+        return allPosts;
     }
 }

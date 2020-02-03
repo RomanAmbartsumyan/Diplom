@@ -9,8 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Сервис для работы с БД постов
@@ -72,4 +73,22 @@ public class PostService {
 
         return postRepository.findDistinctByActiveAndModerationStatus((byte)1,ModerationStatus.ACCEPTED,pageable);
     }
+
+    public List<Post> findBySearch(Integer offset, Integer limit, String query){
+        Pageable pageable = PageRequest.of(offset, limit);
+        List<Post> distinctByActiveAndModerationStatus = postRepository
+                .findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
+
+        return distinctByActiveAndModerationStatus.stream().filter(post -> {
+            String[] stringsTitle = post.getTitle().split("\\s+");
+            for (String s : stringsTitle) {
+                if (s.equals(query)) {
+                    return true;
+                }
+            }
+            return false;
+        }).collect(toList());
+    }
+
+
 }
