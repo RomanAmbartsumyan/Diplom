@@ -1,6 +1,6 @@
 package main.services;
 
-import main.models.repositories.CaptchaCodeRepository;
+import main.repositories.CaptchaCodeRepository;
 import org.springframework.stereotype.Service;
 
 @Service

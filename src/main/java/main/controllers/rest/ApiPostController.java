@@ -77,7 +77,7 @@ public class ApiPostController {
 
         postComments.forEach(postComment -> {
             UserFullInformation user = userService.getFullInformationById(postComment.getUserId());
-            comments.add(new CommentsDto(postComment.getId(), postComment.getTime(), user, ""));
+            comments.add(new CommentsDto(postComment.getId(), postComment.getTime(), user, postComment.getText()));
         });
 
         List<String> tagNames = new ArrayList<>();

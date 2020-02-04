@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import main.dto.responce.UserDto;
 import main.dto.responce.UserFullInformation;
 import main.models.User;
-import main.models.repositories.UserRepository;
+import main.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

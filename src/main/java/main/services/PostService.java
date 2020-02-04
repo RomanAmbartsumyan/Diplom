@@ -3,7 +3,7 @@ package main.services;
 import lombok.AllArgsConstructor;
 import main.models.ModerationStatus;
 import main.models.Post;
-import main.models.repositories.PostRepository;
+import main.repositories.PostRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Сервис для работы с БД постов
@@ -28,25 +26,19 @@ public class PostService {
 //    @PostConstruct
 //    public void init() {
 //        Post post = new Post();
-//        PostVote postVote = new PostVote();
-//        postVote.setPostId(post);
-//        postVote.setValue((byte) 1);
-//        postVote.setTime(LocalDateTime.now());
-//
-//        List<PostVote> postVotes = new ArrayList<>();
-//        postVotes.add(postVote);
-//
-//        post.setPostVotes(postVotes);
 //
 //        post.setActive((byte) 1);
-//        post.setText("asdw");
-//        post.setTitle("qwew4sdf");
+//        post.setText("541613216");
+//        post.setTitle("poi kfgj");
 //        post.setTime(LocalDateTime.now());
-//        post.setModerationStatus(ModerationStatus.DECLINED);
+//        post.setModerationStatus(ModerationStatus.ACCEPTED);
+//
 //        postRepository.save(post);
 
 //        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "postVotes"));
 //        postRepository.findDistinctByActiveAndModerationStatus((byte)1,ModerationStatus.ACCEPTED,pageable);
+//        postRepository.findAllByActiveAndModerationStatusAndTitleContaining(
+//                (byte)1,ModerationStatus.ACCEPTED, "asd", pageable);
 //    }
 
     /**
@@ -78,18 +70,8 @@ public class PostService {
     public List<Post> findBySearch(Integer offset, Integer limit, String query) {
         if (!query.isEmpty()) {
             Pageable pageable = PageRequest.of(offset, limit);
-            List<Post> distinctByActiveAndModerationStatus = postRepository
-                    .findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
-
-            return distinctByActiveAndModerationStatus.stream().filter(post -> {
-                String[] stringsTitle = post.getTitle().split("\\s+");
-                for (String s : stringsTitle) {
-                    if (s.equals(query)) {
-                        return true;
-                    }
-                }
-                return false;
-            }).collect(toList());
+            return postRepository.findAllByActiveAndModerationStatusAndTitleContaining(
+                            (byte) 1, ModerationStatus.ACCEPTED, query, pageable);
         }
         return findAll(offset, limit, "");
     }

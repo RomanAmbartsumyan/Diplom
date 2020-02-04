@@ -2,7 +2,7 @@ package main.services;
 
 import lombok.AllArgsConstructor;
 import main.models.TagToPost;
-import main.models.repositories.TagToPostRepository;
+import main.repositories.TagToPostRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

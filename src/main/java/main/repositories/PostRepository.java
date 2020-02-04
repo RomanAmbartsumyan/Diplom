@@ -1,4 +1,4 @@
-package main.models.repositories;
+package main.repositories;
 
 import main.models.ModerationStatus;
 import main.models.Post;
@@ -21,7 +21,13 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                        Pageable pageable);
 
     /**
-     * Поиск постов по id, активности и статусу модерации
+     * Поиск постов активности, статусу модерации, и наличие текста в заголовке
+     */
+    List<Post> findAllByActiveAndModerationStatusAndTitleContaining (Byte active, ModerationStatus moderationStatus,
+                                                                   String title, Pageable pageable);
+
+    /**
+     * Поиск поста по id, активности, статусу модерации
      */
     Optional<Post> findByIdAndActiveAndModerationStatus(Integer id, Byte active, ModerationStatus moderationStatus);
 }
