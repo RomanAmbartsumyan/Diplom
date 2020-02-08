@@ -45,9 +45,9 @@ public class ApiPostController {
      * Выдает посты удовлетворяющие поиску
      */
     @GetMapping("search")
-    public ResponseEntity<PostSearch> postSearch(@RequestParam Integer offset,
-                                                 @RequestParam Integer limit,
-                                                 @RequestParam String query) {
+    public ResponseEntity<PostSearch> postsBySearch(@RequestParam Integer offset,
+                                                    @RequestParam Integer limit,
+                                                    @RequestParam String query) {
         List<Post> findingPost = postService.findBySearch(offset, limit, query);
         List<PostDto> allFindingPost = transformCollectionForFront(findingPost);
         Integer quantityPosts = allFindingPost.size();
@@ -81,7 +81,7 @@ public class ApiPostController {
         });
 
         List<String> tagNames = new ArrayList<>();
-        List<TagToPost> tagToPosts = tagToPostService.getTagtoPostById(postById.getId());
+        List<TagToPost> tagToPosts = tagToPostService.getTagtoPostByPostId(postById.getId());
         tagToPosts.forEach(tagToPost -> {
             Tag tag = tagService.getTagById(tagToPost.getTagId());
             tagNames.add(tag.getName());
@@ -89,6 +89,42 @@ public class ApiPostController {
 
         return ResponseEntity.ok(new PostByIdDto(postId, time, userDto, title, text,
                 quantityLike, quantityDislike, viewCount, comments, tagNames));
+    }
+
+
+    /**
+     * Выдает посты за конкретную дату
+     */
+    @GetMapping("byDate")
+    public ResponseEntity<PostList> getPostsByDate(@RequestParam Integer offset,
+                                                   @RequestParam Integer limit,
+                                                   @RequestParam String date) {
+
+        List<Post> posts = postService.findPostsByDate(offset, limit, date);
+        List<PostDto> allPosts = transformCollectionForFront(posts);
+        Integer quantityPosts = allPosts.size();
+
+        return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, date));
+    }
+
+    /**
+     * Выдает посты по тегу
+     */
+    @GetMapping("byTag")
+    public ResponseEntity<PostList> getPostsByTagName(@RequestParam Integer offset,
+                                                      @RequestParam Integer limit,
+                                                      @RequestParam String tagName) {
+        List<Post> posts = new ArrayList<>();
+        List<PostDto> allPosts = transformCollectionForFront(posts);
+        Tag tag = tagService.getByName(tagName);
+        List<TagToPost> tagToPosts = tagToPostService.getTagtoPostByTagId(tag.getId());
+        tagToPosts.forEach(tagToPost -> {
+            Post post = postService.getPostFromRepositoryById(tagToPost.getPostId());
+            posts.add(post);
+        });
+        Integer quantityPosts = allPosts.size();
+
+        return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, tagName));
     }
 
     /**

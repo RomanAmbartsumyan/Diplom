@@ -27,30 +27,30 @@ public class PostService {
 //    public void init() {
 //        Post post = new Post();
 //
+//        LocalDateTime localDateTime = LocalDateTime.now();
+//
 //        post.setActive((byte) 1);
 //        post.setText("541613216");
 //        post.setTitle("poi kfgj");
-//        post.setTime(LocalDateTime.now());
+//        post.setTime(localDateTime);
 //        post.setModerationStatus(ModerationStatus.ACCEPTED);
 //
 //        postRepository.save(post);
-
-//        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "postVotes"));
-//        postRepository.findDistinctByActiveAndModerationStatus((byte)1,ModerationStatus.ACCEPTED,pageable);
-//        postRepository.findAllByActiveAndModerationStatusAndTitleContaining(
-//                (byte)1,ModerationStatus.ACCEPTED, "asd", pageable);
+//
+//        Pageable pageable = PageRequest.of(0, 10);
+//
+//        String date = "2020-02-06%";
+//        postRepository.findAllByTimeContaining(date, pageable);
+//        System.out.println();
 //    }
 
     /**
      * Возвращает коллекцию всех постов
      */
     public List<Post> findAll(Integer offset, Integer limit, String mode) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "time");
+        Sort sort;
 
         switch (mode) {
-            case "recent":
-                sort = Sort.by(Sort.Direction.DESC, "time");
-                break;
             case "best":
                 sort = Sort.by(Sort.Direction.ASC, "postVotes");
                 break;
@@ -60,6 +60,9 @@ public class PostService {
             case "early":
                 sort = Sort.by(Sort.Direction.ASC, "time");
                 break;
+            default:
+                sort = Sort.by(Sort.Direction.DESC, "time");
+                break;
         }
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
@@ -67,20 +70,32 @@ public class PostService {
         return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
     }
 
+    /**
+     * Выдает коллекцию постов найденых по слову в заголовке
+     */
     public List<Post> findBySearch(Integer offset, Integer limit, String query) {
         if (!query.isEmpty()) {
             Pageable pageable = PageRequest.of(offset, limit);
             return postRepository.findAllByActiveAndModerationStatusAndTitleContaining(
-                            (byte) 1, ModerationStatus.ACCEPTED, query, pageable);
+                    (byte) 1, ModerationStatus.ACCEPTED, query, pageable);
         }
         return findAll(offset, limit, "");
     }
 
 
+    /**
+     * Выдает пост найденый по id
+     */
     public Post getPostFromRepositoryById(Integer id) {
         Optional<Post> optionalPost = postRepository
                 .findByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
         return optionalPost.orElse(null);
     }
+
+    public List<Post> findPostsByDate(Integer offset, Integer limit, String date){
+        Pageable pageable = PageRequest.of(offset, limit);
+        return postRepository.findAllByTimeContaining(date + "%", pageable);
+    }
+
 
 }

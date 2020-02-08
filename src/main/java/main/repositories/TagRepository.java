@@ -15,4 +15,9 @@ public interface TagRepository extends CrudRepository<Tag, Integer> {
      * Поиск тэга по его id
      */
     Optional<Tag> findById(Integer id);
+
+    /**
+     * Поиск тега по названию
+     */
+    Optional<Tag> findByNameLike(String name);
 }

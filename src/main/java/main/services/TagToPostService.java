@@ -19,9 +19,16 @@ public class TagToPostService {
     private TagToPostRepository tagToPostRepository;
 
     /**
-     * Выдает колекцию связей постов и тегов
+     * Выдает колекцию связей постов и тегов по id поста
      */
-    public List<TagToPost> getTagtoPostById(Integer id) {
+    public List<TagToPost> getTagtoPostByPostId(Integer id) {
         return tagToPostRepository.findAllByPostId(id);
+    }
+
+    /**
+     * Выдает колекцию связей постов и тегов по id тэга
+     */
+    public List<TagToPost> getTagtoPostByTagId(Integer id) {
+        return tagToPostRepository.findAllByTagId(id);
     }
 }
