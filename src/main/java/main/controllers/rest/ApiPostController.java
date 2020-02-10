@@ -60,7 +60,7 @@ public class ApiPostController {
      */
     @GetMapping("{id}")
     public ResponseEntity<PostByIdDto> getPostById(@PathVariable Integer id) {
-        Post postById = postService.getPostFromRepositoryById(id);
+        Post postById = postService.getPostById(id);
         UserDto userDto = userService.getUserById(postById.getUserId());
         Integer postId = postById.getId();
         LocalDateTime time = postById.getTime();
@@ -114,14 +114,14 @@ public class ApiPostController {
     public ResponseEntity<PostList> getPostsByTagName(@RequestParam Integer offset,
                                                       @RequestParam Integer limit,
                                                       @RequestParam String tagName) {
-        List<Post> posts = new ArrayList<>();
-        List<PostDto> allPosts = transformCollectionForFront(posts);
+        List<Integer> postsId = new ArrayList<>();
+
         Tag tag = tagService.getByName(tagName);
         List<TagToPost> tagToPosts = tagToPostService.getTagtoPostByTagId(tag.getId());
-        tagToPosts.forEach(tagToPost -> {
-            Post post = postService.getPostFromRepositoryById(tagToPost.getPostId());
-            posts.add(post);
-        });
+        tagToPosts.forEach(tagToPost -> postsId.add(tagToPost.getPostId()));
+
+        List<Post> posts = postService.getPostsById(postsId);
+        List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
         return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, tagName));

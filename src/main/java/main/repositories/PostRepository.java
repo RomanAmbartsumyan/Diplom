@@ -29,7 +29,12 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                                    String title, Pageable pageable);
 
     /**
-     * Поиск поста по id, активности, статусу модерации
+     * Поиск постов по id, активности, статусу модерации
+     */
+    List<Post> findAllByIdAndActiveAndModerationStatus(List<Integer> id, Byte active, ModerationStatus moderationStatus);
+
+    /**
+     * Поиск постf по id, активности, статусу модерации
      */
     Optional<Post> findByIdAndActiveAndModerationStatus(Integer id, Byte active, ModerationStatus moderationStatus);
 

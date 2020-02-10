@@ -84,12 +84,18 @@ public class PostService {
 
 
     /**
-     * Выдает пост найденый по id
+     * Выдает посты найденые по id
      */
-    public Post getPostFromRepositoryById(Integer id) {
-        Optional<Post> optionalPost = postRepository
-                .findByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
-        return optionalPost.orElse(null);
+    public List<Post> getPostsById(List<Integer> id) {
+        return postRepository.findAllByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
+    }
+
+    /**
+     * Выдает конкретный пост по id
+     */
+    public Post getPostById(Integer id){
+        Optional<Post> post = postRepository.findByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
+        return post.orElse(null);
     }
 
     public List<Post> findPostsByDate(Integer offset, Integer limit, String date){
