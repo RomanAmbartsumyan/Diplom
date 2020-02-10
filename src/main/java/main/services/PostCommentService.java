@@ -1,7 +1,7 @@
 package main.services;
 
 import main.models.PostComment;
-import main.models.repositories.PostCommentRepository;
+import main.repositories.PostCommentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

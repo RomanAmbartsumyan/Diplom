@@ -8,9 +8,24 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class PostSearch {
+    /**
+     * Кол-во постов найденых по поиску
+     */
     private Integer count;
-    private List<Posts> posts;
+    /**
+     * Коллекция постов
+     */
+    private List<PostDto> posts;
+    /**
+     * Параметр передается с фронта
+     */
     private Integer offset;
+    /**
+     * Параметр передается с фронта
+     */
     private Integer limit;
+    /**
+     * Параметр передается с фронта
+     */
     private String query;
 }

@@ -1,6 +1,6 @@
 package main.services;
 
-import main.models.repositories.GlobalSettingRepository;
+import main.repositories.GlobalSettingRepository;
 import org.springframework.stereotype.Service;
 
 @Service

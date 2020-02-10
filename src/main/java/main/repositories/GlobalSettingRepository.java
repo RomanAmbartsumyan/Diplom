@@ -1,4 +1,4 @@
-package main.models.repositories;
+package main.repositories;
 
 import main.models.GlobalSetting;
 import org.springframework.data.repository.CrudRepository;
