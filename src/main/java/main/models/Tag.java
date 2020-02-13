@@ -18,7 +18,7 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     /**
-     * название тега
+     * Название тега
      */
     private String name;
 }

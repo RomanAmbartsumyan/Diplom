@@ -45,9 +45,9 @@ public class PostService {
 //    }
 
     /**
-     * Возвращает коллекцию всех постов
+     * Возвращает отсортированую коллекцию всех постов
      */
-    public List<Post> findAll(Integer offset, Integer limit, String mode) {
+    public List<Post> findAllAndSort(Integer offset, Integer limit, String mode) {
         Sort sort;
 
         switch (mode) {
@@ -79,15 +79,15 @@ public class PostService {
             return postRepository.findAllByActiveAndModerationStatusAndTitleContaining(
                     (byte) 1, ModerationStatus.ACCEPTED, query, pageable);
         }
-        return findAll(offset, limit, "");
+        return findAllAndSort(offset, limit, "");
     }
 
 
     /**
      * Выдает посты найденые по id
      */
-    public List<Post> getPostsById(List<Integer> id) {
-        return postRepository.findAllByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
+    public List<Post> getAllPostsById(List<Integer> id) {
+        return postRepository.findByIdIn(id);
     }
 
     /**
@@ -98,10 +98,19 @@ public class PostService {
         return post.orElse(null);
     }
 
+    /**
+     * Выдает посты за конкретную дату
+     */
     public List<Post> findPostsByDate(Integer offset, Integer limit, String date){
         Pageable pageable = PageRequest.of(offset, limit);
         return postRepository.findAllByTimeContaining(date + "%", pageable);
     }
 
+    /**
+     * Выдает все активные, принятые модератером посты
+     */
+    public List<Post> findAll(){
+        return postRepository.findAllByActiveAndModerationStatus();
+    }
 
 }

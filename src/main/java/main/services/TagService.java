@@ -5,7 +5,7 @@ import main.models.Tag;
 import main.repositories.TagRepository;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,11 +19,12 @@ public class TagService {
      */
     private TagRepository tagRepository;
 
-    @PostConstruct
-    public void init() {
-        tagRepository.findByNameLike("asd");
-        System.out.println();
-    }
+//    @PostConstruct
+//    public void init() {
+//        Tag tag = new Tag();
+//        tag.setName("sajd");
+//        tagRepository.save(tag);
+//    }
 
     /**
      * Выдает тег по Id
@@ -40,4 +41,15 @@ public class TagService {
         Optional<Tag> optionalTag = tagRepository.findByNameLike(name);
         return optionalTag.orElse(null);
     }
+
+    /**
+     * Если запрос пустой выдает все теги, если нет, то конкретные содержащие данное название
+     */
+    public List<Tag> getAllTagsOrFindByName(String query){
+        if (query.isEmpty()){
+            return tagRepository.findAll();
+        }
+        return  tagRepository.findAllByNameContains(query);
+    }
+
 }

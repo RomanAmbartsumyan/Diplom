@@ -11,5 +11,8 @@ import java.util.List;
  */
 @Repository
 public interface PostVoteRepository extends CrudRepository<PostVote, Integer> {
+    /**
+     * Поиск информации по лайкам и дизлайкам к посту
+     */
     List<PostVote> findAllByPostId(Integer id);
 }

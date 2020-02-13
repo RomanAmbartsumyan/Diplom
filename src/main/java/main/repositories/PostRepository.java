@@ -31,10 +31,12 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
     /**
      * Поиск постов по id, активности, статусу модерации
      */
-    List<Post> findAllByIdAndActiveAndModerationStatus(List<Integer> id, Byte active, ModerationStatus moderationStatus);
+    @Query(value = "SELECT * FROM post WHERE id IN :ids AND is_active LIKE 1 " +
+            "AND moderation_status LIKE 1 ", nativeQuery = true)
+    List<Post> findByIdIn(@Param("ids")List<Integer> ids);
 
     /**
-     * Поиск постf по id, активности, статусу модерации
+     * Поиск посты по id, активности, статусу модерации
      */
     Optional<Post> findByIdAndActiveAndModerationStatus(Integer id, Byte active, ModerationStatus moderationStatus);
 
@@ -44,4 +46,10 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
     @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 1 " +
             "and time like :like_time", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time, Pageable pageable);
+
+    /**
+     * Поиск всех постов
+     */
+    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status", nativeQuery = true)
+    List<Post> findAllByActiveAndModerationStatus();
 }

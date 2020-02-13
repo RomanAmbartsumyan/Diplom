@@ -34,7 +34,7 @@ public class ApiPostController {
                                              @RequestParam Integer limit,
                                              @RequestParam String mode) {
 
-        List<Post> posts = postService.findAll(offset, limit, mode);
+        List<Post> posts = postService.findAllAndSort(offset, limit, mode);
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
@@ -120,7 +120,7 @@ public class ApiPostController {
         List<TagToPost> tagToPosts = tagToPostService.getTagtoPostByTagId(tag.getId());
         tagToPosts.forEach(tagToPost -> postsId.add(tagToPost.getPostId()));
 
-        List<Post> posts = postService.getPostsById(postsId);
+        List<Post> posts = postService.getAllPostsById(postsId);
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
