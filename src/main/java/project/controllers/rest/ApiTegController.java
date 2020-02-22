@@ -32,10 +32,10 @@ public class ApiTegController {
      * Выдает посты по поиску или все если поиск пустой
      */
     @GetMapping
-    public ResponseEntity<TagsDto> getTags(@RequestParam String query){
+    public ResponseEntity<TagsDto> getTagByName(@RequestParam String query){
         List<TagDto> tagsDto = new ArrayList<>();
         List<Tag> tags = tagService.getAllTagsOrFindByName(query);
-        Integer countPostsActiveAndModerationAccept = postService.countPosts();
+        Integer countPostsActiveAndModerationAccept = postService.countPostsActiveAndAccessModerator();
         Map<String, Integer> tagsAngPosts = new HashMap<>();
         tags.forEach(tag -> {
             Integer countPosts = tagToPost.countPostsWithTag(tag.getId());

@@ -9,6 +9,9 @@ import project.models.ModerationStatus;
 import project.models.Post;
 import project.repositories.PostRepository;
 
+import javax.annotation.PostConstruct;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,26 +26,13 @@ public class PostService {
      */
     private PostRepository postRepository;
 
-//    @PostConstruct
-//    public void init() {
-//        Post post = new Post();
-//
-//        LocalDateTime localDateTime = LocalDateTime.now();
-//
-//        post.setActive((byte) 1);
-//        post.setText("541613216");
-//        post.setTitle("poi kfgj");
-//        post.setTime(localDateTime);
-//        post.setModerationStatus(ModerationStatus.ACCEPTED);
-//
-//        postRepository.save(post);
-//
-//        Pageable pageable = PageRequest.of(0, 10);
-//
-//        String date = "2020-02-06%";
-//        postRepository.findAllByTimeContaining(date, pageable);
-//        System.out.println();
-//    }
+    @PostConstruct
+    public void init() {
+
+        String date = "2020-02-06%";
+        postRepository.countAllByTimeContaining(date);
+        System.out.println();
+    }
 
     /**
      * Возвращает отсортированую коллекцию всех постов
@@ -93,7 +83,7 @@ public class PostService {
     /**
      * Выдает конкретный пост по id
      */
-    public Post getPostById(Integer id){
+    public Post getPostById(Integer id) {
         Optional<Post> post = postRepository.findByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
         return post.orElse(null);
     }
@@ -101,7 +91,7 @@ public class PostService {
     /**
      * Выдает посты за конкретную дату
      */
-    public List<Post> findPostsByDate(Integer offset, Integer limit, String date){
+    public List<Post> findPostsByDate(Integer offset, Integer limit, String date) {
         Pageable pageable = PageRequest.of(offset, limit);
         return postRepository.findAllByTimeContaining(date + "%", pageable);
     }
@@ -109,7 +99,23 @@ public class PostService {
     /**
      * Выдает количество активных постов  и принятых модератови
      */
-    public Integer countPosts(){
+    public Integer countPostsActiveAndAccessModerator() {
         return postRepository.countByActiveAndModerationStatus();
+    }
+
+    /**
+     * Выдает посты за конкретный год
+     */
+    public List<Post> findPostsByDate(String year) {
+        if (year.isEmpty()) {
+            LocalDate localDate = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+            return postRepository.findAllByTimeContaining(localDate.format(formatter) + "%");
+        }
+        return postRepository.findAllByTimeContaining(year + "%");
+    }
+
+    public Integer countPostsByYear(String date) {
+        return postRepository.countAllByTimeContaining(date + "%");
     }
 }
