@@ -107,12 +107,13 @@ public class PostService {
      * Выдает посты за конкретный год
      */
     public List<Post> findPostsByDate(String year) {
-        if (year.isEmpty()) {
+        List<Post> posts = postRepository.findAllByTimeContaining(year + "%");
+        if (posts.isEmpty()) {
             LocalDate localDate = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
             return postRepository.findAllByTimeContaining(localDate.format(formatter) + "%");
         }
-        return postRepository.findAllByTimeContaining(year + "%");
+        return posts;
     }
 
     public Integer countPostsByYear(String date) {
