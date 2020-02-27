@@ -11,7 +11,10 @@ import project.models.Post;
 import project.services.PostService;
 
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.reverseOrder;
@@ -27,13 +30,13 @@ public class ApiCalendarController {
 
     @GetMapping
     public ResponseEntity getPostsByDate(@RequestParam String year){
-        Set<String> years = new HashSet<>();
+        List<String> years = postService.getYears();
         List<Post> posts = postService.findPostsByDate(year);
         Map<String, Integer> postsAndCount = new HashMap<>();
         posts.forEach(post ->{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String postDate = post.getTime().format(formatter);
-            Integer countPostsByDate = postService.countPostsByYear(postDate);
+            Integer countPostsByDate = postService.countPostsByDate(postDate);
             postsAndCount.put(postDate, countPostsByDate);
         });
         Map<String, Integer> sortedPostsAndCountByValue = postsAndCount
@@ -45,7 +48,6 @@ public class ApiCalendarController {
                         Map.Entry::getValue,
                         (k, v) -> k, LinkedHashMap::new
                 ));
-        years.add(year);
         return ResponseEntity.ok(new PostsByYearDto(years, sortedPostsAndCountByValue));
     }
 }

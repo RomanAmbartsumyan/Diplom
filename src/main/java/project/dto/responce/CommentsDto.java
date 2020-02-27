@@ -19,7 +19,7 @@ public class CommentsDto {
     /**
      * Информация о пользователе оставивший комментарий
      */
-    private UserFullInformation user;
+    private UserWithPhotoInformation user;
     /**
      * Текст комментария
      */

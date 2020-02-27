@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserFullInformation {
     /**
-     * Id пользователя
+     * id пользователя
      */
     private Integer id;
     /**
@@ -15,7 +15,28 @@ public class UserFullInformation {
      */
     private String name;
     /**
-     * Фотография пользователя
+     * Аватар пользователя
      */
     private String photo;
+    /**
+     * email пользователя
+     */
+    private String email;
+    /**
+     * Яляется ли пользователь модератером
+     * 1 - является
+     * 0 - не является
+     */
+    private boolean moderation;
+    /**
+     * Колличество модераций
+     */
+    private Integer moderationCount;
+    /**
+     * Доступ к настройкам блога
+     * true - есть доступ
+     * false - если доступа нет
+     */
+    private boolean settings;
+
 }

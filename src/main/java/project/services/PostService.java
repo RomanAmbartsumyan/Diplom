@@ -9,7 +9,6 @@ import project.models.ModerationStatus;
 import project.models.Post;
 import project.repositories.PostRepository;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,13 +25,18 @@ public class PostService {
      */
     private PostRepository postRepository;
 
-    @PostConstruct
-    public void init() {
-
-        String date = "2020-02-06%";
-        postRepository.countAllByTimeContaining(date);
-        System.out.println();
-    }
+//    @PostConstruct
+//    public void init() {
+//
+//        Post post = new Post();
+//        LocalDateTime time = LocalDateTime.now().minusYears(1);
+//        post.setActive((byte) 1);
+//        post.setTime(time);
+//        post.setModerationStatus(ModerationStatus.NEW);
+//        postRepository.save(post);
+//        postRepository.countALLByModerationStatusIsNew();
+//        System.out.println();
+//    }
 
     /**
      * Возвращает отсортированую коллекцию всех постов
@@ -116,7 +120,24 @@ public class PostService {
         return posts;
     }
 
-    public Integer countPostsByYear(String date) {
+    /**
+     * Количество постов за конкретную дату
+     */
+    public Integer countPostsByDate(String date) {
         return postRepository.countAllByTimeContaining(date + "%");
+    }
+
+    /**
+     * Выдает список готов в которых были посты
+     */
+    public List<String> getYears(){
+        return postRepository.findAllYear();
+    }
+
+    /**
+     * Выдает кол-во новых постов
+     */
+    public Integer getCountOfNewPosts(){
+        return postRepository.countALLByModerationStatusIsNew();
     }
 }

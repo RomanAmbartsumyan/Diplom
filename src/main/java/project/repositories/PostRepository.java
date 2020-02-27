@@ -65,4 +65,16 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
      */
     @Query(value = "SELECT COUNT(*) FROM post WHERE time like :like_time", nativeQuery = true)
     Integer countAllByTimeContaining(@Param("like_time") String time);
+
+    /**
+     * Список годов в которых были посты
+     */
+    @Query(value = "SELECT DISTINCT YEAR (time) FROM post", nativeQuery = true)
+    List<String> findAllYear();
+
+    /**
+     * Выдает кол-во новых постов
+     */
+    @Query(value = "SELECT COUNT(*) FROM post WHERE moderation_status = 0", nativeQuery = true)
+    Integer countALLByModerationStatusIsNew();
 }

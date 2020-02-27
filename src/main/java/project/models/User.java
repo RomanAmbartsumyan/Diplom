@@ -48,4 +48,9 @@ public class User {
      */
     @Column(name = "is_moderator")
     private Byte moderator;
+
+    /**
+     * email пользователя
+     */
+    private String email;
 }
