@@ -1,6 +1,7 @@
 package project.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.dto.responce.UserDto;
 import project.dto.responce.UserWithPhotoInformation;
@@ -30,13 +31,25 @@ public class UserService {
 //        userRepository.save(user);
 //    }
     /**
-     * Выдает пользователя по id
+     * Выдает пользователя по id в формате UserDto
      */
-    public UserDto getUserById(Integer id) {
-        Optional<User> userById = userRepository.findById(id);
-        return userById.map(user -> new UserDto(user.getId(), user.getName()))
+    public UserDto getUserDtoById(Integer id) {
+        Optional<User> userDtoById = userRepository.findById(id);
+        return userDtoById.map(user -> new UserDto(user.getId(), user.getName()))
                 .orElse(null);
     }
+
+    /**
+     * Выдает пользователя по id
+     */
+    public User getUserById(Integer id){
+        if(id != null){
+            Optional<User> userById = userRepository.findById(id);
+            return userById.orElse(null);
+        }
+        return null;
+    }
+
 
     /**
      * Выдает пользователя по id автора
@@ -51,8 +64,15 @@ public class UserService {
      * Выдает пользователя по email и поролю
      */
     public User getUserByEmailAndPassword(String email, String password){
-        Optional<User> optionalUser = userRepository.findByEmailAndPassword(email, password);
-        return optionalUser.orElse(null);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if(optionalUser.isPresent()){
+            boolean auth = new BCryptPasswordEncoder().matches(password, optionalUser.get().getPassword());
+            if(auth){
+                return optionalUser.get();
+            }
+            return null;
+        }
+        return null;
     }
 
 }

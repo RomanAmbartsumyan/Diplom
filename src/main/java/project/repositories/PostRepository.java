@@ -2,7 +2,7 @@ package project.repositories;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import project.models.ModerationStatus;
@@ -15,7 +15,7 @@ import java.util.Optional;
  * Репозиторий постов
  */
 @Repository
-public interface PostRepository extends PagingAndSortingRepository<Post, Integer> {
+public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Поиск всех постов по активности и статусу модерации
      */

@@ -61,7 +61,7 @@ public class ApiPostController {
     @GetMapping("{id}")
     public ResponseEntity<PostByIdDto> getPostById(@PathVariable Integer id) {
         Post postById = postService.getPostById(id);
-        UserDto userDto = userService.getUserById(postById.getUserId());
+        UserDto userDto = userService.getUserDtoById(postById.getUserId());
         Integer postId = postById.getId();
         LocalDateTime time = postById.getTime();
         String title = postById.getTitle();
@@ -133,7 +133,7 @@ public class ApiPostController {
     private List<PostDto> transformCollectionForFront(List<Post> posts) {
         List<PostDto> allPosts = new ArrayList<>();
         posts.forEach(post -> {
-            UserDto userDto = userService.getUserById(post.getUserId());
+            UserDto userDto = userService.getUserDtoById(post.getUserId());
             List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post.getId());
 
             int quantityComment = postCommentService.allPostComments(post.getId()).size();
