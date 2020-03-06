@@ -9,6 +9,7 @@ import project.models.User;
 import project.repositories.UserRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Сервис для работы с БД пользователей
@@ -20,16 +21,12 @@ public class UserService {
      * Репозиторий пользователей
      */
     private UserRepository userRepository;
+    /**
+     * Отправка почты
+     */
+    private MailSender mailSender;
 
-//    @PostConstruct
-//    public void init(){
-//        User user = new User();
-//        user.setPassword("u");
-//        user.setModerator((byte) 1);
-//        user.setEmail("qwe@mail.ru");
-//        user.setPassword("u");
-//        userRepository.save(user);
-//    }
+
     /**
      * Выдает пользователя по id в формате UserDto
      */
@@ -73,6 +70,23 @@ public class UserService {
             return null;
         }
         return null;
+    }
+
+    /**
+     * Проверка пользователя в базе для восстановления пароля
+     * true - пользователь найден, сгенирирован код и отправлено письмо на почту
+     * false - пользователь не найден
+     */
+    public boolean isPasswordChanged(String email){
+        User userFromDb = userRepository.findByEmail(email).orElse(null);
+        if(userFromDb != null){
+            String hashCode = UUID.randomUUID().toString();
+            userFromDb.setCode(hashCode);
+            String passwordRecovery = "http://localhost:8080/login/change-password/" + hashCode;
+            mailSender.send(userFromDb.getEmail(), "Восстановление пароля", passwordRecovery);
+            return true;
+        }
+        return false;
     }
 
 }

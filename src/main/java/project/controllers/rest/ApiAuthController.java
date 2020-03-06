@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import project.dto.responce.AuthUser;
+import project.dto.responce.PasswordRecoveryDto;
 import project.dto.responce.UnauthorizedUserDTO;
 import project.dto.responce.UserFullInformation;
 import project.models.User;
@@ -30,7 +31,7 @@ public class ApiAuthController {
     /**
      * Вход пользователя
      */
-    @PostMapping(value = "/login",
+    @PostMapping(value = "login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> loginUser(@RequestBody @Valid UnauthorizedUserDTO user) {
@@ -38,6 +39,9 @@ public class ApiAuthController {
         return getUserResponseEntity(userFromDB);
     }
 
+    /**
+     * Проверка авторизации пользователя
+     */
     @GetMapping("check")
     public ResponseEntity<?> checkUser() {
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
@@ -45,6 +49,24 @@ public class ApiAuthController {
         User userFromDB = userService.getUserById(userId);
         return getUserResponseEntity(userFromDB);
     }
+
+    /**
+     * Восстановление пароля
+     */
+    @PostMapping(value = "restore",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> passwordRecovery(@RequestBody @Valid PasswordRecoveryDto passwordRecoveryDto){
+        HashMap<String, String> result = new HashMap<>(1);
+        boolean isValid = userService.isPasswordChanged(passwordRecoveryDto.getEmail());
+        if(isValid){
+            result.put("result", "true");
+            return ResponseEntity.ok(result);
+        }
+        result.put("result", "false");
+        return ResponseEntity.ok(result);
+    }
+
 
     /**
      * Выдает в контроллер результат авторизации

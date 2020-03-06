@@ -25,19 +25,6 @@ public class PostService {
      */
     private PostRepository postRepository;
 
-//    @PostConstruct
-//    public void init() {
-//
-//        Post post = new Post();
-//        LocalDateTime time = LocalDateTime.now().minusYears(1);
-//        post.setActive((byte) 1);
-//        post.setTime(time);
-//        post.setModerationStatus(ModerationStatus.NEW);
-//        postRepository.save(post);
-//        postRepository.countALLByModerationStatusIsNew();
-//        System.out.println();
-//    }
-
     /**
      * Возвращает отсортированую коллекцию всех постов
      */
@@ -88,7 +75,8 @@ public class PostService {
      * Выдает конкретный пост по id
      */
     public Post getPostById(Integer id) {
-        Optional<Post> post = postRepository.findByIdAndActiveAndModerationStatus(id, (byte) 1, ModerationStatus.ACCEPTED);
+        Optional<Post> post = postRepository.findByIdAndActiveAndModerationStatus(id, (byte) 1,
+                ModerationStatus.ACCEPTED);
         return post.orElse(null);
     }
 

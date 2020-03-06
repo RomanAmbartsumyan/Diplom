@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import project.models.TagToPost;
 import project.repositories.TagToPostRepository;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
@@ -19,26 +18,17 @@ public class TagToPostService {
      */
     private TagToPostRepository tagToPostRepository;
 
-    @PostConstruct
-    public void init() {
-        TagToPost tagToPost = new TagToPost();
-        tagToPost.setTagId(345);
-        tagToPostRepository.save(tagToPost);
-        tagToPostRepository.countAllByTagId(345);
-        System.out.println();
-    }
-
     /**
      * Выдает колекцию связей постов и тегов по id поста
      */
-    public List<TagToPost> getTagtoPostByPostId(Integer id) {
+    public List<TagToPost> getTagToPostByPostId(Integer id) {
         return tagToPostRepository.findAllByPostId(id);
     }
 
     /**
      * Выдает колекцию связей постов и тегов по id тэга
      */
-    public List<TagToPost> getTagtoPostByTagId(Integer id) {
+    public List<TagToPost> getTagToPostByTagId(Integer id) {
         return tagToPostRepository.findAllByTagId(id);
     }
 

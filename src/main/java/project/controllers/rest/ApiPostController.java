@@ -81,7 +81,7 @@ public class ApiPostController {
         });
 
         List<String> tagNames = new ArrayList<>();
-        List<TagToPost> tagToPosts = tagToPostService.getTagtoPostByPostId(postById.getId());
+        List<TagToPost> tagToPosts = tagToPostService.getTagToPostByPostId(postById.getId());
         tagToPosts.forEach(tagToPost -> {
             Tag tag = tagService.getTagById(tagToPost.getTagId());
             tagNames.add(tag.getName());
@@ -117,7 +117,7 @@ public class ApiPostController {
         List<Integer> postsId = new ArrayList<>();
 
         Tag tag = tagService.getByName(tagName);
-        List<TagToPost> tagToPosts = tagToPostService.getTagtoPostByTagId(tag.getId());
+        List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tag.getId());
         tagToPosts.forEach(tagToPost -> postsId.add(tagToPost.getPostId()));
 
         List<Post> posts = postService.getAllPostsById(postsId);

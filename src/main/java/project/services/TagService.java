@@ -19,13 +19,6 @@ public class TagService {
      */
     private TagRepository tagRepository;
 
-//    @PostConstruct
-//    public void init() {
-//        Tag tag = new Tag();
-//        tag.setName("sajd");
-//        tagRepository.save(tag);
-//    }
-
     /**
      * Выдает тег по Id
      */
