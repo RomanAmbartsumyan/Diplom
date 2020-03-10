@@ -82,7 +82,8 @@ public class UserService {
         if(userFromDb != null){
             String hashCode = UUID.randomUUID().toString();
             userFromDb.setCode(hashCode);
-            String passwordRecovery = "http://localhost:8080/login/change-password/" + hashCode;
+            String passwordRecovery = "<a href=\"url\">http://localhost:8080/login/change-password/"
+                    + hashCode + "</a>";
             mailSender.send(userFromDb.getEmail(), "Восстановление пароля", passwordRecovery);
             return true;
         }

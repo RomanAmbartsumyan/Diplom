@@ -5,15 +5,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
-import project.dto.responce.AuthUser;
-import project.dto.responce.PasswordRecoveryDto;
-import project.dto.responce.UnauthorizedUserDTO;
-import project.dto.responce.UserFullInformation;
+import project.dto.responce.*;
+import project.models.CaptchaCode;
 import project.models.User;
+import project.services.CaptchaCodeService;
 import project.services.PostService;
 import project.services.UserService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +26,7 @@ import java.util.Map;
 public class ApiAuthController {
     private UserService userService;
     private PostService postService;
+    private CaptchaCodeService captchaCodeService;
     private Map<String, Integer> authUsers;
 
     /**
@@ -65,6 +66,16 @@ public class ApiAuthController {
         }
         result.put("result", "false");
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("captcha")
+    public ResponseEntity<CaptchaDto> getCaptcha(){
+        CaptchaCode captchaCode = captchaCodeService.getCaptcha();
+        LocalDateTime time = LocalDateTime.now();
+        if(time.isAfter(captchaCode.getTime().plusHours(1))){
+            captchaCodeService.deleteCaptcha(captchaCode.getId());
+        }
+        return ResponseEntity.ok(new CaptchaDto(captchaCode.getSecretCode(), captchaCode.getCode()));
     }
 
 

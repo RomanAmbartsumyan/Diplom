@@ -30,11 +30,11 @@ public class CaptchaCode {
     /**
      * Код отображаемы на картинке
      */
-    private Byte code;
+    private String code;
 
     /**
      * Код передаваемый в параметре
      */
     @Column(name = "secret_code")
-    private Byte secretCode;
+    private String secretCode;
 }
