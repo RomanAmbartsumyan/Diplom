@@ -30,29 +30,29 @@ public class ApiPostController {
      * Вывод всех постов на главную страницу
      */
     @GetMapping
-    public ResponseEntity<PostList> postList(@RequestParam Integer offset,
-                                             @RequestParam Integer limit,
-                                             @RequestParam String mode) {
+    public ResponseEntity<PostListDto> postList(@RequestParam Integer offset,
+                                                @RequestParam Integer limit,
+                                                @RequestParam String mode) {
 
         List<Post> posts = postService.findAllAndSort(offset, limit, mode);
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
-        return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, mode));
+        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, mode));
     }
 
     /**
      * Выдает посты удовлетворяющие поиску
      */
     @GetMapping("search")
-    public ResponseEntity<PostSearch> postsBySearch(@RequestParam Integer offset,
-                                                    @RequestParam Integer limit,
-                                                    @RequestParam String query) {
+    public ResponseEntity<PostSearchDto> postsBySearch(@RequestParam Integer offset,
+                                                       @RequestParam Integer limit,
+                                                       @RequestParam String query) {
         List<Post> findingPost = postService.findBySearch(offset, limit, query);
         List<PostDto> allFindingPost = transformCollectionForFront(findingPost);
         Integer quantityPosts = allFindingPost.size();
 
-        return ResponseEntity.ok(new PostSearch(quantityPosts, allFindingPost, offset, limit, query));
+        return ResponseEntity.ok(new PostSearchDto(quantityPosts, allFindingPost, offset, limit, query));
     }
 
     /**
@@ -76,7 +76,7 @@ public class ApiPostController {
         List<CommentsDto> comments = new ArrayList<>();
 
         postComments.forEach(postComment -> {
-            UserWithPhotoInformation user = userService.getFullInformationById(postComment.getUserId());
+            UserWithPhotoInformationDto user = userService.getFullInformationById(postComment.getUserId());
             comments.add(new CommentsDto(postComment.getId(), postComment.getTime(), user, postComment.getText()));
         });
 
@@ -96,24 +96,24 @@ public class ApiPostController {
      * Выдает посты за конкретную дату
      */
     @GetMapping("byDate")
-    public ResponseEntity<PostList> getPostsByDate(@RequestParam Integer offset,
-                                                   @RequestParam Integer limit,
-                                                   @RequestParam String date) {
+    public ResponseEntity<PostListDto> getPostsByDate(@RequestParam Integer offset,
+                                                      @RequestParam Integer limit,
+                                                      @RequestParam String date) {
 
         List<Post> posts = postService.findPostsByDate(offset, limit, date);
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
-        return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, date));
+        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, date));
     }
 
     /**
      * Выдает посты по тегу
      */
     @GetMapping("byTag")
-    public ResponseEntity<PostList> getPostsByTagName(@RequestParam Integer offset,
-                                                      @RequestParam Integer limit,
-                                                      @RequestParam String tagName) {
+    public ResponseEntity<PostListDto> getPostsByTagName(@RequestParam Integer offset,
+                                                         @RequestParam Integer limit,
+                                                         @RequestParam String tagName) {
         List<Integer> postsId = new ArrayList<>();
 
         Tag tag = tagService.getByName(tagName);
@@ -124,7 +124,7 @@ public class ApiPostController {
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
-        return ResponseEntity.ok(new PostList(quantityPosts, allPosts, offset, limit, tagName));
+        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, tagName));
     }
 
     /**

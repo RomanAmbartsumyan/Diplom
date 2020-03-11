@@ -2,6 +2,7 @@ package project.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import project.dto.responce.CaptchaDto;
 import project.models.CaptchaCode;
 import project.repositories.CaptchaCodeRepository;
 
@@ -11,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -18,26 +20,42 @@ import java.util.Random;
 public class CaptchaCodeService {
     private CaptchaCodeRepository captchaCodeRepository;
 
-    public CaptchaCode getCaptcha(){
+    public CaptchaCode createCaptcha() {
         LocalDateTime time = LocalDateTime.now();
         CaptchaCode captchaCode = new CaptchaCode();
         captchaCode.setTime(time);
         String code = getRandomString();
-        captchaCode.setCode(getImageBase64(code, code.length()));
+        captchaCode.setCode(code);
         captchaCode.setSecretCode(getSecretCode());
         captchaCodeRepository.save(captchaCode);
         return captchaCode;
     }
 
-    public void deleteCaptcha(Integer id){
+    public boolean isValid(String code, String secretCode) {
+        Optional<CaptchaCode> optionalCaptchaCode =
+                captchaCodeRepository.findByCodeAndSecretCode(code, secretCode);
+        return optionalCaptchaCode.isPresent();
+    }
+
+    public CaptchaDto getCaptchaDto() {
+        CaptchaCode captchaCode = createCaptcha();
+        String captcha = getImageBase64(captchaCode.getCode(), 20);
+        LocalDateTime time = LocalDateTime.now();
+        if (time.isAfter(captchaCode.getTime().plusHours(1))) {
+            deleteCaptcha(captchaCode.getId());
+        }
+        return new CaptchaDto(captchaCode.getSecretCode(), captcha);
+    }
+
+    public void deleteCaptcha(Integer id) {
         captchaCodeRepository.deleteById(id);
     }
 
 
-    public String getImageBase64(String code, int codeLength) {
+    public String getImageBase64(String code, int codeSize) {
         BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
-        Font font = new Font("Times New Roman", Font.PLAIN, codeLength);
+        Font font = new Font("Times New Roman", Font.PLAIN, codeSize);
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
         int width = fm.stringWidth(code);
@@ -47,8 +65,8 @@ public class CaptchaCodeService {
         img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         g2d = img.createGraphics();
 
-        g2d.setPaint (Color.WHITE);
-        g2d.fillRect (0, 0, width, height);
+        g2d.setPaint(Color.WHITE);
+        g2d.fillRect(0, 0, width, height);
 
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -88,7 +106,7 @@ public class CaptchaCodeService {
 
         String code = "";
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 2; i++) {
             int capitalLetter = 65 + random.nextInt(26);
             code += capitalLetter;
         }
@@ -96,7 +114,7 @@ public class CaptchaCodeService {
         return code;
     }
 
-    private String getSecretCode(){
+    private String getSecretCode() {
         Random random = new Random();
         return random.ints(48, 122)
                 .filter(i -> (i < 57 || i > 65) && (i < 90 || i > 97))

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class PostSearch {
+public class PostSearchDto {
     /**
      * Кол-во постов найденых по поиску
      */

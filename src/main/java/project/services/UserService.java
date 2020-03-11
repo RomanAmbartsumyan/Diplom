@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.dto.responce.UserDto;
-import project.dto.responce.UserWithPhotoInformation;
+import project.dto.responce.UserWithPhotoInformationDto;
 import project.models.User;
 import project.repositories.UserRepository;
 
@@ -51,9 +51,9 @@ public class UserService {
     /**
      * Выдает пользователя по id автора
      */
-    public UserWithPhotoInformation getFullInformationById(Integer id) {
+    public UserWithPhotoInformationDto getFullInformationById(Integer id) {
         Optional<User> userById = userRepository.findById(id);
-        return userById.map(user -> new UserWithPhotoInformation(user.getId(), user.getName(), user.getPhoto()))
+        return userById.map(user -> new UserWithPhotoInformationDto(user.getId(), user.getName(), user.getPhoto()))
                 .orElse(null);
     }
 
@@ -70,6 +70,16 @@ public class UserService {
             return null;
         }
         return null;
+    }
+
+    public void createUser(String email, String name, String passwordFromUser){
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String password = passwordEncoder.encode(passwordFromUser);
+        user.setPassword(password);
+        userRepository.save(user);
     }
 
     /**

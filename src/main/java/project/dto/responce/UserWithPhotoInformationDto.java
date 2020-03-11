@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserWithPhotoInformation {
+public class UserWithPhotoInformationDto {
     /**
      * Id пользователя
      */

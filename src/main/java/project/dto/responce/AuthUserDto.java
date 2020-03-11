@@ -3,7 +3,7 @@ package project.dto.responce;
 import lombok.Data;
 
 @Data
-public class AuthUser {
+public class AuthUserDto {
     /**
      * Результат авторизации всегда true
      */
@@ -11,12 +11,12 @@ public class AuthUser {
     /**
      * Информация о пользователе
      */
-    private UserFullInformation user;
+    private UserFullInformationDto user;
 
     /**
      * Конструктор класса
      */
-    public AuthUser(UserFullInformation user) {
+    public AuthUserDto(UserFullInformationDto user) {
         this.user = user;
     }
 }

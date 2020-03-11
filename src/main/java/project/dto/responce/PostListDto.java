@@ -10,7 +10,7 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
-public class PostList {
+public class PostListDto {
     /**
      * Количество постов
      */

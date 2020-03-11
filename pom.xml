@@ -72,8 +72,6 @@
             <version>2.2.4.RELEASE</version>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
 
 </project>
