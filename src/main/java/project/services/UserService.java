@@ -100,4 +100,10 @@ public class UserService {
         return false;
     }
 
+    public void changePassword(String code, String password){
+        User user = userRepository.findByCode(code);
+        user.setPassword(password);
+        userRepository.save(user);
+    }
+
 }

@@ -40,15 +40,13 @@ public class CaptchaCodeService {
     public CaptchaDto getCaptchaDto() {
         CaptchaCode captchaCode = createCaptcha();
         String captcha = getImageBase64(captchaCode.getCode(), 20);
-        LocalDateTime time = LocalDateTime.now();
-        if (time.isAfter(captchaCode.getTime().plusHours(1))) {
-            deleteCaptcha(captchaCode.getId());
-        }
+        LocalDateTime time = LocalDateTime.now().minusHours(1);
+        deleteCaptcha(time);
         return new CaptchaDto(captchaCode.getSecretCode(), captcha);
     }
 
-    public void deleteCaptcha(Integer id) {
-        captchaCodeRepository.deleteById(id);
+    public void deleteCaptcha(LocalDateTime time) {
+        captchaCodeRepository.deleteAllByTimeBefore(time);
     }
 
 

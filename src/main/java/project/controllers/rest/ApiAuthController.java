@@ -12,7 +12,6 @@ import project.services.PostService;
 import project.services.UserService;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -56,13 +55,12 @@ public class ApiAuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> passwordRecovery(@RequestBody @Valid PasswordRecoveryDto passwordRecoveryDto) {
-        HashMap<String, String> result = new HashMap<>(1);
         boolean isValid = userService.isPasswordChanged(passwordRecoveryDto.getEmail());
+        ResultDto result = new ResultDto();
         if (isValid) {
-            result.put("result", "true");
+            result.setResult(true);
             return ResponseEntity.ok(result);
         }
-        result.put("result", "false");
         return ResponseEntity.ok(result);
     }
 
@@ -75,23 +73,34 @@ public class ApiAuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDto register) {
-        HashMap<String, String> result = new HashMap<>(1);
+        ResultDto result = new ResultDto();
         if(captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret())){
             userService.createUser(register.getEmail(), register.getName(), register.getPassword());
-            result.put("result", "true");
+            result.setResult(true);
             return ResponseEntity.ok(result);
         }
-        result.put("result", "false");
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping(value = "password",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordDto changePasswordDto){
+        ResultDto result = new ResultDto();
+        if(captchaCodeService.isValid(changePasswordDto.getCaptcha(), changePasswordDto.getCaptchaSecret())){
+            userService.changePassword(changePasswordDto.getCode(), changePasswordDto.getPassword());
+            result.setResult(true);
+            return ResponseEntity.ok(result);
+        }
+        return ResponseEntity.ok(result);
+    }
 
     /**
      * Выдает в контроллер результат авторизации
      * (устраняет дублирование кода)
      */
     private ResponseEntity<?> getUserResponseEntity(User userFromDB) {
-        Map<String, String> fallsAuth = new HashMap<>(1);
+        ResultDto result = new ResultDto();
         if (userFromDB != null) {
             Integer countNewPosts = null;
             if (userFromDB.getModerator() != null) {
@@ -99,10 +108,8 @@ public class ApiAuthController {
                 return getAuthUserResponseEntity(userFromDB, true, true, countNewPosts);
             }
             return getAuthUserResponseEntity(userFromDB, false, false, countNewPosts);
-        } else {
-            fallsAuth.put("result", "false");
         }
-        return ResponseEntity.ok(fallsAuth);
+        return ResponseEntity.ok(result);
     }
 
     /**

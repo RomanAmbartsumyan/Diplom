@@ -29,4 +29,12 @@ public class PostVoteService {
     public List<PostVote> getAllPostVotesByPostId(Integer id){
         return postVoteRepository.findAllByPostId(id);
     }
+
+    public Integer countLikes(){
+        return postVoteRepository.countAllLikes();
+    }
+
+    public Integer countDislikes(){
+        return postVoteRepository.countAllDislikes();
+    }
 }

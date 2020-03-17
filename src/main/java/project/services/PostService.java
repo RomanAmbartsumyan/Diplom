@@ -9,7 +9,9 @@ import project.models.ModerationStatus;
 import project.models.Post;
 import project.repositories.PostRepository;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +26,24 @@ public class PostService {
      * Репозиторий постов
      */
     private PostRepository postRepository;
+
+    @PostConstruct
+    public void init(){
+        for (int i = 0; i < 3; i++) {
+            Post post = new Post();
+            LocalDateTime time = LocalDateTime.now();
+            post.setTime(time);
+            postRepository.save(post);
+        }
+        for (int i = 0; i < 2; i++) {
+            Post post = new Post();
+            LocalDateTime time = LocalDateTime.now().minusHours(1);
+            post.setTime(time);
+            postRepository.save(post);
+        }
+        postRepository.firstPublication();
+        System.out.println();
+    }
 
     /**
      * Возвращает отсортированую коллекцию всех постов
@@ -118,14 +138,38 @@ public class PostService {
     /**
      * Выдает список готов в которых были посты
      */
-    public List<String> getYears(){
+    public List<String> getYears() {
         return postRepository.findAllYear();
     }
 
     /**
      * Выдает кол-во новых постов
      */
-    public Integer getCountOfNewPosts(){
+    public Integer getCountOfNewPosts() {
         return postRepository.countALLByModerationStatusIsNew();
     }
+
+    /**
+     * Выдает кол-во всех постов
+     */
+    public Integer getCountAllPosts(){
+        return postRepository.countAll();
+    }
+
+    /**
+     * Выдает кол-во просмотров постов
+     */
+    public Integer getCountViews(){
+        return postRepository.countViews();
+    }
+
+    public String dateOfFirstPublication(){
+        Optional<Post> post = postRepository.firstPublication();
+        if(post.isPresent()){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            return post.get().getTime().format(formatter);
+        }
+        return null;
+    }
+
 }

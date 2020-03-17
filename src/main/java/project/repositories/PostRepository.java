@@ -77,4 +77,19 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
      */
     @Query(value = "SELECT COUNT(*) FROM post WHERE moderation_status = 0", nativeQuery = true)
     Integer countALLByModerationStatusIsNew();
+
+    /**
+     * Кол-во всех постов
+     */
+    @Query(value = "SELECT COUNT(*) FROM post", nativeQuery = true)
+    Integer countAll();
+
+    /**
+     * Кол-во просмотров постов
+     */
+    @Query(value = "SELECT SUM(view_count) FROM post", nativeQuery = true)
+    Integer countViews();
+
+    @Query(value = "SELECT * FROM post ORDER BY time DESC limit 1", nativeQuery = true)
+    Optional<Post> firstPublication();
 }
