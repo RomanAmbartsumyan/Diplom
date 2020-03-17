@@ -5,14 +5,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
-import project.dto.responce.*;
+import project.dto.*;
 import project.models.User;
+import project.services.AuthService;
 import project.services.CaptchaCodeService;
 import project.services.PostService;
 import project.services.UserService;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 /**
  * Контроллер аутентификации
@@ -24,7 +24,8 @@ public class ApiAuthController {
     private UserService userService;
     private PostService postService;
     private CaptchaCodeService captchaCodeService;
-    private Map<String, Integer> authUsers;
+    private AuthService authService;
+
 
     /**
      * Вход пользователя
@@ -43,7 +44,7 @@ public class ApiAuthController {
     @GetMapping("check")
     public ResponseEntity<?> checkUser() {
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-        Integer userId = authUsers.get(sessionId);
+        Integer userId = authService.getUserId(sessionId);
         User userFromDB = userService.getUserById(userId);
         return getUserResponseEntity(userFromDB);
     }
@@ -123,7 +124,7 @@ public class ApiAuthController {
                 userFromDB.getName(), userFromDB.getPhoto(), userFromDB.getEmail(),
                 isModerator, countNewPosts, settings);
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-        authUsers.put(sessionId, userFromDB.getId());
+        authService.saveSession(sessionId, userFromDB.getId());
 
         return ResponseEntity.ok(new AuthUserDto(userFullInformation));
     }

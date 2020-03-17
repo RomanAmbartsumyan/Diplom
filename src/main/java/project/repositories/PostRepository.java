@@ -92,4 +92,6 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
 
     @Query(value = "SELECT * FROM post ORDER BY time DESC limit 1", nativeQuery = true)
     Optional<Post> firstPublication();
+
+    Integer countAllByActive(Byte active);
 }

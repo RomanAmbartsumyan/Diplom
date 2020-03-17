@@ -3,13 +3,15 @@ package project.controllers.rest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.dto.responce.*;
+import project.dto.*;
 import project.models.*;
 import project.services.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Контроллер постов
@@ -18,12 +20,13 @@ import java.util.List;
 @RequestMapping("/api/post/")
 @AllArgsConstructor
 public class ApiPostController {
-    private final PostService postService;
-    private final UserService userService;
-    private final PostCommentService postCommentService;
-    private final PostVoteService postVoteService;
-    private final TagService tagService;
-    private final TagToPostService tagToPostService;
+    private PostService postService;
+    private UserService userService;
+    private PostCommentService postCommentService;
+    private PostVoteService postVoteService;
+    private TagService tagService;
+    private TagToPostService tagToPostService;
+    private AuthService authService;
 
 
     /**
@@ -125,6 +128,23 @@ public class ApiPostController {
         Integer quantityPosts = allPosts.size();
 
         return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, tagName));
+    }
+
+    @GetMapping("moderation")
+    private ResponseEntity<ModerationPostsDto> getPostListOnModeration(Integer offset, Integer limit, String status){
+        if(authService.checkSession()){
+            Integer countPosts = postService.countActivePosts();
+            List<Post> posts = postService.activePostsOnModeration(offset, limit, status);
+
+            List<PostsOnModerationDto> postsOnModeration =  posts.stream().map(post -> {
+                User user = userService.getUserById(post.getUserId());
+                UserDto userDto = new UserDto(user.getId(), user.getName());
+                return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
+            }).collect(toList());
+
+            return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
+        }
+        return null;
     }
 
     /**

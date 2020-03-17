@@ -3,8 +3,8 @@ package project.services;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import project.dto.responce.UserDto;
-import project.dto.responce.UserWithPhotoInformationDto;
+import project.dto.UserDto;
+import project.dto.UserWithPhotoInformationDto;
 import project.models.User;
 import project.repositories.UserRepository;
 

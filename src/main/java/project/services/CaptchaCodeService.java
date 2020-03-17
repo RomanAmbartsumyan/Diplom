@@ -2,7 +2,7 @@ package project.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.dto.responce.CaptchaDto;
+import project.dto.CaptchaDto;
 import project.models.CaptchaCode;
 import project.repositories.CaptchaCodeRepository;
 

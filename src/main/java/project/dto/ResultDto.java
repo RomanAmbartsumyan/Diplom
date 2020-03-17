@@ -1,4 +1,4 @@
-package project.dto.responce;
+package project.dto;
 
 import lombok.Data;
 

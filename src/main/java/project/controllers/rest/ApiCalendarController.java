@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import project.dto.responce.PostsByYearDto;
+import project.dto.PostsByYearDto;
 import project.models.Post;
 import project.services.PostService;
 

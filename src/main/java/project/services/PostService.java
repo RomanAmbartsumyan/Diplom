@@ -28,7 +28,7 @@ public class PostService {
     private PostRepository postRepository;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         for (int i = 0; i < 3; i++) {
             Post post = new Post();
             LocalDateTime time = LocalDateTime.now();
@@ -109,7 +109,7 @@ public class PostService {
     }
 
     /**
-     * Выдает количество активных постов  и принятых модератови
+     * Выдает количество активных постов и принятых модератови
      */
     public Integer countPostsActiveAndAccessModerator() {
         return postRepository.countByActiveAndModerationStatus();
@@ -152,24 +152,43 @@ public class PostService {
     /**
      * Выдает кол-во всех постов
      */
-    public Integer getCountAllPosts(){
+    public Integer getCountAllPosts() {
         return postRepository.countAll();
     }
 
     /**
      * Выдает кол-во просмотров постов
      */
-    public Integer getCountViews(){
+    public Integer getCountViews() {
         return postRepository.countViews();
     }
 
-    public String dateOfFirstPublication(){
+    public String dateOfFirstPublication() {
         Optional<Post> post = postRepository.firstPublication();
-        if(post.isPresent()){
+        if (post.isPresent()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             return post.get().getTime().format(formatter);
         }
         return null;
     }
 
+    public Integer countActivePosts() {
+        return postRepository.countAllByActive((byte) 1);
+    }
+
+    public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        ModerationStatus moderationStatus;
+        switch (status) {
+            case "declined":
+                moderationStatus = ModerationStatus.DECLINED;
+                break;
+            case "accepted":
+                moderationStatus = ModerationStatus.ACCEPTED;
+                break;
+            default:
+                moderationStatus = ModerationStatus.NEW;
+        }
+        return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, moderationStatus, pageable);
+    }
 }
