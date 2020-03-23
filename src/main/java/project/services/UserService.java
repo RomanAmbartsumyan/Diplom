@@ -39,8 +39,8 @@ public class UserService {
     /**
      * Выдает пользователя по id
      */
-    public User getUserById(Integer id){
-        if(id != null){
+    public User getUserById(Integer id) {
+        if (id != null) {
             Optional<User> userById = userRepository.findById(id);
             return userById.orElse(null);
         }
@@ -60,26 +60,28 @@ public class UserService {
     /**
      * Выдает пользователя по email и поролю
      */
-    public User getUserByEmailAndPassword(String email, String password){
+    public User getUserByEmailAndPassword(String email, String password) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
-        if(optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             boolean auth = new BCryptPasswordEncoder().matches(password, optionalUser.get().getPassword());
-            if(auth){
+            if (auth) {
                 return optionalUser.get();
             }
-            return null;
         }
         return null;
     }
 
-    public void createUser(String email, String name, String passwordFromUser){
-        User user = new User();
-        user.setEmail(email);
-        user.setName(name);
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String password = passwordEncoder.encode(passwordFromUser);
-        user.setPassword(password);
-        userRepository.save(user);
+    public void createUser(String email, String name, String passwordFromUser) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if(user == null){
+            User createUser = new User();
+            createUser.setEmail(email);
+            createUser.setName(name);
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String password = passwordEncoder.encode(passwordFromUser);
+            createUser.setPassword(password);
+            userRepository.save(createUser);
+        }
     }
 
     /**
@@ -87,22 +89,24 @@ public class UserService {
      * true - пользователь найден, сгенирирован код и отправлено письмо на почту
      * false - пользователь не найден
      */
-    public boolean isPasswordChanged(String email){
+    public boolean isPasswordChanged(String email) {
         User userFromDb = userRepository.findByEmail(email).orElse(null);
-        if(userFromDb != null){
+        if (userFromDb != null) {
             String hashCode = UUID.randomUUID().toString();
             userFromDb.setCode(hashCode);
-            String passwordRecovery = "<a href=\"url\">http://localhost:8080/login/change-password/"
-                    + hashCode + "</a>";
+            String passwordRecovery = "http://localhost:8080/login/change-password/" + hashCode;
             mailSender.send(userFromDb.getEmail(), "Восстановление пароля", passwordRecovery);
+            userRepository.save(userFromDb);
             return true;
         }
         return false;
     }
 
-    public void changePassword(String code, String password){
+    public void changePassword(String code, String password) {
         User user = userRepository.findByCode(code);
-        user.setPassword(password);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encodePassword = encoder.encode(password);
+        user.setPassword(encodePassword);
         userRepository.save(user);
     }
 

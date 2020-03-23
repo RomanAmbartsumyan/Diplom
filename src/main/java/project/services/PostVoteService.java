@@ -1,9 +1,11 @@
 package project.services;
 
 import org.springframework.stereotype.Service;
+import project.models.Post;
 import project.models.PostVote;
 import project.repositories.PostVoteRepository;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
@@ -15,6 +17,19 @@ public class PostVoteService {
      * Репозиторий лайков и дизлайков
      */
     PostVoteRepository postVoteRepository;
+
+    @PostConstruct
+    public void init(){
+        for (int i = 0; i < 5; i++) {
+            PostVote vote = new PostVote();
+            vote.setValue((byte) 1);
+            postVoteRepository.save(vote);
+            Post post = new Post();
+            vote.setPostId(post);
+        }
+        System.out.println();
+    }
+
 
     /**
      * Конструктор лайков и дизлайков

@@ -29,6 +29,37 @@ public class ApiPostController {
     private AuthService authService;
 
 
+    @PostMapping
+    public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost){
+        if(authService.checkSession()) {
+            boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
+                    addPost.getTitle().length() > 500;
+            boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
+                    addPost.getText().length() > 500;
+
+            if (!tittle || !text) {
+                ErrorsMessageDto errorsMessage = new ErrorsMessageDto();
+                ErrorsDto error = new ErrorsDto();
+
+                if (!tittle) {
+                    error.setTitle("Заголовок не установлен");
+                    errorsMessage.setErrors(error);
+                }
+
+                if (!text) {
+                    error.setText("Текст публикации слишком короткий");
+                    errorsMessage.setErrors(error);
+                }
+                return ResponseEntity.ok(errorsMessage);
+            }
+            postService.createPost(addPost);
+
+            ResultDto result = new ResultDto();
+            result.setResult(true);
+            return ResponseEntity.ok(result);
+        }
+        return null;
+    }
     /**
      * Вывод всех постов на главную страницу
      */
@@ -76,19 +107,19 @@ public class ApiPostController {
         byte quantityDislike = (byte) (postVotes.size() - quantityLike);
 
         List<PostComment> postComments = postCommentService.allPostComments(id);
-        List<CommentsDto> comments = new ArrayList<>();
 
-        postComments.forEach(postComment -> {
+        List<CommentsDto> comments = postComments.stream().map(postComment -> {
             UserWithPhotoInformationDto user = userService.getFullInformationById(postComment.getUserId());
-            comments.add(new CommentsDto(postComment.getId(), postComment.getTime(), user, postComment.getText()));
-        });
+            return new CommentsDto(postComment.getId(), postComment.getTime(), user, postComment.getText());
+        }).collect(toList());
 
-        List<String> tagNames = new ArrayList<>();
+
         List<TagToPost> tagToPosts = tagToPostService.getTagToPostByPostId(postById.getId());
-        tagToPosts.forEach(tagToPost -> {
+
+        List<String> tagNames = tagToPosts.stream().map(tagToPost -> {
             Tag tag = tagService.getTagById(tagToPost.getTagId());
-            tagNames.add(tag.getName());
-        });
+            return tag.getName();
+        }).collect(toList());
 
         return ResponseEntity.ok(new PostByIdDto(postId, time, userDto, title, text,
                 quantityLike, quantityDislike, viewCount, comments, tagNames));
@@ -131,7 +162,7 @@ public class ApiPostController {
     }
 
     @GetMapping("moderation")
-    private ResponseEntity<ModerationPostsDto> getPostListOnModeration(Integer offset, Integer limit, String status){
+    private ResponseEntity<ModerationPostsDto> getPostsListOnModeration(Integer offset, Integer limit, String status){
         if(authService.checkSession()){
             Integer countPosts = postService.countActivePosts();
             List<Post> posts = postService.activePostsOnModeration(offset, limit, status);
@@ -147,12 +178,13 @@ public class ApiPostController {
         return null;
     }
 
+
+
     /**
      * Метод устраняет дублирование
      */
     private List<PostDto> transformCollectionForFront(List<Post> posts) {
-        List<PostDto> allPosts = new ArrayList<>();
-        posts.forEach(post -> {
+        return posts.stream().map(post -> {
             UserDto userDto = userService.getUserDtoById(post.getUserId());
             List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post.getId());
 
@@ -160,10 +192,9 @@ public class ApiPostController {
             byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
             byte quantityDislike = (byte) (postVotes.size() - quantityLike);
 
-            allPosts.add(new PostDto(post.getId(), post.getTime(), userDto,
+            return new PostDto(post.getId(), post.getTime(), userDto,
                     post.getTitle(), post.getText(), quantityLike,
-                    quantityDislike, quantityComment, post.getViewCount()));
-        });
-        return allPosts;
+                    quantityDislike, quantityComment, post.getViewCount());
+        }).collect(toList());
     }
 }

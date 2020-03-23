@@ -5,11 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import project.dto.AddPostDto;
 import project.models.ModerationStatus;
 import project.models.Post;
 import project.repositories.PostRepository;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,22 +27,19 @@ public class PostService {
      */
     private PostRepository postRepository;
 
-    @PostConstruct
-    public void init() {
-        for (int i = 0; i < 3; i++) {
-            Post post = new Post();
-            LocalDateTime time = LocalDateTime.now();
-            post.setTime(time);
-            postRepository.save(post);
+    public void createPost(AddPostDto addPost){
+        Post post = new Post();
+        String strTime = addPost.getTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
+        if(dateTime.isBefore(LocalDateTime.now())){
+            dateTime = LocalDateTime.now();
         }
-        for (int i = 0; i < 2; i++) {
-            Post post = new Post();
-            LocalDateTime time = LocalDateTime.now().minusHours(1);
-            post.setTime(time);
-            postRepository.save(post);
-        }
-        postRepository.firstPublication();
-        System.out.println();
+        post.setTime(dateTime);
+        post.setActive(addPost.getActive());
+        post.setTitle(addPost.getTitle());
+        post.setText(addPost.getText());
+        postRepository.save(post);
     }
 
     /**
