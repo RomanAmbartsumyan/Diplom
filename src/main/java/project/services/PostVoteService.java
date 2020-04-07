@@ -5,7 +5,6 @@ import project.models.Post;
 import project.models.PostVote;
 import project.repositories.PostVoteRepository;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
@@ -18,18 +17,6 @@ public class PostVoteService {
      */
     PostVoteRepository postVoteRepository;
 
-    @PostConstruct
-    public void init(){
-        for (int i = 0; i < 5; i++) {
-            PostVote vote = new PostVote();
-            vote.setValue((byte) 1);
-            postVoteRepository.save(vote);
-            Post post = new Post();
-            vote.setPostId(post);
-        }
-        System.out.println();
-    }
-
 
     /**
      * Конструктор лайков и дизлайков
@@ -41,8 +28,8 @@ public class PostVoteService {
     /**
      * Выдает информацию о лайков и дизлайков к данному посту найденому по id
      */
-    public List<PostVote> getAllPostVotesByPostId(Integer id){
-        return postVoteRepository.findAllByPostId(id);
+    public List<PostVote> getAllPostVotesByPostId(Post post){
+        return postVoteRepository.findAllByPostId(post);
     }
 
     public Integer countLikes(){

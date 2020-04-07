@@ -22,9 +22,9 @@ import java.util.Map;
  * Контроллер тэгов
  */
 @RestController
-@RequestMapping("/api/tag/")
+@RequestMapping("/api/tag")
 @AllArgsConstructor
-public class ApiTegController {
+public class ApiTagController {
     private TagService tagService;
     private PostService postService;
     private TagToPostService tagToPost;

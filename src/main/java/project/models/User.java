@@ -17,7 +17,7 @@ public class User {
      * Уникальный ключ, генерируется автоматически
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     /**
      * Имя пользователя

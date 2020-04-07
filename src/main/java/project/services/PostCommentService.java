@@ -1,6 +1,7 @@
 package project.services;
 
 import org.springframework.stereotype.Service;
+import project.models.Post;
 import project.models.PostComment;
 import project.repositories.PostCommentRepository;
 
@@ -25,8 +26,8 @@ public class PostCommentService {
     /**
      * Возвращает коллекцию всех комментариев к посту
      */
-    public List<PostComment> allPostComments(Integer id){
-        return postCommentRepository.findAllByPostId(id);
+    public List<PostComment> allPostComments(Post post){
+        return postCommentRepository.findAllByPostId(post);
     }
 
 

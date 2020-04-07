@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
  * Контроллер постов
  */
 @RestController
-@RequestMapping("/api/post/")
+@RequestMapping("/api/post")
 @AllArgsConstructor
 public class ApiPostController {
     private PostService postService;
@@ -81,7 +81,7 @@ public class ApiPostController {
     @GetMapping("search")
     public ResponseEntity<PostSearchDto> postsBySearch(@RequestParam Integer offset,
                                                        @RequestParam Integer limit,
-                                                       @RequestParam String query) {
+                                                       @RequestParam(name = "query", required = false) String query) {
         List<Post> findingPost = postService.findBySearch(offset, limit, query);
         List<PostDto> allFindingPost = transformCollectionForFront(findingPost);
         Integer quantityPosts = allFindingPost.size();
@@ -101,12 +101,12 @@ public class ApiPostController {
         String title = postById.getTitle();
         String text = postById.getText();
         Integer viewCount = postById.getViewCount();
-        List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(postById.getId());
+        List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(postById);
 
         byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
         byte quantityDislike = (byte) (postVotes.size() - quantityLike);
 
-        List<PostComment> postComments = postCommentService.allPostComments(id);
+        List<PostComment> postComments = postCommentService.allPostComments(postById);
 
         List<CommentsDto> comments = postComments.stream().map(postComment -> {
             UserWithPhotoInformationDto user = userService.getFullInformationById(postComment.getUserId());
@@ -186,9 +186,9 @@ public class ApiPostController {
     private List<PostDto> transformCollectionForFront(List<Post> posts) {
         return posts.stream().map(post -> {
             UserDto userDto = userService.getUserDtoById(post.getUserId());
-            List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post.getId());
+            List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post);
 
-            int quantityComment = postCommentService.allPostComments(post.getId()).size();
+            int quantityComment = postCommentService.allPostComments(post).size();
             byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
             byte quantityDislike = (byte) (postVotes.size() - quantityLike);
 

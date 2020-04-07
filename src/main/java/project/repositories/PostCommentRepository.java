@@ -2,6 +2,7 @@ package project.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import project.models.Post;
 import project.models.PostComment;
 
 import java.util.List;
@@ -14,5 +15,5 @@ public interface PostCommentRepository extends CrudRepository<PostComment, Integ
     /**
      * Поиск коментариев к постам по полю post_id
      */
-    List<PostComment> findAllByPostId(Integer id);
+    List<PostComment> findAllByPostId(Post postId);
 }

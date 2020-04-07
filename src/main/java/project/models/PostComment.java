@@ -17,7 +17,7 @@ public class PostComment {
      * Уникальный ключ, генерируется автоматически
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     /**
      * Id комментария на который оставлен комментарий

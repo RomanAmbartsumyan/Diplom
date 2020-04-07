@@ -10,7 +10,7 @@ import project.services.PostService;
 import project.services.PostVoteService;
 
 @RestController
-@RequestMapping("/api/statistics/")
+@RequestMapping("/api/statistics")
 @AllArgsConstructor
 public class ApiStatisticsController {
     private PostService postService;

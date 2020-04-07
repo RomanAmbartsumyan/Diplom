@@ -30,8 +30,8 @@ public class PostService {
     public void createPost(AddPostDto addPost){
         Post post = new Post();
         String strTime = addPost.getTime();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(strTime);
+        post.setModerationStatus(ModerationStatus.NEW);
         if(dateTime.isBefore(LocalDateTime.now())){
             dateTime = LocalDateTime.now();
         }
@@ -50,10 +50,10 @@ public class PostService {
 
         switch (mode) {
             case "best":
-                sort = Sort.by(Sort.Direction.ASC, "postVotes");
+                sort = Sort.by("postVotes.size").descending();
                 break;
             case "popular":
-                sort = Sort.by(Sort.Direction.ASC, "postComment");
+                sort = Sort.by("postComments.size").descending();
                 break;
             case "early":
                 sort = Sort.by(Sort.Direction.ASC, "time");
@@ -92,9 +92,12 @@ public class PostService {
      * Выдает конкретный пост по id
      */
     public Post getPostById(Integer id) {
-        Optional<Post> post = postRepository.findByIdAndActiveAndModerationStatus(id, (byte) 1,
-                ModerationStatus.ACCEPTED);
-        return post.orElse(null);
+        Optional<Post> post = postRepository.findById(id);
+        if(post.isPresent()){
+            post.get().setViewCount(post.get().getViewCount() + 1);
+            return post.get();
+        }
+        return null;
     }
 
     /**
@@ -109,7 +112,11 @@ public class PostService {
      * Выдает количество активных постов и принятых модератови
      */
     public Integer countPostsActiveAndAccessModerator() {
-        return postRepository.countByActiveAndModerationStatus();
+        Integer count = postRepository.countByActiveAndModerationStatus();
+        if(count != null){
+            return postRepository.countByActiveAndModerationStatus();
+        }
+        return 0;
     }
 
     /**

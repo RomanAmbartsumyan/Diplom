@@ -32,31 +32,27 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
      * Собирает коллекцию постов по id, активности и статусу модерации
      */
     @Query(value = "SELECT * FROM post WHERE id IN :ids AND is_active LIKE 1 " +
-            "AND moderation_status LIKE 1 ", nativeQuery = true)
+            "AND moderation_status LIKE 'NEW' ", nativeQuery = true)
     List<Post> findByIdIn(@Param("ids")List<Integer> ids);
 
-    /**
-     * Поиск постов по id, активности, статусу модерации
-     */
-    Optional<Post> findByIdAndActiveAndModerationStatus(Integer id, Byte active, ModerationStatus moderationStatus);
 
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату с ограничением вывода
      */
-    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 1 " +
+    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'NEW' " +
             "and time like :like_time", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time, Pageable pageable);
 
     /**
      * Выдает значение кол-во постов
      */
-    @Query(value = "SELECT COUNT(*) FROM post WHERE is_active like 1 and moderation_status", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM post WHERE is_active like 1 and moderation_status like 'NEW'", nativeQuery = true)
     Integer countByActiveAndModerationStatus();
 
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату без ограничения вывода
      */
-    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 1 " +
+    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'NEW' " +
             "and time like :like_time", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time);
 

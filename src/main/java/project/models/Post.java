@@ -19,7 +19,7 @@ public class Post {
      * Уникальный ключ, генерируется автоматически
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     /**
      * Id пользователя
@@ -39,6 +39,7 @@ public class Post {
     /**
      * Текст поста
      */
+    @Column(length=1000000)
     private String text;
     /**
      * Кол-во просмотров
@@ -48,7 +49,8 @@ public class Post {
     /**
      * Статус модерации
      */
-    @Column(name = "moderation_status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "moderation_status", nullable = false, columnDefinition = "enum('NEW', 'ACCEPTED', 'DECLINED')")
     private ModerationStatus moderationStatus;
     /**
      * Скрыта или активна публикация:

@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class BlogGeneralInfiDto {
+public class BlogGeneralInfoDto {
     /**
      * Заголовок сайта
      */
