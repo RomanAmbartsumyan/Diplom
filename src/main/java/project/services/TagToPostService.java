@@ -18,6 +18,13 @@ public class TagToPostService {
      */
     private TagToPostRepository tagToPostRepository;
 
+    public void saveTagToPost(Integer postId, Integer tagId){
+        TagToPost tagToPost = new TagToPost();
+        tagToPost.setPostId(postId);
+        tagToPost.setTagId(tagId);
+        tagToPostRepository.save(tagToPost);
+    }
+
     /**
      * Выдает колекцию связей постов и тегов по id поста
      */

@@ -12,5 +12,5 @@ public class AddPostDto {
     private byte active;
     private String title;
     private String text;
-    private String tags;
+    private String[] tags;
 }

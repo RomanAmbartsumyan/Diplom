@@ -27,10 +27,11 @@ public class PostService {
      */
     private PostRepository postRepository;
 
-    public void createPost(AddPostDto addPost){
+    public Post createPost(AddPostDto addPost){
         Post post = new Post();
         String strTime = addPost.getTime();
-        LocalDateTime dateTime = LocalDateTime.parse(strTime);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
         post.setModerationStatus(ModerationStatus.NEW);
         if(dateTime.isBefore(LocalDateTime.now())){
             dateTime = LocalDateTime.now();
@@ -40,6 +41,7 @@ public class PostService {
         post.setTitle(addPost.getTitle());
         post.setText(addPost.getText());
         postRepository.save(post);
+        return post;
     }
 
     /**
@@ -47,14 +49,12 @@ public class PostService {
      */
     public List<Post> findAllAndSort(Integer offset, Integer limit, String mode) {
         Sort sort;
-
+        Pageable pageableWhitOutSort = PageRequest.of(offset, limit);
         switch (mode) {
             case "best":
-                sort = Sort.by("postVotes.size").descending();
-                break;
+                return postRepository.bestPosts(pageableWhitOutSort);
             case "popular":
-                sort = Sort.by("postComments.size").descending();
-                break;
+                return postRepository.mostPopularPosts(pageableWhitOutSort);
             case "early":
                 sort = Sort.by(Sort.Direction.ASC, "time");
                 break;
@@ -62,7 +62,6 @@ public class PostService {
                 sort = Sort.by(Sort.Direction.DESC, "time");
                 break;
         }
-
         Pageable pageable = PageRequest.of(offset, limit, sort);
 
         return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
@@ -95,6 +94,7 @@ public class PostService {
         Optional<Post> post = postRepository.findById(id);
         if(post.isPresent()){
             post.get().setViewCount(post.get().getViewCount() + 1);
+            postRepository.save(post.get());
             return post.get();
         }
         return null;

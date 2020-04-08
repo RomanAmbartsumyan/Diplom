@@ -19,6 +19,14 @@ public class TagService {
      */
     private TagRepository tagRepository;
 
+    public Tag saveTag(String tagName){
+        Tag tag = new Tag();
+        tag.setName(tagName);
+        tagRepository.save(tag);
+        return tag;
+    }
+
+
     /**
      * Выдает тег по Id
      */
@@ -31,7 +39,7 @@ public class TagService {
      * Выдает тег по названию
      */
     public Tag getByName(String name) {
-        Optional<Tag> optionalTag = tagRepository.findByNameLike(name);
+        Optional<Tag> optionalTag = tagRepository.findByNameLike(name);;
         return optionalTag.orElse(null);
     }
 
@@ -39,7 +47,9 @@ public class TagService {
      * Если запрос пустой выдает все теги, если нет, то конкретные содержащие данное название
      */
     public List<Tag> getAllTagsOrFindByName(String query){
-        if (query.isEmpty()){
+        if (query == null){
+            tagRepository.findAll();
+            System.out.println();
             return tagRepository.findAll();
         }
         return  tagRepository.findAllByNameContains(query);

@@ -39,20 +39,20 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату с ограничением вывода
      */
-    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'NEW' " +
+    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED' " +
             "and time like :like_time", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time, Pageable pageable);
 
     /**
      * Выдает значение кол-во постов
      */
-    @Query(value = "SELECT COUNT(*) FROM post WHERE is_active like 1 and moderation_status like 'NEW'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED'", nativeQuery = true)
     Integer countByActiveAndModerationStatus();
 
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату без ограничения вывода
      */
-    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'NEW' " +
+    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED' " +
             "and time like :like_time", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time);
 
@@ -90,4 +90,14 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     Optional<Post> firstPublication();
 
     Integer countAllByActive(Byte active);
+
+    @Query(value = "SELECT post.* FROM post LEFT JOIN (SELECT * FROM post_vote " +
+            "WHERE post_vote.value = 1) AS post_vote ON post.id = post_vote.post_id GROUP BY post.id " +
+            "ORDER BY SUM(post_vote.value) DESC", nativeQuery = true)
+    List<Post> bestPosts(Pageable pageable);
+
+    @Query(value = "SELECT post.* FROM post LEFT JOIN post_comment " +
+            "ON post.id = post_comment.post_id GROUP BY post.id " +
+            "ORDER BY COUNT(post_comment.id) DESC", nativeQuery = true)
+    List<Post> mostPopularPosts(Pageable pageable);
 }

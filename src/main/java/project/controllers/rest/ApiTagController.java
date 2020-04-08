@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Comparator.comparing;
+
 /**
  * Контроллер тэгов
  */
@@ -32,7 +34,7 @@ public class ApiTagController {
      * Выдает посты по поиску или все если поиск пустой
      */
     @GetMapping
-    public ResponseEntity<TagsDto> getTagByName(@RequestParam String query){
+    public ResponseEntity<TagsDto> getTagByName(@RequestParam(required = false) String query){
         List<TagDto> tagsDto = new ArrayList<>();
         List<Tag> tags = tagService.getAllTagsOrFindByName(query);
         Integer countPostsActiveAndModerationAccept = postService.countPostsActiveAndAccessModerator();
@@ -43,10 +45,12 @@ public class ApiTagController {
         });
 
         tagsAngPosts.forEach((k,v) -> {
-            Short weight = (short) (v / countPostsActiveAndModerationAccept);
+            Float weight = (float) v / countPostsActiveAndModerationAccept;
             TagDto tagDto = new TagDto(k,weight);
             tagsDto.add(tagDto);
         });
+
+        tagsDto.sort(comparing(TagDto::getWeight).reversed());
 
         return ResponseEntity.ok(new TagsDto(tagsDto));
     }

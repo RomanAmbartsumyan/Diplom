@@ -17,11 +17,11 @@ public class CommentsDto {
      */
     private LocalDateTime time;
     /**
-     * Информация о пользователе оставивший комментарий
-     */
-    private UserWithPhotoInformationDto user;
-    /**
      * Текст комментария
      */
     private String text;
+    /**
+     * Информация о пользователе оставивший комментарий
+     */
+    private UserWithPhotoInformationDto user;
 }

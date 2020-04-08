@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class TagDto {
     private String name;
-    private Short weight;
+    private Float weight;
 }

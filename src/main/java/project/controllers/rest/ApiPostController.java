@@ -8,7 +8,6 @@ import project.models.*;
 import project.services.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -37,22 +36,30 @@ public class ApiPostController {
             boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
                     addPost.getText().length() > 500;
 
-            if (!tittle || !text) {
+            if (tittle || text) {
                 ErrorsMessageDto errorsMessage = new ErrorsMessageDto();
                 ErrorsDto error = new ErrorsDto();
 
-                if (!tittle) {
+                if (tittle) {
                     error.setTitle("Заголовок не установлен");
                     errorsMessage.setErrors(error);
                 }
 
-                if (!text) {
+                if (text) {
                     error.setText("Текст публикации слишком короткий");
                     errorsMessage.setErrors(error);
                 }
                 return ResponseEntity.ok(errorsMessage);
             }
-            postService.createPost(addPost);
+
+            Post post = postService.createPost(addPost);
+
+            if(addPost.getTags().length != 0){
+                for (int i = 0; i < addPost.getTags().length; i++) {
+                    Tag tag = tagService.saveTag(addPost.getTags()[i]);
+                    tagToPostService.saveTagToPost(post.getId(), tag.getId());
+                }
+            }
 
             ResultDto result = new ResultDto();
             result.setResult(true);
@@ -81,7 +88,7 @@ public class ApiPostController {
     @GetMapping("search")
     public ResponseEntity<PostSearchDto> postsBySearch(@RequestParam Integer offset,
                                                        @RequestParam Integer limit,
-                                                       @RequestParam(name = "query", required = false) String query) {
+                                                       @RequestParam(required = false) String query) {
         List<Post> findingPost = postService.findBySearch(offset, limit, query);
         List<PostDto> allFindingPost = transformCollectionForFront(findingPost);
         Integer quantityPosts = allFindingPost.size();
@@ -110,7 +117,7 @@ public class ApiPostController {
 
         List<CommentsDto> comments = postComments.stream().map(postComment -> {
             UserWithPhotoInformationDto user = userService.getFullInformationById(postComment.getUserId());
-            return new CommentsDto(postComment.getId(), postComment.getTime(), user, postComment.getText());
+            return new CommentsDto(postComment.getId(), postComment.getTime(), postComment.getText(), user);
         }).collect(toList());
 
 
@@ -147,18 +154,18 @@ public class ApiPostController {
     @GetMapping("byTag")
     public ResponseEntity<PostListDto> getPostsByTagName(@RequestParam Integer offset,
                                                          @RequestParam Integer limit,
-                                                         @RequestParam String tagName) {
-        List<Integer> postsId = new ArrayList<>();
+                                                         @RequestParam(required = false) String tag) {
 
-        Tag tag = tagService.getByName(tagName);
-        List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tag.getId());
-        tagToPosts.forEach(tagToPost -> postsId.add(tagToPost.getPostId()));
 
-        List<Post> posts = postService.getAllPostsById(postsId);
+        Tag tagByName = tagService.getByName(tag);
+        List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tagByName.getId());
+        List<Integer> postsId = tagToPosts.stream().map(TagToPost::getPostId).collect(toList());
+
+        List<Post> posts = postsId.stream().map(post -> postService.getPostById(post)).collect(toList());
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 
-        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, tagName));
+        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, tag));
     }
 
     @GetMapping("moderation")
