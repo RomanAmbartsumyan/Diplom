@@ -31,7 +31,7 @@ public class ApiTagController {
     private PostService postService;
     private TagToPostService tagToPost;
     /**
-     * Выдает посты по поиску или все если поиск пустой
+     * Выдает тэги
      */
     @GetMapping
     public ResponseEntity<TagsDto> getTagByName(@RequestParam(required = false) String query){

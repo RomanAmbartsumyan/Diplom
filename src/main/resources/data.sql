@@ -29,6 +29,7 @@ insert into user (id, name, password, email, photo, reg_time, is_moderator) valu
 insert into user (id, name, password, email, photo, reg_time, is_moderator) values (28, 'Winifred', '9dd4fbf39e0a3ba5f89b844929cff0a5030d0469', 'wquarer@reverbnation.com', 'https://robohash.org/evenietoccaecatinecessitatibus.jpg?size=50x50&set=set1', '2020-01-26 23:10:00', 0);
 insert into user (id, name, password, email, photo, reg_time, is_moderator) values (29, 'Raphaela', '9dd4fbf39e0a3ba5f89b844929cff0a5030d0469', 'rellermans@bing.com', 'https://robohash.org/namconsecteturquasi.bmp?size=50x50&set=set1', '2019-08-03 18:05:33', 0);
 insert into user (id, name, password, email, photo, reg_time, is_moderator) values (30, 'Lesly', '9dd4fbf39e0a3ba5f89b844929cff0a5030d0469', 'lfortet@mail.ru', 'https://robohash.org/harumperferendistempora.jpg?size=50x50&set=set1', '2020-01-20 16:13:25', 0);
+insert into user (id, name, password, email, photo, reg_time, is_moderator) values (31, 'Roman', '$2a$10$XR/zQU8iZE4wfabkaRKc8uK9oDAiibFrzlH/S0OfWJQP2z7/7y4d2', 'asd@mail.ru', null , '2020-04-09 16:13:25', 1);
 
 --INSERT Post
 insert into post (id, is_active, moderation_status, text, time, title, user_id, view_count, moderator_id) values (1, 1, 'ACCEPTED', 'odio elementum eu interdum eu tincidunt in leo maecenas pulvinar lobortis est phasellus sit amet erat nulla tempus vivamus in felis eu sapien cursus vestibulum proin eu mi nulla ac enim in tempor turpis', '2020-03-18 16:53:34', 'nulla ut erat id mauris', 24, 30, 3);

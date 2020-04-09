@@ -112,11 +112,7 @@ public class PostService {
      * Выдает количество активных постов и принятых модератови
      */
     public Integer countPostsActiveAndAccessModerator() {
-        Integer count = postRepository.countByActiveAndModerationStatus();
-        if(count != null){
-            return postRepository.countByActiveAndModerationStatus();
-        }
-        return 0;
+        return postRepository.countByActiveAndModerationStatus();
     }
 
     /**

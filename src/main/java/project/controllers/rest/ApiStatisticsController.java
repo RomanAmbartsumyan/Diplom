@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import project.dto.AllStatisticsDto;
+import project.dto.StatisticsDto;
 import project.services.PostService;
 import project.services.PostVoteService;
 
@@ -17,14 +17,14 @@ public class ApiStatisticsController {
     private PostVoteService postVoteService;
 
     @GetMapping("all")
-    public ResponseEntity<AllStatisticsDto> getAllStatistics (){
+    public ResponseEntity<StatisticsDto> getAllStatistics (){
         Integer countPosts = postService.getCountAllPosts();
         Integer likesCount = postVoteService.countLikes();
         Integer dislikesCount = postVoteService.countDislikes();
         Integer countViews = postService.getCountViews();
         String firstPublication = postService.dateOfFirstPublication();
-        AllStatisticsDto statisticsDto = new AllStatisticsDto(countPosts, likesCount,
+        StatisticsDto statistics = new StatisticsDto(countPosts, likesCount,
                 dislikesCount, countViews, firstPublication);
-        return ResponseEntity.ok(statisticsDto);
+        return ResponseEntity.ok(statistics);
     }
 }
