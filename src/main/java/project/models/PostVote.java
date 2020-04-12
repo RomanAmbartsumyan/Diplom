@@ -30,7 +30,7 @@ public class PostVote {
     /**
      * Id поста которому поставлен лайк/дизлайк
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "post_id")
     private Post postId;
 

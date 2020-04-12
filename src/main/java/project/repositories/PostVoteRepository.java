@@ -7,6 +7,7 @@ import project.models.Post;
 import project.models.PostVote;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Репозиторий лайков и дизлайков
@@ -23,4 +24,6 @@ public interface PostVoteRepository extends CrudRepository<PostVote, Integer> {
 
     @Query(value = "SELECT COUNT(*) FROM post_vote WHERE value = -1", nativeQuery = true)
     Integer countAllDislikes();
+
+    Optional<PostVote> findByPostIdAndUserIdAndValue(Post postId, Integer userId, Byte value);
 }

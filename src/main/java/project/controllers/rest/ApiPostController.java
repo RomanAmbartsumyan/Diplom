@@ -201,6 +201,28 @@ public class ApiPostController {
         throw new UnauthorizedException();
     }
 
+    @PostMapping("like")
+    private ResponseEntity<?> addLike(@RequestBody PostVoteDto postVote){
+        if (authService.checkSession()) {
+            Post post = postService.getPostById(postVote.getPostId());
+            Integer userId = authService.getUserId();
+            boolean isLikeAdded = postVoteService.addLike(post, userId);
+            return ResponseEntity.ok(new ResultDto(isLikeAdded));
+        }
+        throw new UnauthorizedException();
+    }
+
+    @PostMapping("dislike")
+    private ResponseEntity<?> addDislike(@RequestBody PostVoteDto postVote){
+        if (authService.checkSession()) {
+            Post post = postService.getPostById(postVote.getPostId());
+            Integer userId = authService.getUserId();
+            boolean isDislikeAdded = postVoteService.addDislike(post, userId);
+            return ResponseEntity.ok(new ResultDto(isDislikeAdded));
+        }
+        throw new UnauthorizedException();
+    }
+
 
     /**
      * Метод устраняет дублирование
