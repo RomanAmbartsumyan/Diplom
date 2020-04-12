@@ -24,4 +24,9 @@ public class AuthService {
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
         return authUsers.get(sessionId) != null;
     }
+
+    public void logout(){
+        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+        authUsers.remove(sessionId);
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import project.dto.*;
+import project.exceptions.UnauthorizedException;
 import project.models.User;
 import project.services.AuthService;
 import project.services.CaptchaCodeService;
@@ -74,7 +75,7 @@ public class ApiAuthController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDto register) {
         ResultDto result = new ResultDto();
-        if(captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret())){
+        if (captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret())) {
             userService.createUser(register.getEmail(), register.getName(), register.getPassword());
             result.setResult(true);
             return ResponseEntity.ok(result);
@@ -85,14 +86,23 @@ public class ApiAuthController {
     @PostMapping(value = "password",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordDto changePasswordDto){
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordDto changePasswordDto) {
         ResultDto result = new ResultDto();
-        if(captchaCodeService.isValid(changePasswordDto.getCaptcha(), changePasswordDto.getCaptchaSecret())){
+        if (captchaCodeService.isValid(changePasswordDto.getCaptcha(), changePasswordDto.getCaptchaSecret())) {
             userService.changePassword(changePasswordDto.getCode(), changePasswordDto.getPassword());
             result.setResult(true);
             return ResponseEntity.ok(result);
         }
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("logout")
+    public ResponseEntity<?> logoutUser() {
+        if (authService.checkSession()) {
+            authService.logout();
+            return ResponseEntity.ok(new ResultDto(true));
+        }
+        throw new UnauthorizedException();
     }
 
     /**
