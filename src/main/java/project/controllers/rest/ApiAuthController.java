@@ -100,7 +100,6 @@ public class ApiAuthController {
      * (устраняет дублирование кода)
      */
     private ResponseEntity<?> getUserResponseEntity(User userFromDB) {
-        ResultDto result = new ResultDto();
         if (userFromDB != null) {
             Integer countNewPosts = null;
             if (userFromDB.getModerator() != null) {
@@ -109,7 +108,7 @@ public class ApiAuthController {
             }
             return getAuthUserResponseEntity(userFromDB, false, false, countNewPosts);
         }
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(new ResultDto());
     }
 
     /**

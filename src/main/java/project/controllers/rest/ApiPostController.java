@@ -32,42 +32,19 @@ public class ApiPostController {
     @PostMapping
     public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost) {
         if (authService.checkSession()) {
-            boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
-                    addPost.getTitle().length() > 500;
-            boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
-                    addPost.getText().length() > 500;
-
-            if (tittle || text) {
-                ErrorsMessageDto errorsMessage = new ErrorsMessageDto();
-                ErrorsDto error = new ErrorsDto();
-
-                if (tittle) {
-                    error.setTitle("Заголовок не установлен");
-                    errorsMessage.setErrors(error);
-                }
-
-                if (text) {
-                    error.setText("Текст публикации слишком короткий");
-                    errorsMessage.setErrors(error);
-                }
-                return ResponseEntity.ok(errorsMessage);
+            ResponseEntity<?> errorsMessage = errorOperationWithPost(addPost);
+            if (errorsMessage != null){
+                return errorsMessage;
             }
             Integer userId = authService.getUserId();
             Post post = postService.createPost(userId, addPost);
 
-            if (addPost.getTags().length != 0) {
-                for (int i = 0; i < addPost.getTags().length; i++) {
-                    Tag tag = tagService.saveTag(addPost.getTags()[i]);
-                    tagToPostService.saveTagToPost(post.getId(), tag.getId());
-                }
-            }
-
-            ResultDto result = new ResultDto();
-            result.setResult(true);
-            return ResponseEntity.ok(result);
+            addTags(addPost, post);
+            return ResponseEntity.ok(new ResultDto(true));
         }
         throw new UnauthorizedException();
     }
+
 
     /**
      * Вывод всех постов на главную страницу
@@ -134,6 +111,24 @@ public class ApiPostController {
 
         return ResponseEntity.ok(new PostByIdDto(postId, time, userDto, title, text,
                 quantityLike, quantityDislike, countComments, viewCount, comments, tagNames));
+    }
+
+
+    @PutMapping("{id}")
+    public ResponseEntity<?> editPost(@RequestBody AddPostDto addPost, @PathVariable Integer id) {
+        if (authService.checkSession()) {
+            Integer userId = authService.getUserId();
+            User user = userService.getUserById(userId);
+            Post post = postService.editingPost(id, user, addPost);
+            ResponseEntity<?> errorsMessage = errorOperationWithPost(addPost);
+            if (errorsMessage != null){
+                return errorsMessage;
+            }
+
+            addTags(addPost, post);
+            return ResponseEntity.ok(new ResultDto(true));
+        }
+        throw new UnauthorizedException();
     }
 
 
@@ -223,5 +218,38 @@ public class ApiPostController {
                     post.getTitle(), post.getText(), quantityLike,
                     quantityDislike, quantityComment, post.getViewCount());
         }).collect(toList());
+    }
+
+    private ResponseEntity<?> errorOperationWithPost(@RequestBody AddPostDto addPost) {
+        boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
+                addPost.getTitle().length() > 500;
+        boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
+                addPost.getText().length() > 500;
+
+        if (tittle || text) {
+            ErrorsMessageDto errorsMessage = new ErrorsMessageDto();
+            ErrorsDto error = new ErrorsDto();
+
+            if (tittle) {
+                error.setTitle("Заголовок не установлен");
+                errorsMessage.setErrors(error);
+            }
+
+            if (text) {
+                error.setText("Текст публикации слишком короткий");
+                errorsMessage.setErrors(error);
+            }
+            return ResponseEntity.ok(errorsMessage);
+        }
+        return null;
+    }
+
+    private void addTags(@RequestBody AddPostDto addPost, Post post) {
+        if (addPost.getTags().length != 0) {
+            for (int i = 0; i < addPost.getTags().length; i++) {
+                Tag tag = tagService.saveTag(addPost.getTags()[i]);
+                tagToPostService.saveTagToPost(post.getId(), tag.getId());
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ import project.exceptions.BadRequestException;
 import project.exceptions.NotFountException;
 import project.models.ModerationStatus;
 import project.models.Post;
+import project.models.User;
 import project.repositories.PostRepository;
 
 import java.time.LocalDate;
@@ -30,6 +31,26 @@ public class PostService {
 
     public Post createPost(Integer userId, AddPostDto addPost) {
         Post post = new Post();
+        addOrEditPost(addPost, post, userId);
+        return post;
+    }
+
+    public Post editingPost(Integer postId, User user, AddPostDto addPost){
+        Post post = postRepository.findById(postId).orElse(null);
+        if(post == null){
+            throw new NotFountException();
+        }
+
+        if(user.getModerator() == 0){
+            post.setModerationStatus(ModerationStatus.NEW);
+        }
+
+        addOrEditPost(addPost, post, user.getId());
+
+        return post;
+    }
+
+    private void addOrEditPost(AddPostDto addPost, Post post, Integer userId) {
         String strTime = addPost.getTime();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
@@ -44,7 +65,6 @@ public class PostService {
         post.setUserId(userId);
         post.setViewCount(0);
         postRepository.save(post);
-        return post;
     }
 
     /**

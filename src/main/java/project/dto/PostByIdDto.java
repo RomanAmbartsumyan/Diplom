@@ -1,5 +1,6 @@
 package project.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class PostByIdDto {
     /**
      * Дата и время поста
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm:ss")
     private LocalDateTime time;
     /**
      * Информация о пользователе оставивший пост
