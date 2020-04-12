@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.dto.*;
+import project.exceptions.UnauthorizedException;
 import project.models.*;
 import project.services.*;
 
@@ -29,8 +30,8 @@ public class ApiPostController {
 
 
     @PostMapping
-    public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost){
-        if(authService.checkSession()) {
+    public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost) {
+        if (authService.checkSession()) {
             boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
                     addPost.getTitle().length() > 500;
             boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
@@ -51,10 +52,10 @@ public class ApiPostController {
                 }
                 return ResponseEntity.ok(errorsMessage);
             }
+            Integer userId = authService.getUserId();
+            Post post = postService.createPost(userId, addPost);
 
-            Post post = postService.createPost(addPost);
-
-            if(addPost.getTags().length != 0){
+            if (addPost.getTags().length != 0) {
                 for (int i = 0; i < addPost.getTags().length; i++) {
                     Tag tag = tagService.saveTag(addPost.getTags()[i]);
                     tagToPostService.saveTagToPost(post.getId(), tag.getId());
@@ -65,8 +66,9 @@ public class ApiPostController {
             result.setResult(true);
             return ResponseEntity.ok(result);
         }
-        return null;
+        throw new UnauthorizedException();
     }
+
     /**
      * Вывод всех постов на главную страницу
      */
@@ -128,8 +130,10 @@ public class ApiPostController {
             return tag.getName();
         }).collect(toList());
 
+        Integer countComments = postComments.size();
+
         return ResponseEntity.ok(new PostByIdDto(postId, time, userDto, title, text,
-                quantityLike, quantityDislike, viewCount, comments, tagNames));
+                quantityLike, quantityDislike, countComments, viewCount, comments, tagNames));
     }
 
 
@@ -169,12 +173,14 @@ public class ApiPostController {
     }
 
     @GetMapping("moderation")
-    private ResponseEntity<ModerationPostsDto> getPostsListOnModeration(Integer offset, Integer limit, String status){
-        if(authService.checkSession()){
+    private ResponseEntity<ModerationPostsDto> getPostsListOnModeration(@RequestParam Integer offset,
+                                                                        @RequestParam Integer limit,
+                                                                        @RequestParam String status) {
+        if (authService.checkSession()) {
             Integer countPosts = postService.countActivePosts();
             List<Post> posts = postService.activePostsOnModeration(offset, limit, status);
 
-            List<PostsOnModerationDto> postsOnModeration =  posts.stream().map(post -> {
+            List<PostsOnModerationDto> postsOnModeration = posts.stream().map(post -> {
                 User user = userService.getUserById(post.getUserId());
                 UserDto userDto = new UserDto(user.getId(), user.getName());
                 return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
@@ -182,9 +188,23 @@ public class ApiPostController {
 
             return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
         }
-        return null;
+        throw new UnauthorizedException();
     }
 
+    @GetMapping("my")
+    public ResponseEntity<?> getMyPosts(@RequestParam Integer offset,
+                                        @RequestParam Integer limit,
+                                        @RequestParam String status) {
+        if (authService.checkSession()) {
+            Integer userId = authService.getUserId();
+            List<Post> posts = postService.getMyPosts(userId, offset, limit, status);
+            List<PostDto> myPosts = transformCollectionForFront(posts);
+            Integer quantityPosts = myPosts.size();
+
+            return ResponseEntity.ok(new MyPostListDto(quantityPosts, myPosts, offset, limit, status));
+        }
+        throw new UnauthorizedException();
+    }
 
 
     /**

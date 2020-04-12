@@ -100,4 +100,13 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "ON post.id = post_comment.post_id GROUP BY post.id " +
             "ORDER BY COUNT(post_comment.id) DESC", nativeQuery = true)
     List<Post> mostPopularPosts(Pageable pageable);
+
+    List<Post> findAllByUserIdAndActive(Integer userId, Byte active, Pageable pageable);
+
+    List<Post> findAllByUserIdAndActiveAndModerationStatus(Integer userId, Byte active, ModerationStatus status,
+                                                           Pageable pageable);
+
+    List<Post> findAllByOrderByTimeDesc();
+
+    List<Post> findAllByOrderByTimeAsc();
 }

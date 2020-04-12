@@ -15,7 +15,7 @@ public class PostVoteService {
     /**
      * Репозиторий лайков и дизлайков
      */
-    PostVoteRepository postVoteRepository;
+    private PostVoteRepository postVoteRepository;
 
 
     /**

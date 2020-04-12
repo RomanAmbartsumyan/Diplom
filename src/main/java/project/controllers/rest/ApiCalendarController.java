@@ -23,7 +23,7 @@ import static java.util.Comparator.reverseOrder;
  * Контроллер тэгов
  */
 @RestController
-@RequestMapping("/api/calendar/")
+@RequestMapping("/api/calendar")
 @AllArgsConstructor
 public class ApiCalendarController {
     private PostService postService;

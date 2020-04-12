@@ -38,6 +38,10 @@ public class PostByIdDto {
      */
     private Byte dislikeCount;
     /**
+     * Кол-вол клмментариев
+     */
+    private Integer commentCount;
+    /**
      * Кол-во просмотров
      */
     private Integer viewCount;

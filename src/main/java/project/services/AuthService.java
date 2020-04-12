@@ -15,7 +15,8 @@ public class AuthService {
         authUsers.put(sessionId, userId);
     }
 
-    public Integer getUserId(String sessionId){
+    public Integer getUserId(){
+        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
         return authUsers.get(sessionId);
     }
 

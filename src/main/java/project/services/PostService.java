@@ -3,9 +3,10 @@ package project.services;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import project.dto.AddPostDto;
+import project.exceptions.BadRequestException;
+import project.exceptions.NotFountException;
 import project.models.ModerationStatus;
 import project.models.Post;
 import project.repositories.PostRepository;
@@ -27,19 +28,21 @@ public class PostService {
      */
     private PostRepository postRepository;
 
-    public Post createPost(AddPostDto addPost){
+    public Post createPost(Integer userId, AddPostDto addPost) {
         Post post = new Post();
         String strTime = addPost.getTime();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
         post.setModerationStatus(ModerationStatus.NEW);
-        if(dateTime.isBefore(LocalDateTime.now())){
+        if (dateTime.isBefore(LocalDateTime.now())) {
             dateTime = LocalDateTime.now();
         }
         post.setTime(dateTime);
         post.setActive(addPost.getActive());
         post.setTitle(addPost.getTitle());
         post.setText(addPost.getText());
+        post.setUserId(userId);
+        post.setViewCount(0);
         postRepository.save(post);
         return post;
     }
@@ -48,7 +51,6 @@ public class PostService {
      * Возвращает отсортированую коллекцию всех постов
      */
     public List<Post> findAllAndSort(Integer offset, Integer limit, String mode) {
-        Sort sort;
         Pageable pageableWhitOutSort = PageRequest.of(offset, limit);
         switch (mode) {
             case "best":
@@ -56,15 +58,11 @@ public class PostService {
             case "popular":
                 return postRepository.mostPopularPosts(pageableWhitOutSort);
             case "early":
-                sort = Sort.by(Sort.Direction.ASC, "time");
-                break;
-            default:
-                sort = Sort.by(Sort.Direction.DESC, "time");
-                break;
+                return postRepository.findAllByOrderByTimeAsc();
+            case "recent":
+                return postRepository.findAllByOrderByTimeDesc();
         }
-        Pageable pageable = PageRequest.of(offset, limit, sort);
-
-        return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
+        throw new BadRequestException();
     }
 
     /**
@@ -79,25 +77,17 @@ public class PostService {
         return findAllAndSort(offset, limit, "");
     }
 
-
-    /**
-     * Выдает посты найденые по id
-     */
-    public List<Post> getAllPostsById(List<Integer> id) {
-        return postRepository.findByIdIn(id);
-    }
-
     /**
      * Выдает конкретный пост по id
      */
     public Post getPostById(Integer id) {
         Optional<Post> post = postRepository.findById(id);
-        if(post.isPresent()){
+        if (post.isPresent()) {
             post.get().setViewCount(post.get().getViewCount() + 1);
             postRepository.save(post.get());
             return post.get();
         }
-        return null;
+        throw new NotFountException();
     }
 
     /**
@@ -178,17 +168,32 @@ public class PostService {
 
     public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status) {
         Pageable pageable = PageRequest.of(offset, limit);
-        ModerationStatus moderationStatus;
         switch (status) {
             case "declined":
-                moderationStatus = ModerationStatus.DECLINED;
-                break;
+                return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.DECLINED, pageable);
             case "accepted":
-                moderationStatus = ModerationStatus.ACCEPTED;
-                break;
-            default:
-                moderationStatus = ModerationStatus.NEW;
+                return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
+            case "new":
+                return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.NEW, pageable);
         }
-        return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, moderationStatus, pageable);
+        throw new BadRequestException();
+    }
+
+    public List<Post> getMyPosts(Integer userId, Integer offset, Integer limit, String status) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        switch (status) {
+            case "inactive":
+                return postRepository.findAllByUserIdAndActive(userId, (byte) 0, pageable);
+            case "pending":
+                return postRepository.findAllByUserIdAndActiveAndModerationStatus(userId, (byte) 1,
+                        ModerationStatus.NEW, pageable);
+            case "declined":
+                return postRepository.findAllByUserIdAndActiveAndModerationStatus(userId, (byte) 1,
+                        ModerationStatus.DECLINED, pageable);
+            case "published ":
+                return postRepository.findAllByUserIdAndActiveAndModerationStatus(userId, (byte) 1,
+                        ModerationStatus.ACCEPTED, pageable);
+        }
+        throw new BadRequestException();
     }
 }

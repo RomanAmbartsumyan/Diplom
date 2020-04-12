@@ -43,8 +43,7 @@ public class ApiAuthController {
      */
     @GetMapping("check")
     public ResponseEntity<?> checkUser() {
-        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-        Integer userId = authService.getUserId(sessionId);
+        Integer userId = authService.getUserId();
         User userFromDB = userService.getUserById(userId);
         return getUserResponseEntity(userFromDB);
     }

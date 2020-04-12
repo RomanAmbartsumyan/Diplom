@@ -16,6 +16,7 @@ public class PostCommentService {
      * Репозиторий комментариев к постам
      */
     private PostCommentRepository postCommentRepository;
+
     /**
      * Конструктор для репозитория
      */
@@ -23,12 +24,11 @@ public class PostCommentService {
     public PostCommentService(PostCommentRepository postCommentRepository) {
         this.postCommentRepository = postCommentRepository;
     }
+
     /**
      * Возвращает коллекцию всех комментариев к посту
      */
-    public List<PostComment> allPostComments(Post post){
+    public List<PostComment> allPostComments(Post post) {
         return postCommentRepository.findAllByPostId(post);
     }
-
-
 }
