@@ -56,7 +56,7 @@ public class ApiPostController {
 
         List<Post> posts = postService.findAllAndSort(offset, limit, mode);
         List<PostDto> allPosts = transformCollectionForFront(posts);
-        Integer quantityPosts = allPosts.size();
+        Integer quantityPosts = postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
 
         return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, mode));
     }
@@ -172,14 +172,16 @@ public class ApiPostController {
                                                                         @RequestParam Integer limit,
                                                                         @RequestParam String status) {
         if (authService.checkSession()) {
-            Integer countPosts = postService.countActivePosts();
-            List<Post> posts = postService.activePostsOnModeration(offset, limit, status);
+            Integer moderatorId = authService.getUserId();
+            List<Post> posts = postService.activePostsOnModeration(offset, limit, status, moderatorId);
 
             List<PostsOnModerationDto> postsOnModeration = posts.stream().map(post -> {
                 User user = userService.getUserById(post.getUserId());
                 UserDto userDto = new UserDto(user.getId(), user.getName());
                 return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
             }).collect(toList());
+
+            Integer countPosts = postsOnModeration.size();
 
             return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
         }

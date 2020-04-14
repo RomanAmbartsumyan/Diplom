@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import project.dto.TagDto;
 import project.dto.TagsDto;
+import project.models.ModerationStatus;
 import project.models.Tag;
 import project.services.PostService;
 import project.services.TagService;
@@ -37,7 +38,9 @@ public class ApiTagController {
     public ResponseEntity<TagsDto> getTagByName(@RequestParam(required = false) String query){
         List<TagDto> tagsDto = new ArrayList<>();
         List<Tag> tags = tagService.getAllTagsOrFindByName(query);
-        Integer countPostsActiveAndModerationAccept = postService.countPostsActiveAndAccessModerator();
+        Integer countPostsActiveAndModerationAccept =
+                postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
+
         Map<String, Integer> tagsAngPosts = new HashMap<>();
         tags.forEach(tag -> {
             Integer countPosts = tagToPost.countPostsWithTag(tag.getId());

@@ -112,7 +112,7 @@ public class ApiAuthController {
     private ResponseEntity<?> getUserResponseEntity(User userFromDB) {
         if (userFromDB != null) {
             Integer countNewPosts = null;
-            if (userFromDB.getModerator() != null) {
+            if (userFromDB.getModerator() == 1) {
                 countNewPosts = postService.getCountOfNewPosts();
                 return getAuthUserResponseEntity(userFromDB, true, true, countNewPosts);
             }

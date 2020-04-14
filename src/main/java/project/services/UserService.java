@@ -80,6 +80,7 @@ public class UserService {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String password = passwordEncoder.encode(passwordFromUser);
             createUser.setPassword(password);
+            createUser.setModerator((byte) 0);
             userRepository.save(createUser);
         }
     }

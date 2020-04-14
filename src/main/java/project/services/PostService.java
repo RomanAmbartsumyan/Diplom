@@ -35,13 +35,13 @@ public class PostService {
         return post;
     }
 
-    public Post editingPost(Integer postId, User user, AddPostDto addPost){
+    public Post editingPost(Integer postId, User user, AddPostDto addPost) {
         Post post = postRepository.findById(postId).orElse(null);
-        if(post == null){
+        if (post == null) {
             throw new NotFountException();
         }
 
-        if(user.getModerator() == 0){
+        if (user.getModerator() == 0) {
             post.setModerationStatus(ModerationStatus.NEW);
         }
 
@@ -52,13 +52,17 @@ public class PostService {
 
     private void addOrEditPost(AddPostDto addPost, Post post, Integer userId) {
         String strTime = addPost.getTime();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
-        post.setModerationStatus(ModerationStatus.NEW);
-        if (dateTime.isBefore(LocalDateTime.now())) {
-            dateTime = LocalDateTime.now();
+        if (!strTime.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
+            if (dateTime.isBefore(LocalDateTime.now())) {
+                post.setTime(LocalDateTime.now());
+            }
+        } else {
+            post.setTime(LocalDateTime.now());
         }
-        post.setTime(dateTime);
+
+        post.setModerationStatus(ModerationStatus.NEW);
         post.setActive(addPost.getActive());
         post.setTitle(addPost.getTitle());
         post.setText(addPost.getText());
@@ -71,16 +75,16 @@ public class PostService {
      * Возвращает отсортированую коллекцию всех постов
      */
     public List<Post> findAllAndSort(Integer offset, Integer limit, String mode) {
-        Pageable pageableWhitOutSort = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset, limit);
         switch (mode) {
             case "best":
-                return postRepository.bestPosts(pageableWhitOutSort);
+                return postRepository.bestPosts(pageable);
             case "popular":
-                return postRepository.mostPopularPosts(pageableWhitOutSort);
+                return postRepository.mostPopularPosts(pageable);
             case "early":
-                return postRepository.findAllByOrderByTimeAsc();
+                return postRepository.findAllByModerationStatusAndActiveOrderByTimeAsc(ModerationStatus.ACCEPTED, (byte) 1, pageable);
             case "recent":
-                return postRepository.findAllByOrderByTimeDesc();
+                return postRepository.findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus.ACCEPTED, (byte) 1,pageable);
         }
         throw new BadRequestException();
     }
@@ -121,8 +125,8 @@ public class PostService {
     /**
      * Выдает количество активных постов и принятых модератови
      */
-    public Integer countPostsActiveAndAccessModerator() {
-        return postRepository.countByActiveAndModerationStatus();
+    public Integer countPostsByActiveAndModerationStatus(Byte active, ModerationStatus moderationStatus) {
+        return postRepository.countAllByActiveAndModerationStatus(active, moderationStatus);
     }
 
     /**
@@ -156,7 +160,7 @@ public class PostService {
      * Выдает кол-во новых постов
      */
     public Integer getCountOfNewPosts() {
-        return postRepository.countALLByModerationStatusIsNew();
+        return postRepository.countAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW);
     }
 
     /**
@@ -182,19 +186,19 @@ public class PostService {
         return null;
     }
 
-    public Integer countActivePosts() {
-        return postRepository.countAllByActive((byte) 1);
+    public Integer countNewPostsWithoutModeration(){
+        return postRepository.countAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW);
     }
 
-    public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status) {
+    public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status, Integer moderatorId) {
         Pageable pageable = PageRequest.of(offset, limit);
         switch (status) {
             case "declined":
-                return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.DECLINED, pageable);
+                return postRepository.findAllByModeratorIdAndActiveAndModerationStatus(moderatorId, (byte) 1, ModerationStatus.DECLINED, pageable);
             case "accepted":
-                return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED, pageable);
+                return postRepository.findAllByModeratorIdAndActiveAndModerationStatus(moderatorId, (byte) 1, ModerationStatus.ACCEPTED, pageable);
             case "new":
-                return postRepository.findDistinctByActiveAndModerationStatus((byte) 1, ModerationStatus.NEW, pageable);
+                return postRepository.findAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW, pageable);
         }
         throw new BadRequestException();
     }

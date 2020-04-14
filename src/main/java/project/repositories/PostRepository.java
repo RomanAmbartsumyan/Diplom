@@ -16,11 +16,12 @@ import java.util.Optional;
  */
 @Repository
 public interface PostRepository extends CrudRepository<Post, Integer> {
-    /**
-     * Поиск всех постов по активности и статусу модерации
-     */
-    List<Post> findDistinctByActiveAndModerationStatus(Byte active, ModerationStatus moderationStatus,
-                                                       Pageable pageable);
+
+    List<Post> findAllByModeratorIdAndActiveAndModerationStatus(Integer moderatorId,
+                                                                Byte active, ModerationStatus moderationStatus,
+                                                                Pageable pageable);
+
+    Integer countAllByModeratorIdAndActiveAndModerationStatus(Integer moderatorId, Byte active, ModerationStatus moderationStatus);
 
     /**
      * Поиск постов по активности, статусу модерации, и наличие текста в заголовке
@@ -46,8 +47,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Выдает значение кол-во постов
      */
-    @Query(value = "SELECT COUNT(*) FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED'", nativeQuery = true)
-    Integer countByActiveAndModerationStatus();
+    Integer countAllByActiveAndModerationStatus(Byte active, ModerationStatus moderationStatus);
 
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату без ограничения вывода
@@ -69,12 +69,6 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     List<String> findAllYear();
 
     /**
-     * Выдает кол-во новых постов
-     */
-    @Query(value = "SELECT COUNT(*) FROM post WHERE moderation_status = 0", nativeQuery = true)
-    Integer countALLByModerationStatusIsNew();
-
-    /**
      * Кол-во всех постов
      */
     @Query(value = "SELECT COUNT(*) FROM post", nativeQuery = true)
@@ -89,15 +83,13 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     @Query(value = "SELECT * FROM post ORDER BY time DESC limit 1", nativeQuery = true)
     Optional<Post> firstPublication();
 
-    Integer countAllByActive(Byte active);
-
     @Query(value = "SELECT post.* FROM post LEFT JOIN (SELECT * FROM post_vote " +
-            "WHERE post_vote.value = 1) AS post_vote ON post.id = post_vote.post_id GROUP BY post.id " +
-            "ORDER BY SUM(post_vote.value) DESC", nativeQuery = true)
+            "WHERE post_vote.value = 1) AS post_vote ON post.id = post_vote.post_id AND moderation_status = 'ACCEPTED' " +
+            "AND is_active = 1 GROUP BY post.id ORDER BY SUM(post_vote.value) DESC", nativeQuery = true)
     List<Post> bestPosts(Pageable pageable);
 
     @Query(value = "SELECT post.* FROM post LEFT JOIN post_comment " +
-            "ON post.id = post_comment.post_id GROUP BY post.id " +
+            "ON post.id = post_comment.post_id AND moderation_status = 'ACCEPTED' AND is_active = 1 GROUP BY post.id " +
             "ORDER BY COUNT(post_comment.id) DESC", nativeQuery = true)
     List<Post> mostPopularPosts(Pageable pageable);
 
@@ -106,7 +98,9 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     List<Post> findAllByUserIdAndActiveAndModerationStatus(Integer userId, Byte active, ModerationStatus status,
                                                            Pageable pageable);
 
-    List<Post> findAllByOrderByTimeDesc();
+    List<Post> findAllByModerationStatusAndActiveOrderByTimeAsc(ModerationStatus moderationStatus, Byte active,
+                                                                   Pageable pageable);
 
-    List<Post> findAllByOrderByTimeAsc();
+    List<Post> findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus moderationStatus, Byte active,
+                                                                    Pageable pageable);
 }
