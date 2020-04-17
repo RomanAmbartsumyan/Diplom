@@ -71,14 +71,14 @@ public class UserService {
         return null;
     }
 
-    public void createUser(String email, String name, String passwordFromUser) {
+    public void createUser(String email, String passwordFromUser) {
         User user = userRepository.findByEmail(email).orElse(null);
         if(user == null){
             User createUser = new User();
             createUser.setEmail(email);
-            createUser.setName(name);
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String password = passwordEncoder.encode(passwordFromUser);
+            createUser.setPhoto("img/default.c66f8640.jpg");
             createUser.setPassword(password);
             createUser.setModerator((byte) 0);
             userRepository.save(createUser);

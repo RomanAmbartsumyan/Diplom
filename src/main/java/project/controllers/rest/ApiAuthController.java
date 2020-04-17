@@ -19,7 +19,7 @@ import javax.validation.Valid;
  * Контроллер аутентификации
  */
 @RestController
-@RequestMapping("/api/auth/")
+@RequestMapping("/api/auth")
 @AllArgsConstructor
 public class ApiAuthController {
     private UserService userService;
@@ -76,7 +76,7 @@ public class ApiAuthController {
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDto register) {
         ResultDto result = new ResultDto();
         if (captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret())) {
-            userService.createUser(register.getEmail(), register.getName(), register.getPassword());
+            userService.createUser(register.getEmail(), register.getPassword());
             result.setResult(true);
             return ResponseEntity.ok(result);
         }

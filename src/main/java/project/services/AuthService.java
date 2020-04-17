@@ -11,21 +11,21 @@ import java.util.Map;
 public class AuthService {
     private Map<String, Integer> authUsers;
 
-    public void saveSession(String sessionId, Integer userId){
+    public void saveSession(String sessionId, Integer userId) {
         authUsers.put(sessionId, userId);
     }
 
-    public Integer getUserId(){
+    public Integer getUserId() {
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
         return authUsers.get(sessionId);
     }
 
-    public boolean checkSession(){
+    public boolean checkSession() {
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
         return authUsers.get(sessionId) != null;
     }
 
-    public void logout(){
+    public void logout() {
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
         authUsers.remove(sessionId);
     }
