@@ -12,24 +12,22 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ApiGeneralControllerTest {
+public class ApiStatisticsControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
     @SneakyThrows
     @Test
-    public void mainPage() {
-        mvc.perform(get("/api/init").accept(MediaType.APPLICATION_JSON))
+    public void getAllStatistics() {
+        mvc.perform(get("/api/tag")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.title").value("DevPub"))
-                .andExpect(jsonPath("$.email").value("mail@mail.ru"));
+                .andExpect(status().isOk());
     }
 }
