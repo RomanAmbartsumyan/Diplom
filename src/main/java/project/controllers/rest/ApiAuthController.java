@@ -91,12 +91,16 @@ public class ApiAuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordDto changePasswordDto) {
-        ResultDto result = new ResultDto();
-        if (captchaCodeService.isValid(changePasswordDto.getCaptcha(), changePasswordDto.getCaptchaSecret())) {
-            userService.changePassword(changePasswordDto.getCode(), changePasswordDto.getPassword());
-            result.setResult(true);
-            return ResponseEntity.ok(result);
+        HashMap<String, String> errors = new HashMap<>();
+        ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
+
+        if (!captchaCodeService.isValid(changePasswordDto.getCaptcha(), changePasswordDto.getCaptchaSecret())) {
+            errors.put("captcha", "Код с картинки введён неверно");
+            return ResponseEntity.ok(errorsMessageDto);
         }
+
+        ResultDto result = new ResultDto(true);
+        userService.changePassword(changePasswordDto.getCode(), changePasswordDto.getPassword());
         return ResponseEntity.ok(result);
     }
 

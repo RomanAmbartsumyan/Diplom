@@ -6,6 +6,7 @@ import project.models.Post;
 import project.models.PostComment;
 import project.repositories.PostCommentRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -24,5 +25,20 @@ public class PostCommentService {
      */
     public List<PostComment> allPostComments(Post post) {
         return postCommentRepository.findAllByPostId(post);
+    }
+
+    public boolean isCommentPresent(Integer commentId){
+        return postCommentRepository.findById(commentId).isPresent();
+    }
+
+    public PostComment addComment(Post post, Integer parentId, Integer userId, String text){
+        PostComment postComment = new PostComment();
+        postComment.setTime(LocalDateTime.now());
+        postComment.setParenId(parentId);
+        postComment.setPostId(post);
+        postComment.setUserId(userId);
+        postComment.setText(text);
+        postCommentRepository.save(postComment);
+        return postComment;
     }
 }
