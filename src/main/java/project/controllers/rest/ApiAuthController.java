@@ -27,7 +27,6 @@ public class ApiAuthController {
     private CaptchaCodeService captchaCodeService;
     private AuthService authService;
 
-
     /**
      * Вход пользователя
      */
@@ -76,7 +75,7 @@ public class ApiAuthController {
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDto register) {
         ResultDto result = new ResultDto();
         if (captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret())) {
-            userService.createUser(register.getEmail(), register.getPassword());
+            userService.createUser(register.getEmail(), register.getPassword(), register.getName());
             result.setResult(true);
             return ResponseEntity.ok(result);
         }

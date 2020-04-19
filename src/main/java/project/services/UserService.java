@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.dto.UserDto;
 import project.dto.UserWithPhotoInformationDto;
+import project.exceptions.BadRequestException;
 import project.models.User;
 import project.repositories.UserRepository;
 
@@ -71,7 +72,7 @@ public class UserService {
         return null;
     }
 
-    public void createUser(String email, String passwordFromUser) {
+    public User createUser(String email, String passwordFromUser, String name) {
         User user = userRepository.findByEmail(email).orElse(null);
         if(user == null){
             User createUser = new User();
@@ -81,8 +82,11 @@ public class UserService {
             createUser.setPhoto("img/default.c66f8640.jpg");
             createUser.setPassword(password);
             createUser.setModerator((byte) 0);
+            createUser.setName(name);
             userRepository.save(createUser);
+            return createUser;
         }
+        throw new BadRequestException();
     }
 
     /**
@@ -95,8 +99,9 @@ public class UserService {
         if (userFromDb != null) {
             String hashCode = UUID.randomUUID().toString();
             userFromDb.setCode(hashCode);
-            String passwordRecovery = "http://localhost:8080/login/change-password/" + hashCode;
-            mailSender.send(userFromDb.getEmail(), "Восстановление пароля", passwordRecovery);
+            String url = "http://localhost:8080/login/change-password/" + hashCode;
+            String message ="<a href=\"" + url +"\">Восстановить пароль</a>";
+            mailSender.send(userFromDb.getEmail(), "Восстановление пароля", message);
             userRepository.save(userFromDb);
             return true;
         }

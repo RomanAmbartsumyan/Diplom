@@ -75,16 +75,18 @@ public class PostService {
      * Возвращает отсортированую коллекцию всех постов
      */
     public List<Post> findAllAndSort(Integer offset, Integer limit, String mode) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset/limit, limit);
         switch (mode) {
             case "best":
                 return postRepository.bestPosts(pageable);
             case "popular":
                 return postRepository.mostPopularPosts(pageable);
             case "early":
-                return postRepository.findAllByModerationStatusAndActiveOrderByTimeAsc(ModerationStatus.ACCEPTED, (byte) 1, pageable);
+                return postRepository.findAllByModerationStatusAndActiveOrderByTimeAsc(ModerationStatus.ACCEPTED,
+                        (byte) 1, pageable);
             case "recent":
-                return postRepository.findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus.ACCEPTED, (byte) 1,pageable);
+                return postRepository.findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus.ACCEPTED,
+                        (byte) 1,pageable);
         }
         throw new BadRequestException();
     }
@@ -118,7 +120,7 @@ public class PostService {
      * Выдает посты за конкретную дату
      */
     public List<Post> findPostsByDate(Integer offset, Integer limit, String date) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset/limit, limit);
         return postRepository.findAllByTimeContaining(date + "%", pageable);
     }
 
@@ -186,12 +188,8 @@ public class PostService {
         return null;
     }
 
-    public Integer countNewPostsWithoutModeration(){
-        return postRepository.countAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW);
-    }
-
     public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status, Integer moderatorId) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset/limit, limit);
         switch (status) {
             case "declined":
                 return postRepository.findAllByModeratorIdAndActiveAndModerationStatus(moderatorId, (byte) 1, ModerationStatus.DECLINED, pageable);
@@ -204,7 +202,7 @@ public class PostService {
     }
 
     public List<Post> getMyPosts(Integer userId, Integer offset, Integer limit, String status) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset/limit, limit);
         switch (status) {
             case "inactive":
                 return postRepository.findAllByUserIdAndActive(userId, (byte) 0, pageable);
