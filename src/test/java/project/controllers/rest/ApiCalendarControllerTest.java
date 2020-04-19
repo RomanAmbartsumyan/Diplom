@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(value = "/application-test.properties")
 public class ApiCalendarControllerTest {
 
-
     @Autowired
     private MockMvc mvc;
 

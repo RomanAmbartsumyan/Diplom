@@ -23,8 +23,6 @@ import project.repositories.PostRepository;
 import project.services.AuthService;
 import project.services.PostService;
 
-import javax.servlet.http.HttpSession;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -78,14 +76,14 @@ public class ApiPostControllerTest {
         user.setEmail("asd@mail.ru");
         user.setPassword("qweasdzxc");
 
+        MockHttpSession session = new MockHttpSession();
         String userJson = createJson(user);
-        HttpSession session = mvc.perform(post("/api/auth/login")
+        mvc.perform(post("/api/auth/login")
+                .session(session)
                 .contentType(MediaType.APPLICATION_JSON).content(userJson))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn()
-                .getRequest()
-                .getSession();
+                .andExpect(status().isOk());
+
 
         AddPostDto addPostDto = new AddPostDto();
         addPostDto.setText("asdwdasdawdwadasscwdacawawdawd");
@@ -97,6 +95,7 @@ public class ApiPostControllerTest {
 
 
         mvc.perform(post("/api/post")
+                .session(session)
                 .contentType(MediaType.APPLICATION_JSON).content(addPostJson))
                 .andDo(print())
                 .andExpect(status().isOk());

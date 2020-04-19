@@ -6,6 +6,7 @@ import project.models.TagToPost;
 import project.repositories.TagToPostRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Сервис для работы с тегами и постами
@@ -44,5 +45,10 @@ public class TagToPostService {
      */
     public Integer countPostsWithTag(Integer tagId){
         return tagToPostRepository.countAllByTagId(tagId);
+    }
+
+    public boolean isTagToPostPresent(Integer postId, Integer tagId){
+        Optional<TagToPost> optionalTagToPost = tagToPostRepository.findByPostIdAndTagId(postId, tagId);
+        return optionalTagToPost.isPresent();
     }
 }

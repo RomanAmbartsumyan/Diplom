@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(value = "/application-test.properties")
-//@Sql(value = {"/data_test.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+//@Sql(value = {"/data_test.sql"})
 public class ApiAuthControllerTest {
 
     @Autowired
@@ -50,8 +51,10 @@ public class ApiAuthControllerTest {
     @Test
     public void loginUser() {
         UnauthorizedUserDTO user = new UnauthorizedUserDTO();
-        user.setEmail("asd@mail.ru");
+        user.setEmail("r9854334307@mail.ru");
         user.setPassword("qweasdzxc");
+
+        MockHttpSession session = new MockHttpSession();
 
         String userJson = createJson(user);
         mvc.perform(post("/api/auth/login")

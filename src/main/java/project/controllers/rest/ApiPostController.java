@@ -33,18 +33,17 @@ public class ApiPostController {
     public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost) {
         if (authService.checkSession()) {
             ResponseEntity<?> errorsMessage = errorOperationWithPost(addPost);
-            if (errorsMessage != null){
+            if (errorsMessage != null) {
                 return errorsMessage;
             }
             Integer userId = authService.getUserId();
             Post post = postService.createPost(userId, addPost);
 
-            addTags(addPost, post);
+            addTags(addPost.getTags(), post.getId());
             return ResponseEntity.ok(new ResultDto(true));
         }
         throw new UnauthorizedException();
     }
-
 
     /**
      * Вывод всех постов на главную страницу
@@ -96,6 +95,7 @@ public class ApiPostController {
 
         List<CommentsDto> comments = postComments.stream().map(postComment -> {
             UserWithPhotoInformationDto user = userService.getFullInformationById(postComment.getUserId());
+            user.setPhoto("");
             return new CommentsDto(postComment.getId(), postComment.getTime(), postComment.getText(), user);
         }).collect(toList());
 
@@ -121,11 +121,11 @@ public class ApiPostController {
             User user = userService.getUserById(userId);
             Post post = postService.editingPost(id, user, addPost);
             ResponseEntity<?> errorsMessage = errorOperationWithPost(addPost);
-            if (errorsMessage != null){
+            if (errorsMessage != null) {
                 return errorsMessage;
             }
 
-            addTags(addPost, post);
+            addTags(addPost.getTags(), post.getId());
             return ResponseEntity.ok(new ResultDto(true));
         }
         throw new UnauthorizedException();
@@ -204,7 +204,7 @@ public class ApiPostController {
     }
 
     @PostMapping("like")
-    private ResponseEntity<?> addLike(@RequestBody PostVoteDto postVote){
+    private ResponseEntity<?> addLike(@RequestBody PostVoteDto postVote) {
         if (authService.checkSession()) {
             Post post = postService.getPostById(postVote.getPostId());
             Integer userId = authService.getUserId();
@@ -215,7 +215,7 @@ public class ApiPostController {
     }
 
     @PostMapping("dislike")
-    private ResponseEntity<?> addDislike(@RequestBody PostVoteDto postVote){
+    private ResponseEntity<?> addDislike(@RequestBody PostVoteDto postVote) {
         if (authService.checkSession()) {
             Post post = postService.getPostById(postVote.getPostId());
             Integer userId = authService.getUserId();
@@ -268,11 +268,18 @@ public class ApiPostController {
         return null;
     }
 
-    private void addTags(@RequestBody AddPostDto addPost, Post post) {
-        if (addPost.getTags().length != 0) {
-            for (int i = 0; i < addPost.getTags().length; i++) {
-                Tag tag = tagService.saveTag(addPost.getTags()[i]);
-                tagToPostService.saveTagToPost(post.getId(), tag.getId());
+    private void addTags(String[] tags, Integer postId) {
+        if (tags.length != 0) {
+            for (int i = 0; i < tags.length; i++) {
+                Tag tagFromDb = tagService.getByName(tags[i]);
+                if (tagFromDb != null) {
+                    if (!tagToPostService.isTagToPostPresent(postId, tagFromDb.getId())) {
+                        tagToPostService.saveTagToPost(postId, tagFromDb.getId());
+                    }
+                    continue;
+                }
+                Tag tag = tagService.saveTag(tags[i]);
+                tagToPostService.saveTagToPost(postId, tag.getId());
             }
         }
     }

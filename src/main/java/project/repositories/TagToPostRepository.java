@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import project.models.TagToPost;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Репозиторий тегов к постам
@@ -22,4 +23,6 @@ public interface TagToPostRepository extends CrudRepository<TagToPost, Integer> 
     List<TagToPost> findAllByTagId(Integer id);
 
     Integer countAllByTagId(Integer tagId);
+
+    Optional<TagToPost> findByPostIdAndTagId(Integer postId, Integer tagId);
 }

@@ -52,7 +52,7 @@ public class PostService {
 
     private void addOrEditPost(AddPostDto addPost, Post post, Integer userId) {
         String strTime = addPost.getTime();
-        if (!strTime.isEmpty()) {
+        if (!strTime.isEmpty() && !strTime.equals("NaN-NaN-NaN NaN:NaN")) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
             if (dateTime.isBefore(LocalDateTime.now())) {
