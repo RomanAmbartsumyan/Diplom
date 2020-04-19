@@ -5,7 +5,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.dto.UserDto;
 import project.dto.UserWithPhotoInformationDto;
-import project.exceptions.BadRequestException;
 import project.models.User;
 import project.repositories.UserRepository;
 
@@ -73,20 +72,16 @@ public class UserService {
     }
 
     public User createUser(String email, String passwordFromUser, String name) {
-        User user = userRepository.findByEmail(email).orElse(null);
-        if(user == null){
-            User createUser = new User();
-            createUser.setEmail(email);
-            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            String password = passwordEncoder.encode(passwordFromUser);
-            createUser.setPhoto("img/default.c66f8640.jpg");
-            createUser.setPassword(password);
-            createUser.setModerator((byte) 0);
-            createUser.setName(name);
-            userRepository.save(createUser);
-            return createUser;
-        }
-        throw new BadRequestException();
+        User createUser = new User();
+        createUser.setEmail(email);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String password = passwordEncoder.encode(passwordFromUser);
+        createUser.setPhoto("img/default.c66f8640.jpg");
+        createUser.setPassword(password);
+        createUser.setModerator((byte) 0);
+        createUser.setName(name);
+        userRepository.save(createUser);
+        return createUser;
     }
 
     /**
@@ -100,7 +95,7 @@ public class UserService {
             String hashCode = UUID.randomUUID().toString();
             userFromDb.setCode(hashCode);
             String url = "http://localhost:8080/login/change-password/" + hashCode;
-            String message ="<a href=\"" + url +"\">Восстановить пароль</a>";
+            String message = "<a href=\"" + url + "\">Восстановить пароль</a>";
             mailSender.send(userFromDb.getEmail(), "Восстановление пароля", message);
             userRepository.save(userFromDb);
             return true;
@@ -114,6 +109,10 @@ public class UserService {
         String encodePassword = encoder.encode(password);
         user.setPassword(encodePassword);
         userRepository.save(user);
+    }
+
+    public boolean isUserByEmailPresent(String email){
+        return userRepository.findByEmail(email).isPresent();
     }
 
 }

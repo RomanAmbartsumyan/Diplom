@@ -9,6 +9,7 @@ import project.models.*;
 import project.services.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -32,7 +33,7 @@ public class ApiPostController {
     @PostMapping
     public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost) {
         if (authService.checkSession()) {
-            ResponseEntity<?> errorsMessage = errorOperationWithPost(addPost);
+            ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
             if (errorsMessage != null) {
                 return errorsMessage;
             }
@@ -120,7 +121,7 @@ public class ApiPostController {
             Integer userId = authService.getUserId();
             User user = userService.getUserById(userId);
             Post post = postService.editingPost(id, user, addPost);
-            ResponseEntity<?> errorsMessage = errorOperationWithPost(addPost);
+            ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
             if (errorsMessage != null) {
                 return errorsMessage;
             }
@@ -244,24 +245,22 @@ public class ApiPostController {
         }).collect(toList());
     }
 
-    private ResponseEntity<?> errorOperationWithPost(@RequestBody AddPostDto addPost) {
+    private ResponseEntity<ErrorsMessageDto> errorOperationWithPost(@RequestBody AddPostDto addPost) {
         boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
                 addPost.getTitle().length() > 500;
         boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
                 addPost.getText().length() > 500;
 
         if (tittle || text) {
-            ErrorsMessageDto errorsMessage = new ErrorsMessageDto();
-            ErrorsDto error = new ErrorsDto();
+            HashMap<String, String> errors = new HashMap<>();
+            ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
 
             if (tittle) {
-                error.setTitle("Заголовок не установлен");
-                errorsMessage.setErrors(error);
+                errors.put("title", "Заголовок не установлен");
             }
 
             if (text) {
-                error.setText("Текст публикации слишком короткий");
-                errorsMessage.setErrors(error);
+                errors.put("text","Текст публикации слишком короткий");
             }
             return ResponseEntity.ok(errorsMessage);
         }

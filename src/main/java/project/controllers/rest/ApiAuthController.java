@@ -14,6 +14,7 @@ import project.services.PostService;
 import project.services.UserService;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 
 /**
  * Контроллер аутентификации
@@ -74,13 +75,17 @@ public class ApiAuthController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDto register) {
         ResultDto result = new ResultDto();
-        if (captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret())) {
-            userService.createUser(register.getEmail(), register.getPassword(), register.getName());
-            result.setResult(true);
-            return ResponseEntity.ok(result);
+
+        ResponseEntity<ErrorsMessageDto> errorsMessage = errorsOnRegistration(register);
+        if (errorsMessage != null) {
+            return errorsMessage;
         }
+
+        userService.createUser(register.getEmail(), register.getPassword(), register.getName());
+        result.setResult(true);
         return ResponseEntity.ok(result);
     }
+
 
     @PostMapping(value = "password",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -134,5 +139,22 @@ public class ApiAuthController {
         authService.saveSession(sessionId, userFromDB.getId());
 
         return ResponseEntity.ok(new AuthUserDto(userFullInformation));
+    }
+
+    private ResponseEntity<ErrorsMessageDto> errorsOnRegistration(@RequestBody @Valid RegisterDto register) {
+        HashMap<String, String> errors = new HashMap<>();
+        ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
+        boolean isUserPresent = userService.isUserByEmailPresent(register.getEmail());
+        boolean isCaptchaValid = captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret());
+        if (isUserPresent || !isCaptchaValid) {
+            if (isUserPresent) {
+                errors.put("email", "Этот e-mail уже зарегистрирован");
+            }
+            if (!isCaptchaValid) {
+                errors.put("captcha", "Код с картинки введён неверно");
+            }
+            return ResponseEntity.ok(errorsMessage);
+        }
+        return null;
     }
 }
