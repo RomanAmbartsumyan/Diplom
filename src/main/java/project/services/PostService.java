@@ -218,4 +218,15 @@ public class PostService {
         }
         throw new BadRequestException();
     }
+
+    public void setModeration(Integer postId, String decision){
+        Post post = getPostById(postId);
+        switch (decision){
+            case "decline":
+                post.setModerationStatus(ModerationStatus.DECLINED);
+            case "accept":
+                post.setModerationStatus(ModerationStatus.ACCEPTED);
+        }
+        postRepository.save(post);
+    }
 }
