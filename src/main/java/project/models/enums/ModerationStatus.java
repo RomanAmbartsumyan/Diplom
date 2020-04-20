@@ -1,4 +1,4 @@
-package project.models;
+package project.models.enums;
 
 /**
  * Обозначения статуса модерации

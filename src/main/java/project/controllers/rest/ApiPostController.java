@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import project.dto.*;
 import project.exceptions.UnauthorizedException;
 import project.models.*;
+import project.models.enums.ModerationStatus;
 import project.services.*;
 
 import java.time.LocalDateTime;

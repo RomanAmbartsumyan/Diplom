@@ -1,6 +1,7 @@
 package project.models;
 
 import lombok.Data;
+import project.models.enums.Decision;
 
 import javax.persistence.*;
 
@@ -31,5 +32,5 @@ public class GlobalSetting {
     /**
      * Значение настройки
      */
-    private String value;
+    private Decision value;
 }

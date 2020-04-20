@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import project.dto.AddPostDto;
 import project.exceptions.BadRequestException;
 import project.exceptions.NotFountException;
-import project.models.ModerationStatus;
 import project.models.Post;
 import project.models.User;
+import project.models.enums.ModerationStatus;
 import project.repositories.PostRepository;
 
 import java.time.LocalDate;

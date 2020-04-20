@@ -3,6 +3,7 @@ package project.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.Where;
+import project.models.enums.ModerationStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

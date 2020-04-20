@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import project.models.ModerationStatus;
 import project.models.Post;
+import project.models.enums.ModerationStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +80,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     @Query(value = "SELECT SUM(view_count) FROM post", nativeQuery = true)
     Integer countViews();
 
-    @Query(value = "SELECT * FROM post ORDER BY time DESC limit 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM post ORDER BY time ASC limit 1", nativeQuery = true)
     Optional<Post> firstPublication();
 
     @Query(value = "SELECT post.* FROM post LEFT JOIN (SELECT * FROM post_vote " +
