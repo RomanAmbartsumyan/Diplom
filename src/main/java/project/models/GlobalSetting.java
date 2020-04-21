@@ -2,6 +2,7 @@ package project.models;
 
 import lombok.Data;
 import project.models.enums.Decision;
+import project.models.enums.Settings;
 
 import javax.persistence.*;
 
@@ -22,7 +23,8 @@ public class GlobalSetting {
     /**
      * Для настройки
      */
-    private String code;
+    @Enumerated(value = EnumType.STRING)
+    private Settings code;
 
     /**
      * Название настройки
@@ -32,5 +34,6 @@ public class GlobalSetting {
     /**
      * Значение настройки
      */
+    @Enumerated(value = EnumType.STRING)
     private Decision value;
 }

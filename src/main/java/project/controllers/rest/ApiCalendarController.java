@@ -29,7 +29,7 @@ public class ApiCalendarController {
     private PostService postService;
 
     @GetMapping
-    public ResponseEntity getPostsByDate(@RequestParam String year){
+    public ResponseEntity<PostsByYearDto> getPostsByDate(@RequestParam String year){
         List<String> years = postService.getYears();
         List<Post> posts = postService.findPostsByDate(year);
         Map<String, Integer> postsAndCount = new HashMap<>();

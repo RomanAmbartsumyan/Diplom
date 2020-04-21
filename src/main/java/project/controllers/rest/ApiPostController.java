@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.dto.*;
-import project.exceptions.UnauthorizedException;
 import project.models.*;
 import project.models.enums.ModerationStatus;
 import project.services.*;
@@ -29,22 +28,25 @@ public class ApiPostController {
     private TagService tagService;
     private TagToPostService tagToPostService;
     private AuthService authService;
+    private GlobalSettingService globalSettingService;
 
 
     @PostMapping
     public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost) {
-        if (authService.checkSession()) {
-            ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
-            if (errorsMessage != null) {
-                return errorsMessage;
-            }
-            Integer userId = authService.getUserId();
-            Post post = postService.createPost(userId, addPost);
+        authService.checkSession();
+        ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
+        if (errorsMessage != null) {
+            return errorsMessage;
+        }
+        Integer userId = authService.getUserId();
+        User user = userService.getUserById(userId);
+        if(user.getModerator() == 1 || globalSettingService.isMultiUserModeOn()){
+            Post post = postService.createPost(user, addPost);
 
             addTags(addPost.getTags(), post.getId());
             return ResponseEntity.ok(new ResultDto(true));
         }
-        throw new UnauthorizedException();
+        return null;
     }
 
     /**
@@ -118,19 +120,17 @@ public class ApiPostController {
 
     @PutMapping("{id}")
     public ResponseEntity<?> editPost(@RequestBody AddPostDto addPost, @PathVariable Integer id) {
-        if (authService.checkSession()) {
-            Integer userId = authService.getUserId();
-            User user = userService.getUserById(userId);
-            Post post = postService.editingPost(id, user, addPost);
-            ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
-            if (errorsMessage != null) {
-                return errorsMessage;
-            }
-
-            addTags(addPost.getTags(), post.getId());
-            return ResponseEntity.ok(new ResultDto(true));
+        authService.checkSession();
+        Integer userId = authService.getUserId();
+        User user = userService.getUserById(userId);
+        Post post = postService.editingPost(id, user, addPost);
+        ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
+        if (errorsMessage != null) {
+            return errorsMessage;
         }
-        throw new UnauthorizedException();
+
+        addTags(addPost.getTags(), post.getId());
+        return ResponseEntity.ok(new ResultDto(true));
     }
 
 
@@ -170,61 +170,53 @@ public class ApiPostController {
     }
 
     @GetMapping("moderation")
-    private ResponseEntity<ModerationPostsDto> getPostsListOnModeration(@RequestParam Integer offset,
+    public ResponseEntity<ModerationPostsDto> getPostsListOnModeration(@RequestParam Integer offset,
                                                                         @RequestParam Integer limit,
                                                                         @RequestParam String status) {
-        if (authService.checkSession()) {
-            Integer moderatorId = authService.getUserId();
-            List<Post> posts = postService.activePostsOnModeration(offset, limit, status, moderatorId);
+        authService.checkSession();
+        Integer moderatorId = authService.getUserId();
+        List<Post> posts = postService.activePostsOnModeration(offset, limit, status, moderatorId);
 
-            List<PostsOnModerationDto> postsOnModeration = posts.stream().map(post -> {
-                User user = userService.getUserById(post.getUserId());
-                UserDto userDto = new UserDto(user.getId(), user.getName());
-                return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
-            }).collect(toList());
+        List<PostsOnModerationDto> postsOnModeration = posts.stream().map(post -> {
+            User user = userService.getUserById(post.getUserId());
+            UserDto userDto = new UserDto(user.getId(), user.getName());
+            return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
+        }).collect(toList());
 
-            Integer countPosts = postsOnModeration.size();
+        Integer countPosts = postsOnModeration.size();
 
-            return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
-        }
-        throw new UnauthorizedException();
+        return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
     }
 
     @GetMapping("my")
     public ResponseEntity<?> getMyPosts(@RequestParam Integer offset,
                                         @RequestParam Integer limit,
                                         @RequestParam String status) {
-        if (authService.checkSession()) {
-            Integer userId = authService.getUserId();
-            List<Post> posts = postService.getMyPosts(userId, offset, limit, status);
-            List<PostDto> myPosts = transformCollectionForFront(posts);
-            Integer quantityPosts = myPosts.size();
+        authService.checkSession();
+        Integer userId = authService.getUserId();
+        List<Post> posts = postService.getMyPosts(userId, offset, limit, status);
+        List<PostDto> myPosts = transformCollectionForFront(posts);
+        Integer quantityPosts = myPosts.size();
 
-            return ResponseEntity.ok(new MyPostListDto(quantityPosts, myPosts, offset, limit, status));
-        }
-        throw new UnauthorizedException();
+        return ResponseEntity.ok(new MyPostListDto(quantityPosts, myPosts, offset, limit, status));
     }
 
     @PostMapping("like")
-    private ResponseEntity<?> addLike(@RequestBody PostVoteDto postVote) {
-        if (authService.checkSession()) {
-            Post post = postService.getPostById(postVote.getPostId());
-            Integer userId = authService.getUserId();
-            boolean isLikeAdded = postVoteService.addLike(post, userId);
-            return ResponseEntity.ok(new ResultDto(isLikeAdded));
-        }
-        throw new UnauthorizedException();
+    public ResponseEntity<ResultDto> addLike(@RequestBody PostVoteDto postVote) {
+        authService.checkSession();
+        Post post = postService.getPostById(postVote.getPostId());
+        Integer userId = authService.getUserId();
+        boolean isLikeAdded = postVoteService.addLike(post, userId);
+        return ResponseEntity.ok(new ResultDto(isLikeAdded));
     }
 
     @PostMapping("dislike")
-    private ResponseEntity<?> addDislike(@RequestBody PostVoteDto postVote) {
-        if (authService.checkSession()) {
-            Post post = postService.getPostById(postVote.getPostId());
-            Integer userId = authService.getUserId();
-            boolean isDislikeAdded = postVoteService.addDislike(post, userId);
-            return ResponseEntity.ok(new ResultDto(isDislikeAdded));
-        }
-        throw new UnauthorizedException();
+    public ResponseEntity<ResultDto> addDislike(@RequestBody PostVoteDto postVote) {
+        authService.checkSession();
+        Post post = postService.getPostById(postVote.getPostId());
+        Integer userId = authService.getUserId();
+        boolean isDislikeAdded = postVoteService.addDislike(post, userId);
+        return ResponseEntity.ok(new ResultDto(isDislikeAdded));
     }
 
 
@@ -261,7 +253,7 @@ public class ApiPostController {
             }
 
             if (text) {
-                errors.put("text","Текст публикации слишком короткий");
+                errors.put("text", "Текст публикации слишком короткий");
             }
             return ResponseEntity.ok(errorsMessage);
         }
@@ -270,15 +262,15 @@ public class ApiPostController {
 
     private void addTags(String[] tags, Integer postId) {
         if (tags.length != 0) {
-            for (int i = 0; i < tags.length; i++) {
-                Tag tagFromDb = tagService.getByName(tags[i]);
+            for (String s : tags) {
+                Tag tagFromDb = tagService.getByName(s);
                 if (tagFromDb != null) {
                     if (!tagToPostService.isTagToPostPresent(postId, tagFromDb.getId())) {
                         tagToPostService.saveTagToPost(postId, tagFromDb.getId());
                     }
                     continue;
                 }
-                Tag tag = tagService.saveTag(tags[i]);
+                Tag tag = tagService.saveTag(s);
                 tagToPostService.saveTagToPost(postId, tag.getId());
             }
         }

@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import project.exceptions.UnauthorizedException;
 
 import java.util.Map;
 
@@ -38,10 +39,9 @@ public class AuthServiceTest {
         verify(authUsers, times(1)).get("2");
     }
 
-    @Test
+    @Test(expected = UnauthorizedException.class)
     public void checkSession() {
         authService.checkSession();
-        verify(authUsers, times(1)).get("3");
     }
 
     @Test

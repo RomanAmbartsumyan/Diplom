@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.dto.StatisticsDto;
+import project.services.AuthService;
 import project.services.PostService;
 import project.services.PostVoteService;
 
@@ -15,9 +16,11 @@ import project.services.PostVoteService;
 public class ApiStatisticsController {
     private PostService postService;
     private PostVoteService postVoteService;
+    private AuthService authService;
 
     @GetMapping("all")
     public ResponseEntity<StatisticsDto> getAllStatistics (){
+        authService.checkSession();
         Integer countPosts = postService.getCountAllPosts();
         Integer likesCount = postVoteService.countLikes();
         Integer dislikesCount = postVoteService.countDislikes();

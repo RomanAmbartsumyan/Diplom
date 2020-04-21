@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import project.dto.*;
-import project.exceptions.UnauthorizedException;
 import project.models.User;
 import project.services.AuthService;
 import project.services.CaptchaCodeService;
@@ -106,11 +105,9 @@ public class ApiAuthController {
 
     @GetMapping("logout")
     public ResponseEntity<?> logoutUser() {
-        if (authService.checkSession()) {
-            authService.logout();
-            return ResponseEntity.ok(new ResultDto(true));
-        }
-        throw new UnauthorizedException();
+        authService.checkSession();
+        authService.logout();
+        return ResponseEntity.ok(new ResultDto(true));
     }
 
     /**

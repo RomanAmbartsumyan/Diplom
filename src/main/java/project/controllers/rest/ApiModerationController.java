@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.dto.ModerationDto;
 import project.dto.ResultDto;
+import project.services.AuthService;
 import project.services.PostService;
 
 @RestController
@@ -15,10 +16,13 @@ import project.services.PostService;
 @AllArgsConstructor
 public class ApiModerationController {
     private PostService postService;
+    private AuthService authService;
 
     @PostMapping
     private ResponseEntity<?> postModeration(@RequestBody ModerationDto dto) {
-        postService.setModeration(dto.getPostId(), dto.getDecision());
+        authService.checkSession();
+        Integer moderatorId = authService.getUserId();
+        postService.setModeration(dto.getPostId(), dto.getDecision(), moderatorId);
         return ResponseEntity.ok(new ResultDto(true));
     }
 }

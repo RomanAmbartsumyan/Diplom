@@ -17,9 +17,9 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends CrudRepository<Post, Integer> {
 
-    List<Post> findAllByModeratorIdAndActiveAndModerationStatus(Integer moderatorId,
-                                                                Byte active, ModerationStatus moderationStatus,
-                                                                Pageable pageable);
+    List<Post> findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(Integer moderatorId,
+                                                                               Byte active, ModerationStatus moderationStatus,
+                                                                               Pageable pageable);
 
     Integer countAllByModeratorIdAndActiveAndModerationStatus(Integer moderatorId, Byte active, ModerationStatus moderationStatus);
 
@@ -93,10 +93,10 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "ORDER BY COUNT(post_comment.id) DESC", nativeQuery = true)
     List<Post> mostPopularPosts(Pageable pageable);
 
-    List<Post> findAllByUserIdAndActive(Integer userId, Byte active, Pageable pageable);
+    List<Post> findAllByUserIdAndActiveOrderByTimeDesc(Integer userId, Byte active, Pageable pageable);
 
-    List<Post> findAllByUserIdAndActiveAndModerationStatus(Integer userId, Byte active, ModerationStatus status,
-                                                           Pageable pageable);
+    List<Post> findAllByUserIdAndActiveAndModerationStatusOrderByTimeDesc(Integer userId, Byte active, ModerationStatus status,
+                                                                          Pageable pageable);
 
     List<Post> findAllByModerationStatusAndActiveOrderByTimeAsc(ModerationStatus moderationStatus, Byte active,
                                                                    Pageable pageable);

@@ -3,6 +3,7 @@ package project.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
+import project.exceptions.UnauthorizedException;
 
 import java.util.Map;
 
@@ -20,9 +21,11 @@ public class AuthService {
         return authUsers.get(sessionId);
     }
 
-    public boolean checkSession() {
+    public void checkSession() {
         String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-        return authUsers.get(sessionId) != null;
+        if (authUsers.get(sessionId) == null) {
+            throw new UnauthorizedException();
+        }
     }
 
     public void logout() {

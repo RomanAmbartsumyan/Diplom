@@ -28,10 +28,31 @@ public class PostService {
      * Репозиторий постов
      */
     private PostRepository postRepository;
+    private GlobalSettingService globalSettingService;
 
-    public Post createPost(Integer userId, AddPostDto addPost) {
+    public Post createPost(User user, AddPostDto addPost) {
         Post post = new Post();
-        addOrEditPost(addPost, post, userId);
+        String strTime = addPost.getTime();
+        if (!strTime.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
+            if (dateTime.isBefore(LocalDateTime.now())) {
+                post.setTime(LocalDateTime.now());
+            }
+        } else {
+            post.setTime(LocalDateTime.now());
+        }
+        if (!globalSettingService.isPostPreModerationOn() || user.getModerator() == 1) {
+            post.setModerationStatus(ModerationStatus.ACCEPTED);
+        } else {
+            post.setModerationStatus(ModerationStatus.NEW);
+        }
+        post.setActive(addPost.getActive());
+        post.setTitle(addPost.getTitle());
+        post.setText(addPost.getText());
+        post.setUserId(user.getId());
+        post.setViewCount(0);
+        postRepository.save(post);
         return post;
     }
 
@@ -40,19 +61,8 @@ public class PostService {
         if (post == null) {
             throw new NotFountException();
         }
-
-        if (user.getModerator() == 0) {
-            post.setModerationStatus(ModerationStatus.NEW);
-        }
-
-        addOrEditPost(addPost, post, user.getId());
-
-        return post;
-    }
-
-    private void addOrEditPost(AddPostDto addPost, Post post, Integer userId) {
         String strTime = addPost.getTime();
-        if (!strTime.isEmpty() && !strTime.equals("NaN-NaN-NaN NaN:NaN")) {
+        if (!strTime.equals("NaN-NaN-NaN NaN:NaN")) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
             if (dateTime.isBefore(LocalDateTime.now())) {
@@ -62,20 +72,25 @@ public class PostService {
             post.setTime(LocalDateTime.now());
         }
 
-        post.setModerationStatus(ModerationStatus.NEW);
+        if (user.getModerator() == 0 || !globalSettingService.isPostPreModerationOn()) {
+            post.setModerationStatus(ModerationStatus.NEW);
+        } else {
+            post.setModerationStatus(ModerationStatus.ACCEPTED);
+        }
+
         post.setActive(addPost.getActive());
         post.setTitle(addPost.getTitle());
         post.setText(addPost.getText());
-        post.setUserId(userId);
-        post.setViewCount(0);
+        post.setUserId(user.getId());
         postRepository.save(post);
+        return post;
     }
 
     /**
      * Возвращает отсортированую коллекцию всех постов
      */
     public List<Post> findAllAndSort(Integer offset, Integer limit, String mode) {
-        Pageable pageable = PageRequest.of(offset/limit, limit);
+        Pageable pageable = PageRequest.of(offset / limit, limit);
         switch (mode) {
             case "best":
                 return postRepository.bestPosts(pageable);
@@ -86,7 +101,7 @@ public class PostService {
                         (byte) 1, pageable);
             case "recent":
                 return postRepository.findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus.ACCEPTED,
-                        (byte) 1,pageable);
+                        (byte) 1, pageable);
         }
         throw new BadRequestException();
     }
@@ -120,7 +135,7 @@ public class PostService {
      * Выдает посты за конкретную дату
      */
     public List<Post> findPostsByDate(Integer offset, Integer limit, String date) {
-        Pageable pageable = PageRequest.of(offset/limit, limit);
+        Pageable pageable = PageRequest.of(offset / limit, limit);
         return postRepository.findAllByTimeContaining(date + "%", pageable);
     }
 
@@ -162,7 +177,8 @@ public class PostService {
      * Выдает кол-во новых постов
      */
     public Integer getCountOfNewPosts() {
-        return postRepository.countAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW);
+        return postRepository
+                .countAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW);
     }
 
     /**
@@ -189,44 +205,51 @@ public class PostService {
     }
 
     public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status, Integer moderatorId) {
-        Pageable pageable = PageRequest.of(offset/limit, limit);
+        Pageable pageable = PageRequest.of(offset / limit, limit);
         switch (status) {
             case "declined":
-                return postRepository.findAllByModeratorIdAndActiveAndModerationStatus(moderatorId, (byte) 1, ModerationStatus.DECLINED, pageable);
+                return postRepository
+                        .findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(moderatorId, (byte) 1,
+                                ModerationStatus.DECLINED, pageable);
             case "accepted":
-                return postRepository.findAllByModeratorIdAndActiveAndModerationStatus(moderatorId, (byte) 1, ModerationStatus.ACCEPTED, pageable);
+                return postRepository
+                        .findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(moderatorId, (byte) 1,
+                                ModerationStatus.ACCEPTED, pageable);
             case "new":
-                return postRepository.findAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW, pageable);
+                return postRepository
+                        .findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(null, (byte) 1,
+                                ModerationStatus.NEW, pageable);
         }
         throw new BadRequestException();
     }
 
     public List<Post> getMyPosts(Integer userId, Integer offset, Integer limit, String status) {
-        Pageable pageable = PageRequest.of(offset/limit, limit);
+        Pageable pageable = PageRequest.of(offset / limit, limit);
         switch (status) {
             case "inactive":
-                return postRepository.findAllByUserIdAndActive(userId, (byte) 0, pageable);
+                return postRepository.findAllByUserIdAndActiveOrderByTimeDesc(userId, (byte) 0, pageable);
             case "pending":
-                return postRepository.findAllByUserIdAndActiveAndModerationStatus(userId, (byte) 1,
+                return postRepository.findAllByUserIdAndActiveAndModerationStatusOrderByTimeDesc(userId, (byte) 1,
                         ModerationStatus.NEW, pageable);
             case "declined":
-                return postRepository.findAllByUserIdAndActiveAndModerationStatus(userId, (byte) 1,
+                return postRepository.findAllByUserIdAndActiveAndModerationStatusOrderByTimeDesc(userId, (byte) 1,
                         ModerationStatus.DECLINED, pageable);
             case "published ":
-                return postRepository.findAllByUserIdAndActiveAndModerationStatus(userId, (byte) 1,
+                return postRepository.findAllByUserIdAndActiveAndModerationStatusOrderByTimeDesc(userId, (byte) 1,
                         ModerationStatus.ACCEPTED, pageable);
         }
         throw new BadRequestException();
     }
 
-    public void setModeration(Integer postId, String decision){
+    public void setModeration(Integer postId, String decision, Integer moderatorId) {
         Post post = getPostById(postId);
-        switch (decision){
+        switch (decision) {
             case "decline":
                 post.setModerationStatus(ModerationStatus.DECLINED);
             case "accept":
                 post.setModerationStatus(ModerationStatus.ACCEPTED);
         }
+        post.setModeratorId(moderatorId);
         postRepository.save(post);
     }
 }

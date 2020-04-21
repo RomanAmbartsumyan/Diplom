@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import project.dto.AddCommentDto;
 import project.dto.CommentToPostDto;
 import project.dto.ErrorsMessageDto;
-import project.exceptions.UnauthorizedException;
 import project.models.Post;
 import project.models.PostComment;
 import project.services.AuthService;
@@ -28,19 +27,17 @@ public class ApiCommentController {
 
     @PostMapping
     private ResponseEntity<?> addCommentToPost(@RequestBody CommentToPostDto dto) {
-        if (authService.checkSession()) {
-            if(dto.getText().length() < 10){
-                HashMap<String, String> errors = new HashMap<>();
-                ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
-                errors.put("text", "Текст комментария не задан или слишком короткий" );
-                return ResponseEntity.ok(errorsMessageDto);
-            }
-
-            Integer userId = authService.getUserId();
-            Post post = postService.getPostById(dto.getPostId());
-            PostComment postComment = postCommentService.addComment(post, dto.getParentId(), userId, dto.getText());
-            return ResponseEntity.ok(new AddCommentDto(postComment.getId()));
+        authService.checkSession();
+        if (dto.getText().length() < 10) {
+            HashMap<String, String> errors = new HashMap<>();
+            ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
+            errors.put("text", "Текст комментария не задан или слишком короткий");
+            return ResponseEntity.ok(errorsMessageDto);
         }
-        throw new UnauthorizedException();
+
+        Integer userId = authService.getUserId();
+        Post post = postService.getPostById(dto.getPostId());
+        PostComment postComment = postCommentService.addComment(post, dto.getParentId(), userId, dto.getText());
+        return ResponseEntity.ok(new AddCommentDto(postComment.getId()));
     }
 }

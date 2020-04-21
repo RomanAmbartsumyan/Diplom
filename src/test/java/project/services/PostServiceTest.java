@@ -42,7 +42,9 @@ public class PostServiceTest {
         dto.setActive((byte) 1);
         dto.setText("world world world world world world");
         dto.setTags(tags);
-        Post post = postService.createPost(1, dto);
+
+        User user = new User();
+        Post post = postService.createPost(user, dto);
 
         verify(postRepository, times(1)).save(post);
     }
@@ -62,11 +64,11 @@ public class PostServiceTest {
         String name = "World";
         User user = userService.createUser(email, password, name);
 
-        Post postCreate = postService.createPost(user.getId(), dto);
+        Post postCreate = postService.createPost(user, dto);
 
         Post post = postService.editingPost(postCreate.getId(), user, dto);
 
-        verify(postRepository, times(1)).save(post);
+        verify(postRepository, times(1)).save(postCreate);
     }
 
     @Test
