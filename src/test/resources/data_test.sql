@@ -1,6 +1,6 @@
 
 --INSERT users
-insert into user (id, name, password, email, photo, reg_time, is_moderator) values (1, 'Roman', '$2a$10$XR/zQU8iZE4wfabkaRKc8uK9oDAiibFrzlH/S0OfWJQP2z7/7y4d2', 'asd@mail.ru', 'img/default.c66f8640.jpg' , '2020-04-09 16:13:25', 1);
+insert into user (id, name, password, email, photo, reg_time, is_moderator) values (1, 'Roman', '$2a$10$XR/zQU8iZE4wfabkaRKc8uK9oDAiibFrzlH/S0OfWJQP2z7/7y4d2', 'r9854334307@mail.ru', 'img/default.c66f8640.jpg' , '2020-04-09 16:13:25', 1);
 insert into user (id, name, password, email, photo, reg_time, is_moderator) values (2, 'Artem', '$2a$10$XR/zQU8iZE4wfabkaRKc8uK9oDAiibFrzlH/S0OfWJQP2z7/7y4d2', 'qwe@mail.ru', 'img/default.c66f8640.jpg' , '2020-04-09 16:13:25', 1);
 insert into user (id, name, password, email, photo, reg_time, is_moderator) values (3, 'Alexander', '$2a$10$XR/zQU8iZE4wfabkaRKc8uK9oDAiibFrzlH/S0OfWJQP2z7/7y4d2', 'qwe@mail.ru', 'img/default.c66f8640.jpg' , '2020-04-09 16:13:25', 0);
 
