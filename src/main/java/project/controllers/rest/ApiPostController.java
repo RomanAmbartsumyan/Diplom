@@ -21,14 +21,14 @@ import static java.util.stream.Collectors.toList;
 @RequestMapping("/api/post")
 @AllArgsConstructor
 public class ApiPostController {
-    private PostService postService;
-    private UserService userService;
-    private PostCommentService postCommentService;
-    private PostVoteService postVoteService;
-    private TagService tagService;
-    private TagToPostService tagToPostService;
-    private AuthService authService;
-    private GlobalSettingService globalSettingService;
+    private final PostService postService;
+    private final UserService userService;
+    private final PostCommentService postCommentService;
+    private final PostVoteService postVoteService;
+    private final TagService tagService;
+    private final TagToPostService tagToPostService;
+    private final AuthService authService;
+    private final GlobalSettingService globalSettingService;
 
 
     @PostMapping

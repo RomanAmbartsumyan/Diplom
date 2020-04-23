@@ -1,5 +1,6 @@
 package project.services;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.models.Post;
 import project.models.PostVote;
@@ -13,19 +14,12 @@ import java.util.Optional;
  * Сервис для работы с БД лайков и дизлайков
  */
 @Service
+@AllArgsConstructor
 public class PostVoteService {
     /**
      * Репозиторий лайков и дизлайков
      */
-    private PostVoteRepository postVoteRepository;
-
-
-    /**
-     * Конструктор лайков и дизлайков
-     */
-    public PostVoteService(PostVoteRepository postVoteRepository) {
-        this.postVoteRepository = postVoteRepository;
-    }
+    private final PostVoteRepository postVoteRepository;
 
     /**
      * Выдает информацию о лайков и дизлайков к данному посту найденому по id
@@ -76,12 +70,20 @@ public class PostVoteService {
         return true;
     }
 
-    private void savePostVote(Post postId, Integer userId, byte i) {
+    public void savePostVote(Post postId, Integer userId, byte i) {
         PostVote postVote = new PostVote();
         postVote.setPostId(postId);
         postVote.setUserId(userId);
         postVote.setTime(LocalDateTime.now());
         postVote.setValue(i);
         postVoteRepository.save(postVote);
+    }
+
+    public Integer getCountMyLikes(Integer userId){
+        return postVoteRepository.countAllByUserIdAndValue(userId, 1);
+    }
+
+    public Integer getCountMyDislikes(Integer userId){
+        return postVoteRepository.countAllByUserIdAndValue(userId, -1);
     }
 }

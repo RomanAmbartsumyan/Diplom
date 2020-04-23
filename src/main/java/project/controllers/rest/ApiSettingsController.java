@@ -11,8 +11,8 @@ import project.services.GlobalSettingService;
 @RequestMapping("/api/settings")
 @AllArgsConstructor
 public class ApiSettingsController {
-    private GlobalSettingService globalSettingService;
-    private AuthService authService;
+    private final GlobalSettingService globalSettingService;
+    private final AuthService authService;
 
     @GetMapping
     public ResponseEntity<SettingsDto> getSettings(){

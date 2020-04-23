@@ -17,7 +17,7 @@ public class TagToPostService {
     /**
      * Репозиторий связей постов и id
      */
-    private TagToPostRepository tagToPostRepository;
+    private final TagToPostRepository tagToPostRepository;
 
     public void saveTagToPost(Integer postId, Integer tagId){
         TagToPost tagToPost = new TagToPost();

@@ -30,14 +30,6 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
                                                                    String title, Pageable pageable);
 
     /**
-     * Собирает коллекцию постов по id, активности и статусу модерации
-     */
-    @Query(value = "SELECT * FROM post WHERE id IN :ids AND is_active LIKE 1 " +
-            "AND moderation_status LIKE 'NEW' ", nativeQuery = true)
-    List<Post> findByIdIn(@Param("ids")List<Integer> ids);
-
-
-    /**
      * Поиск постов по активности, статусу модерации и за конкретную дату с ограничением вывода
      */
     @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED' " +
@@ -103,4 +95,12 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
 
     List<Post> findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus moderationStatus, Byte active,
                                                                     Pageable pageable);
+
+    Integer countAllByUserId(Integer userId);
+
+    @Query(value = "SELECT SUM(view_count) FROM post WHERE user_id = :user_id", nativeQuery = true)
+    Integer countMyViews(@Param("user_id") Integer userId);
+
+    @Query(value = "SELECT * FROM post WHERE user_id = :user_id ORDER BY time ASC limit 1", nativeQuery = true)
+    Optional<Post> myFirstPublication(@Param("user_id") Integer userId);
 }

@@ -21,12 +21,12 @@ import java.util.HashMap;
 @RequestMapping("/api/comment")
 @AllArgsConstructor
 public class ApiCommentController {
-    private PostCommentService postCommentService;
-    private PostService postService;
-    private AuthService authService;
+    private final PostCommentService postCommentService;
+    private final PostService postService;
+    private final AuthService authService;
 
     @PostMapping
-    private ResponseEntity<?> addCommentToPost(@RequestBody CommentToPostDto dto) {
+    public ResponseEntity<?> addCommentToPost(@RequestBody CommentToPostDto dto) {
         authService.checkSession();
         if (dto.getText().length() < 10) {
             HashMap<String, String> errors = new HashMap<>();

@@ -27,8 +27,8 @@ public class PostService {
     /**
      * Репозиторий постов
      */
-    private PostRepository postRepository;
-    private GlobalSettingService globalSettingService;
+    private final PostRepository postRepository;
+    private final GlobalSettingService globalSettingService;
 
     public Post createPost(User user, AddPostDto addPost) {
         Post post = new Post();
@@ -149,7 +149,7 @@ public class PostService {
     /**
      * Выдает посты за конкретный год
      */
-    public List<Post> findPostsByDate(String year) {
+    public List<Post> findPostsByYear(String year) {
         List<Post> posts = postRepository.findAllByTimeContaining(year + "%");
         if (posts.isEmpty()) {
             LocalDate localDate = LocalDate.now();
@@ -188,6 +188,10 @@ public class PostService {
         return postRepository.countAll();
     }
 
+    public Integer getCountMyPosts(Integer userId){
+        return postRepository.countAllByUserId(userId);
+    }
+
     /**
      * Выдает кол-во просмотров постов
      */
@@ -201,7 +205,7 @@ public class PostService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             return post.get().getTime().format(formatter);
         }
-        return null;
+        return "Еще нет публикаций";
     }
 
     public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status, Integer moderatorId) {
@@ -234,14 +238,14 @@ public class PostService {
             case "declined":
                 return postRepository.findAllByUserIdAndActiveAndModerationStatusOrderByTimeDesc(userId, (byte) 1,
                         ModerationStatus.DECLINED, pageable);
-            case "published ":
+            case "published":
                 return postRepository.findAllByUserIdAndActiveAndModerationStatusOrderByTimeDesc(userId, (byte) 1,
                         ModerationStatus.ACCEPTED, pageable);
         }
         throw new BadRequestException();
     }
 
-    public void setModeration(Integer postId, String decision, Integer moderatorId) {
+    public Post setModeration(Integer postId, String decision, Integer moderatorId) {
         Post post = getPostById(postId);
         switch (decision) {
             case "decline":
@@ -251,5 +255,19 @@ public class PostService {
         }
         post.setModeratorId(moderatorId);
         postRepository.save(post);
+        return post;
+    }
+
+    public Integer getCountMyViews(Integer userId){
+        return postRepository.countMyViews(userId);
+    }
+
+    public String getDateMyFirstPublication(Integer userId){
+        Optional<Post> post = postRepository.myFirstPublication(userId);
+        if (post.isPresent()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            return post.get().getTime().format(formatter);
+        }
+        return "Еще нет публикаций";
     }
 }

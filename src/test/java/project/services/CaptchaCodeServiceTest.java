@@ -44,14 +44,6 @@ public class CaptchaCodeServiceTest {
         verify(repository, times(1)).save(any());
     }
 
-    /**
-     * Не знаю как сравнивать значения
-     */
-    @Test
-    public void getImageBase64() {
-        String img = service.getImageBase64("qweasdzxc", 20);
-    }
-
     @Test
     public void deleteCaptcha() {
         LocalDateTime now = LocalDateTime.now();

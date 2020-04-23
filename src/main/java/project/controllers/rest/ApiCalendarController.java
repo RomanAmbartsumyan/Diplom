@@ -26,12 +26,12 @@ import static java.util.Comparator.reverseOrder;
 @RequestMapping("/api/calendar")
 @AllArgsConstructor
 public class ApiCalendarController {
-    private PostService postService;
+    private final PostService postService;
 
     @GetMapping
     public ResponseEntity<PostsByYearDto> getPostsByDate(@RequestParam String year){
         List<String> years = postService.getYears();
-        List<Post> posts = postService.findPostsByDate(year);
+        List<Post> posts = postService.findPostsByYear(year);
         Map<String, Integer> postsAndCount = new HashMap<>();
         posts.forEach(post ->{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

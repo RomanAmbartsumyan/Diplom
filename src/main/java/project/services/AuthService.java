@@ -10,7 +10,7 @@ import java.util.Map;
 @Service
 @AllArgsConstructor
 public class AuthService {
-    private Map<String, Integer> authUsers;
+    private final Map<String, Integer> authUsers;
 
     public void saveSession(String sessionId, Integer userId) {
         authUsers.put(sessionId, userId);

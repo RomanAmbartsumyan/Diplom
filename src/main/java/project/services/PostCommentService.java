@@ -18,7 +18,7 @@ public class PostCommentService {
     /**
      * Репозиторий комментариев к постам
      */
-    private PostCommentRepository postCommentRepository;
+    private final PostCommentRepository postCommentRepository;
 
     /**
      * Возвращает коллекцию всех комментариев к посту

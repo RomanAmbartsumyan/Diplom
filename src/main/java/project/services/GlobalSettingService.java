@@ -13,7 +13,7 @@ import javax.annotation.PostConstruct;
 @Service
 @AllArgsConstructor
 public class GlobalSettingService {
-    private GlobalSettingRepository globalSettingRepository;
+    private final GlobalSettingRepository globalSettingRepository;
 
     @PostConstruct
     public void init() {
@@ -45,23 +45,11 @@ public class GlobalSettingService {
         GlobalSetting postPreModeration = globalSettingRepository.findByCode(Settings.POST_PREMODERATION);
         GlobalSetting statisticsIsPublic = globalSettingRepository.findByCode(Settings.STATISTICS_IS_PUBLIC);
 
-        if (multiUserMode.getValue().equals(Decision.YES)) {
-            settingsDto.setMultiUserMode(true);
-        } else {
-            settingsDto.setMultiUserMode(false);
-        }
+        settingsDto.setMultiUserMode(multiUserMode.getValue().equals(Decision.YES));
 
-        if (postPreModeration.getValue().equals(Decision.YES)) {
-            settingsDto.setPostPreModeration(true);
-        } else {
-            settingsDto.setPostPreModeration(false);
-        }
+        settingsDto.setPostPreModeration(postPreModeration.getValue().equals(Decision.YES));
 
-        if (statisticsIsPublic.getValue().equals(Decision.YES)) {
-            settingsDto.setStatisticIsPublic(true);
-        } else {
-            settingsDto.setStatisticIsPublic(false);
-        }
+        settingsDto.setStatisticIsPublic(statisticsIsPublic.getValue().equals(Decision.YES));
         return settingsDto;
     }
 

@@ -22,10 +22,10 @@ import java.util.HashMap;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 public class ApiAuthController {
-    private UserService userService;
-    private PostService postService;
-    private CaptchaCodeService captchaCodeService;
-    private AuthService authService;
+    private final UserService userService;
+    private final PostService postService;
+    private final CaptchaCodeService captchaCodeService;
+    private final AuthService authService;
 
     /**
      * Вход пользователя

@@ -28,9 +28,9 @@ import static java.util.Comparator.comparing;
 @RequestMapping("/api/tag")
 @AllArgsConstructor
 public class ApiTagController {
-    private TagService tagService;
-    private PostService postService;
-    private TagToPostService tagToPost;
+    private final TagService tagService;
+    private final PostService postService;
+    private final TagToPostService tagToPost;
     /**
      * Выдает тэги
      */

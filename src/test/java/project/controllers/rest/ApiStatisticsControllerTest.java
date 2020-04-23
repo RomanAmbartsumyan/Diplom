@@ -1,17 +1,26 @@
 package project.controllers.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import project.dto.UnauthorizedUserDTO;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,17 +28,57 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(value = "/application-test.properties")
+@SqlGroup({
+        @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/data_test.sql"),
+        @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "/clean.sql")
+})
 public class ApiStatisticsControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
+    private final MockHttpSession session = new MockHttpSession();
+
+    @SneakyThrows
+    @Before
+    public void setUp() {
+        UnauthorizedUserDTO user = new UnauthorizedUserDTO();
+        user.setEmail("r9854334307@mail.ru");
+        user.setPassword("qweasdzxc");
+
+        String userJson = createJson(user);
+        mvc.perform(post("/api/auth/login")
+                .session(session)
+                .contentType(MediaType.APPLICATION_JSON).content(userJson))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
     @SneakyThrows
     @Test
     public void getAllStatistics() {
-        mvc.perform(get("/api/tag")
-                .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/all")
+                .contentType(MediaType.APPLICATION_JSON)
+                .session(session))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    @Test
+    public void getMyStatistics() {
+        mvc.perform(get("/api/my")
+                .contentType(MediaType.APPLICATION_JSON)
+                .session(session))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    public String createJson(Object object) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        return ow.writeValueAsString(object);
     }
 }

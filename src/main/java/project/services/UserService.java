@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.dto.UserDto;
 import project.dto.UserWithPhotoInformationDto;
+import project.exceptions.NotFountException;
 import project.models.User;
 import project.repositories.UserRepository;
 
@@ -20,11 +21,11 @@ public class UserService {
     /**
      * Репозиторий пользователей
      */
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     /**
      * Отправка почты
      */
-    private MailSender mailSender;
+    private final MailSender mailSender;
 
 
     /**
@@ -33,16 +34,16 @@ public class UserService {
     public UserDto getUserDtoById(Integer id) {
         Optional<User> userDtoById = userRepository.findById(id);
         return userDtoById.map(user -> new UserDto(user.getId(), user.getName()))
-                .orElse(null);
+                .orElseThrow(NotFountException::new);
     }
 
     /**
      * Выдает пользователя по id
      */
     public User getUserById(Integer id) {
-        if (id != null) {
+        if(id != null){
             Optional<User> userById = userRepository.findById(id);
-            return userById.orElse(null);
+            return userById.orElseThrow(NotFountException::new);
         }
         return null;
     }
@@ -54,7 +55,7 @@ public class UserService {
     public UserWithPhotoInformationDto getFullInformationById(Integer id) {
         Optional<User> userById = userRepository.findById(id);
         return userById.map(user -> new UserWithPhotoInformationDto(user.getId(), user.getName(), user.getPhoto()))
-                .orElse(null);
+                .orElseThrow(NotFountException::new);
     }
 
     /**
@@ -68,7 +69,7 @@ public class UserService {
                 return optionalUser.get();
             }
         }
-        return null;
+        throw new  NotFountException();
     }
 
     public User createUser(String email, String passwordFromUser, String name) {
@@ -111,7 +112,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public boolean isUserByEmailPresent(String email){
+    public boolean isUserByEmailPresent(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 

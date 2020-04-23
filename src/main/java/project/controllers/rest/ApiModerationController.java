@@ -15,11 +15,11 @@ import project.services.PostService;
 @RequestMapping("/api/moderation")
 @AllArgsConstructor
 public class ApiModerationController {
-    private PostService postService;
-    private AuthService authService;
+    private final PostService postService;
+    private final AuthService authService;
 
     @PostMapping
-    private ResponseEntity<?> postModeration(@RequestBody ModerationDto dto) {
+    public ResponseEntity<?> postModeration(@RequestBody ModerationDto dto) {
         authService.checkSession();
         Integer moderatorId = authService.getUserId();
         postService.setModeration(dto.getPostId(), dto.getDecision(), moderatorId);

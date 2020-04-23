@@ -16,7 +16,7 @@ import java.io.File;
 @RequestMapping("/api/image")
 @AllArgsConstructor
 public class ApiImageController {
-    private UserService userService;
+    private final UserService userService;
 
     @SneakyThrows
     @PostMapping

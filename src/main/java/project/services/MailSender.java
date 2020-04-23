@@ -13,7 +13,7 @@ import javax.mail.internet.MimeMessage;
  */
 @Service
 public class MailSender {
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     public MailSender(JavaMailSender mailSender) {
         this.mailSender = mailSender;

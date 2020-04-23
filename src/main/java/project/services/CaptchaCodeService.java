@@ -18,7 +18,7 @@ import java.util.Random;
 @Service
 @AllArgsConstructor
 public class CaptchaCodeService {
-    private CaptchaCodeRepository captchaCodeRepository;
+    private final CaptchaCodeRepository captchaCodeRepository;
 
     public CaptchaCode createCaptcha() {
         LocalDateTime time = LocalDateTime.now();
