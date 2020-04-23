@@ -52,7 +52,7 @@ public class UserService {
     /**
      * Выдает пользователя по id автора
      */
-    public UserWithPhotoInformationDto getFullInformationById(Integer id) {
+    public UserWithPhotoInformationDto getUserWithPhotoInformationById(Integer id) {
         Optional<User> userById = userRepository.findById(id);
         return userById.map(user -> new UserWithPhotoInformationDto(user.getId(), user.getName(), user.getPhoto()))
                 .orElseThrow(NotFountException::new);
@@ -104,12 +104,13 @@ public class UserService {
         return false;
     }
 
-    public void changePassword(String code, String password) {
+    public User changePassword(String code, String password) {
         User user = userRepository.findByCode(code);
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String encodePassword = encoder.encode(password);
         user.setPassword(encodePassword);
         userRepository.save(user);
+        return user;
     }
 
     public boolean isUserByEmailPresent(String email) {

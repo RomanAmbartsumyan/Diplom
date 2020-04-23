@@ -98,7 +98,7 @@ public class ApiPostController {
         List<PostComment> postComments = postCommentService.allPostComments(postById);
 
         List<CommentsDto> comments = postComments.stream().map(postComment -> {
-            UserWithPhotoInformationDto user = userService.getFullInformationById(postComment.getUserId());
+            UserWithPhotoInformationDto user = userService.getUserWithPhotoInformationById(postComment.getUserId());
             user.setPhoto("");
             return new CommentsDto(postComment.getId(), postComment.getTime(), postComment.getText(), user);
         }).collect(toList());

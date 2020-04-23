@@ -19,11 +19,12 @@ public class TagToPostService {
      */
     private final TagToPostRepository tagToPostRepository;
 
-    public void saveTagToPost(Integer postId, Integer tagId){
+    public TagToPost saveTagToPost(Integer postId, Integer tagId){
         TagToPost tagToPost = new TagToPost();
         tagToPost.setPostId(postId);
         tagToPost.setTagId(tagId);
         tagToPostRepository.save(tagToPost);
+        return tagToPost;
     }
 
     /**
