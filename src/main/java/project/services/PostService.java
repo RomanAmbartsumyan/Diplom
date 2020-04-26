@@ -42,15 +42,8 @@ public class PostService {
         } else {
             post.setTime(LocalDateTime.now());
         }
-        if (!globalSettingService.isPostPreModerationOn() || user.getModerator() == 1) {
-            post.setModerationStatus(ModerationStatus.ACCEPTED);
-        } else {
-            post.setModerationStatus(ModerationStatus.NEW);
-        }
-        post.setActive(addPost.getActive());
-        post.setTitle(addPost.getTitle());
-        post.setText(addPost.getText());
-        post.setUserId(user.getId());
+
+        setPost(user, addPost, post);
         post.setViewCount(0);
         postRepository.save(post);
         return post;
@@ -72,18 +65,23 @@ public class PostService {
             post.setTime(LocalDateTime.now());
         }
 
-        if (user.getModerator() == 0 || !globalSettingService.isPostPreModerationOn()) {
-            post.setModerationStatus(ModerationStatus.NEW);
-        } else {
+        setPost(user, addPost, post);
+        postRepository.save(post);
+        return post;
+    }
+
+
+    private void setPost(User user, AddPostDto addPost, Post post) {
+        if (globalSettingService.isPostPreModerationOn() || user.getModerator() == 1) {
             post.setModerationStatus(ModerationStatus.ACCEPTED);
+        } else {
+            post.setModerationStatus(ModerationStatus.NEW);
         }
 
         post.setActive(addPost.getActive());
         post.setTitle(addPost.getTitle());
         post.setText(addPost.getText());
         post.setUserId(user.getId());
-        postRepository.save(post);
-        return post;
     }
 
     /**

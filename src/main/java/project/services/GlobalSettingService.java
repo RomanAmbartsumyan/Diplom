@@ -98,6 +98,6 @@ public class GlobalSettingService {
 
     public boolean isPostPreModerationOn(){
         GlobalSetting multiUserMode = globalSettingRepository.findByCode(Settings.POST_PREMODERATION);
-        return multiUserMode.getValue().equals(Decision.YES);
+        return multiUserMode.getValue().equals(Decision.NO);
     }
 }

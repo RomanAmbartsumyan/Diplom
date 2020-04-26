@@ -70,7 +70,7 @@ public class UserService {
                 return optionalUser.get();
             }
         }
-        throw new NotFountException();
+        return null;
     }
 
     public User createUser(String email, String passwordFromUser, String name) {

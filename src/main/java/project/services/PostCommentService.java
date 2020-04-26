@@ -27,10 +27,6 @@ public class PostCommentService {
         return postCommentRepository.findAllByPostId(post);
     }
 
-    public boolean isCommentPresent(Integer commentId){
-        return postCommentRepository.findById(commentId).isPresent();
-    }
-
     public PostComment addComment(Post post, Integer parentId, Integer userId, String text){
         PostComment postComment = new PostComment();
         postComment.setTime(LocalDateTime.now());

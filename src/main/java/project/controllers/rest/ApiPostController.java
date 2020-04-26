@@ -162,7 +162,7 @@ public class ApiPostController {
         List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tagByName.getId());
         List<Integer> postsId = tagToPosts.stream().map(TagToPost::getPostId).collect(toList());
 
-        List<Post> posts = postsId.stream().map(post -> postService.getPostById(post)).collect(toList());
+        List<Post> posts = postsId.stream().map(postService::getPostById).collect(toList());
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 

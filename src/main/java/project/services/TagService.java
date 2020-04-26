@@ -2,8 +2,6 @@ package project.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.exceptions.BadRequestException;
-import project.exceptions.NotFountException;
 import project.models.Tag;
 import project.repositories.TagRepository;
 
@@ -34,7 +32,7 @@ public class TagService {
      */
     public Tag getTagById(Integer id) {
         Optional<Tag> optionalTag = tagRepository.findById(id);
-        return optionalTag.orElseThrow(NotFountException::new);
+        return optionalTag.orElse(null);
     }
 
     /**
@@ -42,7 +40,7 @@ public class TagService {
      */
     public Tag getByName(String name) {
         Optional<Tag> optionalTag = tagRepository.findByNameLike(name);
-        return optionalTag.orElseThrow(BadRequestException::new);
+        return optionalTag.orElse(null);
     }
 
     /**
