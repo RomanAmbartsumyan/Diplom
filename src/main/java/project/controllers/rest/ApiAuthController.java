@@ -75,11 +75,10 @@ public class ApiAuthController {
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDto register) {
         ResultDto result = new ResultDto();
 
-        ResponseEntity<ErrorsMessageDto> errorsMessage = errorsOnRegistration(register);
+        ErrorsMessageDto errorsMessage = errorsOnRegistration(register);
         if (errorsMessage != null) {
-            return errorsMessage;
+            return ResponseEntity.ok(errorsMessage);
         }
-
         userService.createUser(register.getEmail(), register.getPassword(), register.getName());
         result.setResult(true);
         return ResponseEntity.ok(result);
@@ -142,19 +141,20 @@ public class ApiAuthController {
         return ResponseEntity.ok(new AuthUserDto(userFullInformation));
     }
 
-    private ResponseEntity<ErrorsMessageDto> errorsOnRegistration(@RequestBody @Valid RegisterDto register) {
+    private ErrorsMessageDto errorsOnRegistration(RegisterDto register) {
         HashMap<String, String> errors = new HashMap<>();
         ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
         boolean isUserPresent = userService.isUserByEmailPresent(register.getEmail());
         boolean isCaptchaValid = captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret());
-        if (isUserPresent || !isCaptchaValid) {
-            if (isUserPresent) {
-                errors.put("email", "Этот e-mail уже зарегистрирован");
-            }
-            if (!isCaptchaValid) {
-                errors.put("captcha", "Код с картинки введён неверно");
-            }
-            return ResponseEntity.ok(errorsMessage);
+
+        if (isUserPresent) {
+            errors.put("email", "Этот e-mail уже зарегистрирован");
+        }
+        if (!isCaptchaValid) {
+            errors.put("captcha", "Код с картинки введён неверно");
+        }
+        if (errors.size() != 0) {
+            return errorsMessage;
         }
         return null;
     }

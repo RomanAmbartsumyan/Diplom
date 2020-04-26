@@ -3,6 +3,7 @@ package project.services;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import project.dto.ProfileDto;
 import project.dto.UserDto;
 import project.dto.UserWithPhotoInformationDto;
 import project.exceptions.NotFountException;
@@ -41,7 +42,7 @@ public class UserService {
      * Выдает пользователя по id
      */
     public User getUserById(Integer id) {
-        if(id != null){
+        if (id != null) {
             Optional<User> userById = userRepository.findById(id);
             return userById.orElseThrow(NotFountException::new);
         }
@@ -69,7 +70,7 @@ public class UserService {
                 return optionalUser.get();
             }
         }
-        throw new  NotFountException();
+        throw new NotFountException();
     }
 
     public User createUser(String email, String passwordFromUser, String name) {
@@ -83,6 +84,17 @@ public class UserService {
         createUser.setName(name);
         userRepository.save(createUser);
         return createUser;
+    }
+
+    public void editUserProfile(User user, ProfileDto dto) {
+        user.setEmail(dto.getEmail());
+        user.setName(dto.getName());
+        if (dto.getPassword() != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String editPassword = passwordEncoder.encode(dto.getPassword());
+            user.setPassword(editPassword);
+        }
+        userRepository.save(user);
     }
 
     /**

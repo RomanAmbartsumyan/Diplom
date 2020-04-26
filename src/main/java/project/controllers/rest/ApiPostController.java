@@ -34,13 +34,13 @@ public class ApiPostController {
     @PostMapping
     public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost) {
         authService.checkSession();
-        ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
+        ErrorsMessageDto errorsMessage = errorOperationWithPost(addPost);
         if (errorsMessage != null) {
-            return errorsMessage;
+            return ResponseEntity.ok(errorsMessage);
         }
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
-        if(user.getModerator() == 1 || globalSettingService.isMultiUserModeOn()){
+        if (user.getModerator() == 1 || globalSettingService.isMultiUserModeOn()) {
             Post post = postService.createPost(user, addPost);
 
             addTags(addPost.getTags(), post.getId());
@@ -124,9 +124,9 @@ public class ApiPostController {
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
         Post post = postService.editingPost(id, user, addPost);
-        ResponseEntity<ErrorsMessageDto> errorsMessage = errorOperationWithPost(addPost);
+        ErrorsMessageDto errorsMessage = errorOperationWithPost(addPost);
         if (errorsMessage != null) {
-            return errorsMessage;
+            return ResponseEntity.ok(errorsMessage);
         }
 
         addTags(addPost.getTags(), post.getId());
@@ -171,8 +171,8 @@ public class ApiPostController {
 
     @GetMapping("moderation")
     public ResponseEntity<ModerationPostsDto> getPostsListOnModeration(@RequestParam Integer offset,
-                                                                        @RequestParam Integer limit,
-                                                                        @RequestParam String status) {
+                                                                       @RequestParam Integer limit,
+                                                                       @RequestParam String status) {
         authService.checkSession();
         Integer moderatorId = authService.getUserId();
         List<Post> posts = postService.activePostsOnModeration(offset, limit, status, moderatorId);
@@ -238,24 +238,24 @@ public class ApiPostController {
         }).collect(toList());
     }
 
-    private ResponseEntity<ErrorsMessageDto> errorOperationWithPost(@RequestBody AddPostDto addPost) {
+    private ErrorsMessageDto errorOperationWithPost(AddPostDto addPost) {
+        HashMap<String, String> errors = new HashMap<>();
+        ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
+
         boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
                 addPost.getTitle().length() > 500;
         boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
                 addPost.getText().length() > 500;
 
-        if (tittle || text) {
-            HashMap<String, String> errors = new HashMap<>();
-            ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
+        if (tittle) {
+            errors.put("title", "Заголовок не установлен");
+        }
 
-            if (tittle) {
-                errors.put("title", "Заголовок не установлен");
-            }
-
-            if (text) {
-                errors.put("text", "Текст публикации слишком короткий");
-            }
-            return ResponseEntity.ok(errorsMessage);
+        if (text) {
+            errors.put("text", "Текст публикации слишком короткий");
+        }
+        if (errors.size() != 0) {
+            return errorsMessage;
         }
         return null;
     }
