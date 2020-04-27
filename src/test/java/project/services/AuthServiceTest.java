@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.context.request.RequestContextHolder;
 import project.exceptions.UnauthorizedException;
 
 import java.util.Map;
@@ -38,7 +39,8 @@ public class AuthServiceTest {
     @Test
     public void getUserId() {
         authService.getUserId();
-        verify(authUsers, times(1)).get("2");
+        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+        verify(authUsers, times(1)).get(sessionId);
     }
 
     @Test(expected = UnauthorizedException.class)
@@ -49,6 +51,7 @@ public class AuthServiceTest {
     @Test
     public void logout() {
         authService.logout();
-        verify(authUsers, times(1)).remove("1");
+        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+        verify(authUsers, times(1)).remove(sessionId);
     }
 }

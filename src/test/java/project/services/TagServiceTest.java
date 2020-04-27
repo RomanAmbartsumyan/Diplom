@@ -8,12 +8,12 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit4.SpringRunner;
-import project.exceptions.BadRequestException;
 import project.models.Tag;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -39,9 +39,10 @@ public class TagServiceTest {
         assertEquals("JAVA", tag.getName());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void getByName() {
-        tagService.getByName("aldwkldlkaw");
+        Tag tag = tagService.getByName("aldwkldlkaw");
+        assertNull(tag);
     }
 
     @Test
