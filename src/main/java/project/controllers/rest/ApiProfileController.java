@@ -1,6 +1,7 @@
 package project.controllers.rest;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,20 +10,22 @@ import project.dto.ProfileDto;
 import project.dto.ResultDto;
 import project.models.User;
 import project.services.AuthService;
+import project.services.ImgService;
 import project.services.UserService;
 
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/profile/my")
+@RequestMapping("/api/profile/")
 @AllArgsConstructor
 public class ApiProfileController {
     private final UserService userService;
     private final AuthService authService;
+    private final ImgService imgService;
 
-    @PostMapping(value = "profile/my", consumes = "multipart/form-data")
+    @PostMapping(value = "my", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> editProfile(@RequestParam(value = "photo", required = false) MultipartFile file,
-                                         @RequestBody ProfileDto dto) {
+                                         @ModelAttribute ProfileDto dto) {
         authService.checkSession();
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
@@ -31,7 +34,8 @@ public class ApiProfileController {
             return ResponseEntity.ok(errorsMessageDto);
         }
 
-        userService.editUserProfile(user, dto);
+        String image = imgService.saveImg(file);
+        userService.editUserProfile(user, dto, image);
         return ResponseEntity.ok(new ResultDto(true));
     }
 
