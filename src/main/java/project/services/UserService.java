@@ -86,13 +86,16 @@ public class UserService {
         return createUser;
     }
 
-    public void editUserProfile(User user, ProfileDto dto) {
+    public void editUserProfile(User user, ProfileDto dto, String img) {
         user.setEmail(dto.getEmail());
         user.setName(dto.getName());
         if (dto.getPassword() != null) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String editPassword = passwordEncoder.encode(dto.getPassword());
             user.setPassword(editPassword);
+        }
+        if(img != null){
+            user.setPhoto(img);
         }
         userRepository.save(user);
     }
