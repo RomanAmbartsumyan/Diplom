@@ -137,9 +137,7 @@ public class PostService {
         return postRepository.findAllByTimeContaining(date + "%", pageable);
     }
 
-    /**
-     * Выдает количество активных постов и принятых модератови
-     */
+
     public Integer countPostsByActiveAndModerationStatus(Byte active, ModerationStatus moderationStatus) {
         return postRepository.countAllByActiveAndModerationStatus(active, moderationStatus);
     }
@@ -172,21 +170,13 @@ public class PostService {
     }
 
     /**
-     * Выдает кол-во новых постов
-     */
-    public Integer getCountOfNewPosts() {
-        return postRepository
-                .countAllByModeratorIdAndActiveAndModerationStatus(null, (byte) 1, ModerationStatus.NEW);
-    }
-
-    /**
      * Выдает кол-во всех постов
      */
     public Integer getCountAllPosts() {
         return postRepository.countAll();
     }
 
-    public Integer getCountMyPosts(Integer userId){
+    public Integer getCountMyPosts(Integer userId) {
         return postRepository.countAllByUserId(userId);
     }
 
@@ -206,21 +196,30 @@ public class PostService {
         return "Еще нет публикаций";
     }
 
-    public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status, Integer moderatorId) {
+    public Integer getCountPostsForModerator(String status){
+        switch (status) {
+            case "declined":
+                return countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.DECLINED);
+            case "accepted":
+                return countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
+            case "new":
+                return countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.NEW);
+        }
+        throw new BadRequestException();
+    }
+
+    public List<Post> activePostsOnModeration(Integer offset, Integer limit, String status) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         switch (status) {
             case "declined":
-                return postRepository
-                        .findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(moderatorId, (byte) 1,
-                                ModerationStatus.DECLINED, pageable);
+                return postRepository.findAllByActiveAndModerationStatusOrderByTimeDesc((byte) 1,
+                        ModerationStatus.DECLINED, pageable);
             case "accepted":
-                return postRepository
-                        .findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(moderatorId, (byte) 1,
-                                ModerationStatus.ACCEPTED, pageable);
+                return postRepository.findAllByActiveAndModerationStatusOrderByTimeDesc((byte) 1,
+                        ModerationStatus.ACCEPTED, pageable);
             case "new":
-                return postRepository
-                        .findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(null, (byte) 1,
-                                ModerationStatus.NEW, pageable);
+                return postRepository.findAllByActiveAndModerationStatusOrderByTimeDesc((byte) 1,
+                        ModerationStatus.NEW, pageable);
         }
         throw new BadRequestException();
     }
@@ -248,19 +247,21 @@ public class PostService {
         switch (decision) {
             case "decline":
                 post.setModerationStatus(ModerationStatus.DECLINED);
+                break;
             case "accept":
                 post.setModerationStatus(ModerationStatus.ACCEPTED);
+                break;
         }
         post.setModeratorId(moderatorId);
         postRepository.save(post);
         return post;
     }
 
-    public Integer getCountMyViews(Integer userId){
+    public Integer getCountMyViews(Integer userId) {
         return postRepository.countMyViews(userId);
     }
 
-    public String getDateMyFirstPublication(Integer userId){
+    public String getDateMyFirstPublication(Integer userId) {
         Optional<Post> post = postRepository.myFirstPublication(userId);
         if (post.isPresent()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

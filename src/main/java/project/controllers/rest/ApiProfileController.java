@@ -2,10 +2,8 @@ package project.controllers.rest;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import project.dto.ErrorsMessageDto;
 import project.dto.ProfileDto;
 import project.dto.ResultDto;
@@ -22,12 +20,13 @@ public class ApiProfileController {
     private final UserService userService;
     private final AuthService authService;
 
-    @PostMapping
-    public ResponseEntity<?> editProfile(@RequestBody ProfileDto dto) {
+    @PostMapping(value = "profile/my", consumes = "multipart/form-data")
+    public ResponseEntity<?> editProfile(@RequestParam(value = "photo", required = false) MultipartFile file,
+                                         @RequestBody ProfileDto dto) {
         authService.checkSession();
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
-        ErrorsMessageDto errorsMessageDto = errorMessage(dto, user);
+        ErrorsMessageDto errorsMessageDto = errorMessage(dto, user, file);
         if (errorsMessageDto != null) {
             return ResponseEntity.ok(errorsMessageDto);
         }
@@ -36,20 +35,20 @@ public class ApiProfileController {
         return ResponseEntity.ok(new ResultDto(true));
     }
 
-    private ErrorsMessageDto errorMessage(ProfileDto dto, User user) {
+    private ErrorsMessageDto errorMessage(ProfileDto dto, User user, MultipartFile file) {
         HashMap<String, String> errors = new HashMap<>();
         ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
         boolean isEmailPresent = userService.isUserByEmailPresent(dto.getEmail());
-//        boolean isPhotoValid = dto.getPhoto().getSize() > 5_242_880;
+        boolean isPhotoValid = file.getSize() > 5_242_880;
 
         if (isEmailPresent && !user.getEmail().equals(dto.getEmail())) {
             errors.put("email", "Этот e-mail уже зарегистрирован");
         }
 
 
-//            if (isPhotoValid) {
-//                errors.put("photo", "Фото слишком большое, нужно не более 5 Мб");
-//            }
+            if (isPhotoValid) {
+                errors.put("photo", "Фото слишком большое, нужно не более 5 Мб");
+            }
 
         if (errors.size() != 0) {
             return errorsMessageDto;

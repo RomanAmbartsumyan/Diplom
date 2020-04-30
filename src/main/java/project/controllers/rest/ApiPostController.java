@@ -174,8 +174,8 @@ public class ApiPostController {
                                                                        @RequestParam Integer limit,
                                                                        @RequestParam String status) {
         authService.checkSession();
-        Integer moderatorId = authService.getUserId();
-        List<Post> posts = postService.activePostsOnModeration(offset, limit, status, moderatorId);
+
+        List<Post> posts = postService.activePostsOnModeration(offset, limit, status);
 
         List<PostsOnModerationDto> postsOnModeration = posts.stream().map(post -> {
             User user = userService.getUserById(post.getUserId());
@@ -183,7 +183,7 @@ public class ApiPostController {
             return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
         }).collect(toList());
 
-        Integer countPosts = postsOnModeration.size();
+        Integer countPosts = postService.getCountPostsForModerator(status);
 
         return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
     }

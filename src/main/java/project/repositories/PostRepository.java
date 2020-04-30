@@ -17,11 +17,8 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends CrudRepository<Post, Integer> {
 
-    List<Post> findAllByModeratorIdAndActiveAndModerationStatusOrderByTimeDesc(Integer moderatorId,
-                                                                               Byte active, ModerationStatus moderationStatus,
-                                                                               Pageable pageable);
-
-    Integer countAllByModeratorIdAndActiveAndModerationStatus(Integer moderatorId, Byte active, ModerationStatus moderationStatus);
+    List<Post> findAllByActiveAndModerationStatusOrderByTimeDesc(Byte active, ModerationStatus moderationStatus,
+                                                                 Pageable pageable);
 
     /**
      * Поиск постов по активности, статусу модерации, и наличие текста в заголовке

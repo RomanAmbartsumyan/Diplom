@@ -13,7 +13,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Random;
+
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 
 @Service
 @AllArgsConstructor
@@ -24,9 +26,9 @@ public class CaptchaCodeService {
         LocalDateTime time = LocalDateTime.now();
         CaptchaCode captchaCode = new CaptchaCode();
         captchaCode.setTime(time);
-        String code = getRandomString();
+        String code = randomNumeric(4);
         captchaCode.setCode(code);
-        captchaCode.setSecretCode(getSecretCode());
+        captchaCode.setSecretCode(randomAlphanumeric(10));
         captchaCodeRepository.save(captchaCode);
         return captchaCode;
     }
@@ -97,28 +99,5 @@ public class CaptchaCodeService {
         }
 
         return base64EncodedImage;
-    }
-
-    private String getRandomString() {
-        Random random = new Random();
-
-        String code = "";
-
-        for (int i = 0; i < 2; i++) {
-            int capitalLetter = 65 + random.nextInt(26);
-            code += capitalLetter;
-        }
-
-        return code;
-    }
-
-    private String getSecretCode() {
-        Random random = new Random();
-        return random.ints(48, 122)
-                .filter(i -> (i < 57 || i > 65) && (i < 90 || i > 97))
-                .mapToObj(i -> (char) i)
-                .limit(10)
-                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-                .toString().toLowerCase();
     }
 }

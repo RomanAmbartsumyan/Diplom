@@ -123,13 +123,6 @@ public class PostServiceTest {
     }
 
     @Test
-    public void getCountOfNewPosts() {
-        Integer countPosts = postService.getCountOfNewPosts();
-        Integer count = 1;
-        assertEquals(count, countPosts);
-    }
-
-    @Test
     public void getCountAllPosts() {
         Integer countPosts = postService.getCountAllPosts();
         Integer count = 5;
@@ -151,7 +144,7 @@ public class PostServiceTest {
 
     @Test
     public void activePostsOnModeration() {
-        List<Post> posts = postService.activePostsOnModeration(0, 10, "new", null);
+        List<Post> posts = postService.activePostsOnModeration(0, 10, "new");
         assertEquals(1, posts.size());
     }
 

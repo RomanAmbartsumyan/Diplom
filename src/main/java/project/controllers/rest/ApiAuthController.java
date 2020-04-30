@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import project.dto.*;
 import project.models.User;
+import project.models.enums.ModerationStatus;
 import project.services.AuthService;
 import project.services.CaptchaCodeService;
 import project.services.PostService;
@@ -117,7 +118,7 @@ public class ApiAuthController {
         if (userFromDB != null) {
             Integer countNewPosts = null;
             if (userFromDB.getModerator() == 1) {
-                countNewPosts = postService.getCountOfNewPosts();
+                countNewPosts = postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.NEW);
                 return getAuthUserResponseEntity(userFromDB, true, true, countNewPosts);
             }
             return getAuthUserResponseEntity(userFromDB, false, false, countNewPosts);
