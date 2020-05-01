@@ -8,6 +8,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit4.SpringRunner;
+import project.dto.ProfileDto;
 import project.dto.UserDto;
 import project.dto.UserWithPhotoInformationDto;
 import project.models.User;
@@ -70,5 +71,15 @@ public class UserServiceTest {
     public void isUserByEmailPresent() {
         boolean isPresent = userService.isUserByEmailPresent("asdasw@mail.ru");
         assertFalse(isPresent);
+    }
+
+    @Test
+    public void editUserProfile() {
+        User user = userService.createUser("asd@mail.ru", "qweasd", "Hello world");
+        ProfileDto dto = new ProfileDto();
+        dto.setName("qwe");
+        userService.editUserProfile(user, dto, null);
+
+        assertEquals("qwe", user.getName());
     }
 }

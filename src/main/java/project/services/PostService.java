@@ -184,7 +184,11 @@ public class PostService {
      * Выдает кол-во просмотров постов
      */
     public Integer getCountViews() {
-        return postRepository.countViews();
+        Integer countPosts = postRepository.countViews();
+        if(countPosts != null){
+            return countPosts;
+        }
+        return 0;
     }
 
     public String dateOfFirstPublication() {
@@ -258,7 +262,11 @@ public class PostService {
     }
 
     public Integer getCountMyViews(Integer userId) {
-        return postRepository.countMyViews(userId);
+        Integer countViews = postRepository.countMyViews(userId);
+        if(countViews != null){
+            return countViews;
+        }
+        return 0;
     }
 
     public String getDateMyFirstPublication(Integer userId) {

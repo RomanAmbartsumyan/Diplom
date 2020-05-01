@@ -16,14 +16,14 @@ import project.services.UserService;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/profile/")
+@RequestMapping("/api/profile/my")
 @AllArgsConstructor
 public class ApiProfileController {
     private final UserService userService;
     private final AuthService authService;
     private final ImgService imgService;
 
-    @PostMapping(value = "my", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> editProfile(@RequestParam(value = "photo", required = false) MultipartFile file,
                                          @ModelAttribute ProfileDto dto) {
         authService.checkSession();
