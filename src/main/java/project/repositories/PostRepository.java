@@ -73,12 +73,12 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     Optional<Post> firstPublication();
 
     @Query(value = "SELECT post.* FROM post LEFT JOIN (SELECT * FROM post_vote " +
-            "WHERE post_vote.value = 1) AS post_vote ON post.id = post_vote.post_id AND moderation_status = 'ACCEPTED' " +
+            "WHERE post_vote.value = 1) AS post_vote ON post.id = post_vote.post_id WHERE moderation_status = 'ACCEPTED' " +
             "AND is_active = 1 GROUP BY post.id ORDER BY SUM(post_vote.value) DESC", nativeQuery = true)
     List<Post> bestPosts(Pageable pageable);
 
     @Query(value = "SELECT post.* FROM post LEFT JOIN post_comment " +
-            "ON post.id = post_comment.post_id AND moderation_status = 'ACCEPTED' AND is_active = 1 GROUP BY post.id " +
+            "ON post.id = post_comment.post_id WHERE moderation_status = 'ACCEPTED' AND is_active = 1 GROUP BY post.id " +
             "ORDER BY COUNT(post_comment.id) DESC", nativeQuery = true)
     List<Post> mostPopularPosts(Pageable pageable);
 
