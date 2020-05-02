@@ -22,7 +22,7 @@ public class GlobalSettingService {
             GlobalSetting multiUserMode = new GlobalSetting();
             multiUserMode.setCode(Settings.MULTIUSER_MODE);
             multiUserMode.setName("Многопользовательский режим");
-            multiUserMode.setValue(Decision.NO);
+            multiUserMode.setValue(Decision.YES);
 
             globalSettingRepository.save(multiUserMode);
         }
