@@ -84,6 +84,7 @@ public class ApiPostController {
     @GetMapping("{id}")
     public ResponseEntity<PostByIdDto> getPostById(@PathVariable Integer id) {
         Post postById = postService.getPostById(id);
+        postService.setViewsToPost(postById);
         UserDto userDto = userService.getUserDtoById(postById.getUserId());
         Integer postId = postById.getId();
         LocalDateTime time = postById.getTime();
@@ -162,7 +163,11 @@ public class ApiPostController {
         List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tagByName.getId());
         List<Integer> postsId = tagToPosts.stream().map(TagToPost::getPostId).collect(toList());
 
-        List<Post> posts = postsId.stream().map(postService::getPostById).collect(toList());
+        List<Post> posts = postsId.stream()
+                .map(postService::getPostById)
+                .filter(post -> post.getActive() == 1)
+                .collect(toList());
+
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
 

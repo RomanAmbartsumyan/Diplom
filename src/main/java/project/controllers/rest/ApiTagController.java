@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Контроллер тэгов
@@ -30,20 +31,24 @@ import static java.util.Comparator.comparing;
 public class ApiTagController {
     private final TagService tagService;
     private final PostService postService;
-    private final TagToPostService tagToPost;
+    private final TagToPostService tagToPostService;
     /**
      * Выдает тэги
      */
     @GetMapping
     public ResponseEntity<TagsDto> getTagByName(@RequestParam(required = false) String query){
         List<TagDto> tagsDto = new ArrayList<>();
-        List<Tag> tags = tagService.getAllTagsOrFindByName(query);
         Integer countPostsActiveAndModerationAccept =
                 postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
 
+        List<Integer> tagIds = tagToPostService.getTagIdsWithActivePosts();
+
+        List<Tag> tags = tagIds.stream().map(tagService::getTagById).collect(toList());
+
         Map<String, Integer> tagsAngPosts = new HashMap<>();
+
         tags.forEach(tag -> {
-            Integer countPosts = tagToPost.countPostsWithTag(tag.getId());
+            Integer countPosts = tagToPostService.countPostsWithTag(tag.getId());
             tagsAngPosts.put(tag.getName(), countPosts);
         });
 

@@ -122,11 +122,14 @@ public class PostService {
     public Post getPostById(Integer id) {
         Optional<Post> post = postRepository.findById(id);
         if (post.isPresent()) {
-            post.get().setViewCount(post.get().getViewCount() + 1);
-            postRepository.save(post.get());
             return post.get();
         }
         throw new NotFountException();
+    }
+
+    public void setViewsToPost(Post post){
+        post.setViewCount(post.getViewCount() + 1);
+        postRepository.save(post);
     }
 
     /**

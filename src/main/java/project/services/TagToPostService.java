@@ -52,4 +52,8 @@ public class TagToPostService {
         Optional<TagToPost> optionalTagToPost = tagToPostRepository.findByPostIdAndTagId(postId, tagId);
         return optionalTagToPost.isPresent();
     }
+
+    public List<Integer> getTagIdsWithActivePosts(){
+        return tagToPostRepository.getTagIds();
+    }
 }

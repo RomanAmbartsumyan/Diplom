@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import project.dto.ProfileDto;
 import project.dto.UserDto;
 import project.dto.UserWithPhotoInformationDto;
+import project.exceptions.BadRequestException;
 import project.exceptions.NotFountException;
 import project.models.User;
 import project.repositories.UserRepository;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +29,19 @@ public class UserService {
      * Отправка почты
      */
     private final MailSender mailSender;
+
+    @PostConstruct
+    public void init(){
+        User createUser = new User();
+        createUser.setEmail("r9854334307@mail.ru");
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String password = passwordEncoder.encode("qweasdzxc");
+        createUser.setPhoto("img/default.c66f8640.jpg");
+        createUser.setPassword(password);
+        createUser.setModerator((byte) 1);
+        createUser.setName("Roman");
+        userRepository.save(createUser);
+    }
 
 
     /**
@@ -70,7 +85,7 @@ public class UserService {
                 return optionalUser.get();
             }
         }
-        return null;
+        throw new BadRequestException();
     }
 
     public User createUser(String email, String passwordFromUser, String name) {
