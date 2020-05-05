@@ -12,6 +12,7 @@ import project.models.User;
 import project.repositories.UserRepository;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -97,6 +98,8 @@ public class UserService {
         createUser.setPassword(password);
         createUser.setModerator((byte) 0);
         createUser.setName(name);
+        LocalDateTime time = LocalDateTime.now();
+        createUser.setRegTime(time);
         userRepository.save(createUser);
         return createUser;
     }
