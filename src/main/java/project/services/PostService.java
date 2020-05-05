@@ -39,6 +39,7 @@ public class PostService {
             if (dateTime.isBefore(LocalDateTime.now())) {
                 post.setTime(LocalDateTime.now());
             }
+            post.setTime(dateTime);
         } else {
             post.setTime(LocalDateTime.now());
         }
