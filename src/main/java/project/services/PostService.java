@@ -59,11 +59,12 @@ public class PostService {
         if (!strTime.equals("NaN-NaN-NaN NaN:NaN")) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
-            if (dateTime.isBefore(LocalDateTime.now())) {
-                post.setTime(LocalDateTime.now());
+            if (dateTime.isBefore(LocalDateTime.now().plusHours(3))) {
+                post.setTime(LocalDateTime.now().plusHours(3));
             }
+            post.setTime(dateTime);
         } else {
-            post.setTime(LocalDateTime.now());
+            post.setTime(LocalDateTime.now().plusHours(3));
         }
 
         setPost(user, addPost, post);
@@ -98,11 +99,11 @@ public class PostService {
             case "early":
                 return postRepository
                         .findAllByModerationStatusAndActiveAndTimeBeforeOrderByTimeAsc(ModerationStatus.ACCEPTED,
-                                (byte) 1, LocalDateTime.now(), pageable);
+                                (byte) 1, LocalDateTime.now().plusHours(3), pageable);
             case "recent":
                 return postRepository
                         .findAllByModerationStatusAndActiveAndTimeBeforeOrderByTimeDesc(ModerationStatus.ACCEPTED,
-                                (byte) 1, LocalDateTime.now(), pageable);
+                                (byte) 1, LocalDateTime.now().plusHours(3), pageable);
         }
         throw new BadRequestException();
     }

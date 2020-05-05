@@ -74,7 +74,7 @@ public class PostVoteService {
         PostVote postVote = new PostVote();
         postVote.setPostId(postId);
         postVote.setUserId(userId);
-        postVote.setTime(LocalDateTime.now());
+        postVote.setTime(LocalDateTime.now().plusHours(3));
         postVote.setValue(i);
         postVoteRepository.save(postVote);
     }

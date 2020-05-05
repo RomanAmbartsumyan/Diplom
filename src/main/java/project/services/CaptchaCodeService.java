@@ -41,7 +41,7 @@ public class CaptchaCodeService {
     public CaptchaDto getCaptchaDto() {
         CaptchaCode captchaCode = createCaptcha();
         String captcha = getImageBase64(captchaCode.getCode(), 20);
-        LocalDateTime time = LocalDateTime.now().minusHours(1);
+        LocalDateTime time = LocalDateTime.now().plusHours(2);
         deleteCaptcha(time);
         return new CaptchaDto(captchaCode.getSecretCode(), captcha);
     }
