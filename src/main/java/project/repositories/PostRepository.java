@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import project.models.Post;
 import project.models.enums.ModerationStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,12 +74,20 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     Optional<Post> firstPublication();
 
     @Query(value = "SELECT post.* FROM post LEFT JOIN (SELECT * FROM post_vote " +
-            "WHERE post_vote.value = 1) AS post_vote ON post.id = post_vote.post_id WHERE moderation_status = 'ACCEPTED' " +
-            "AND is_active = 1 GROUP BY post.id ORDER BY SUM(post_vote.value) DESC", nativeQuery = true)
+            "WHERE post_vote.value = 1) AS post_vote " +
+            "ON post.id = post_vote.post_id " +
+            "WHERE moderation_status = 'ACCEPTED'" +
+            "AND is_active = 1 " +
+            "AND post.time <= NOW()" +
+            "GROUP BY post.id ORDER BY SUM(post_vote.value) DESC", nativeQuery = true)
     List<Post> bestPosts(Pageable pageable);
 
     @Query(value = "SELECT post.* FROM post LEFT JOIN post_comment " +
-            "ON post.id = post_comment.post_id WHERE moderation_status = 'ACCEPTED' AND is_active = 1 GROUP BY post.id " +
+            "ON post.id = post_comment.post_id " +
+            "WHERE moderation_status = 'ACCEPTED' " +
+            "AND is_active = 1 " +
+            "AND post.time <= NOW()" +
+            "GROUP BY post.id " +
             "ORDER BY COUNT(post_comment.id) DESC", nativeQuery = true)
     List<Post> mostPopularPosts(Pageable pageable);
 
@@ -87,11 +96,15 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     List<Post> findAllByUserIdAndActiveAndModerationStatusOrderByTimeDesc(Integer userId, Byte active, ModerationStatus status,
                                                                           Pageable pageable);
 
-    List<Post> findAllByModerationStatusAndActiveOrderByTimeAsc(ModerationStatus moderationStatus, Byte active,
-                                                                   Pageable pageable);
+    List<Post> findAllByModerationStatusAndActiveAndTimeBeforeOrderByTimeAsc(ModerationStatus moderationStatus,
+                                                                       Byte active,
+                                                                       LocalDateTime time,
+                                                                       Pageable pageable);
 
-    List<Post> findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus moderationStatus, Byte active,
-                                                                    Pageable pageable);
+    List<Post> findAllByModerationStatusAndActiveAndTimeBeforeOrderByTimeDesc(ModerationStatus moderationStatus,
+                                                                        Byte active,
+                                                                        LocalDateTime time,
+                                                                        Pageable pageable);
 
     Integer countAllByUserId(Integer userId);
 

@@ -96,11 +96,13 @@ public class PostService {
             case "popular":
                 return postRepository.mostPopularPosts(pageable);
             case "early":
-                return postRepository.findAllByModerationStatusAndActiveOrderByTimeAsc(ModerationStatus.ACCEPTED,
-                        (byte) 1, pageable);
+                return postRepository
+                        .findAllByModerationStatusAndActiveAndTimeBeforeOrderByTimeAsc(ModerationStatus.ACCEPTED,
+                                (byte) 1, LocalDateTime.now(), pageable);
             case "recent":
-                return postRepository.findAllByModerationStatusAndActiveOrderByTimeDesc(ModerationStatus.ACCEPTED,
-                        (byte) 1, pageable);
+                return postRepository
+                        .findAllByModerationStatusAndActiveAndTimeBeforeOrderByTimeDesc(ModerationStatus.ACCEPTED,
+                                (byte) 1, LocalDateTime.now(), pageable);
         }
         throw new BadRequestException();
     }

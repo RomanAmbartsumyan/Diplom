@@ -27,8 +27,13 @@ public interface TagToPostRepository extends CrudRepository<TagToPost, Integer> 
 
     Optional<TagToPost> findByPostIdAndTagId(Integer postId, Integer tagId);
 
-    @Query(value = "SELECT DISTINCT tag2post.tag_id FROM tag2post LEFT JOIN post ON post.id = tag2post.post_id " +
-            "WHERE is_active = 1 AND moderation_status = 'ACCEPTED'", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT tag2post.tag_id " +
+            "FROM tag2post " +
+            "LEFT JOIN post " +
+            "ON post.id = tag2post.post_id " +
+            "WHERE is_active = 1 " +
+            "AND moderation_status = 'ACCEPTED' " +
+            "AND time <= NOW()", nativeQuery = true)
     List<Integer> getTagIds();
 
 }

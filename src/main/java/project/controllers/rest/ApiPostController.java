@@ -230,7 +230,7 @@ public class ApiPostController {
      * Метод устраняет дублирование
      */
     private List<PostDto> transformCollectionForFront(List<Post> posts) {
-        return posts.stream().filter(post -> post.getTime().isBefore(LocalDateTime.now())).map(post -> {
+        return posts.stream().map(post -> {
             UserDto userDto = userService.getUserDtoById(post.getUserId());
             List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post);
 
