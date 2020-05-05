@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.dto.*;
+import project.exceptions.BadRequestException;
 import project.models.*;
 import project.models.enums.ModerationStatus;
 import project.services.*;
@@ -46,7 +47,7 @@ public class ApiPostController {
             addTags(addPost.getTags(), post.getId());
             return ResponseEntity.ok(new ResultDto(true));
         }
-        return null;
+        throw new BadRequestException();
     }
 
     /**
