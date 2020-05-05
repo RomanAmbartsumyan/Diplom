@@ -23,9 +23,8 @@ public class CaptchaCodeService {
     private final CaptchaCodeRepository captchaCodeRepository;
 
     public CaptchaCode createCaptcha() {
-        LocalDateTime time = LocalDateTime.now();
         CaptchaCode captchaCode = new CaptchaCode();
-        captchaCode.setTime(time);
+        captchaCode.setTime(LocalDateTime.now());
         String code = randomNumeric(4);
         captchaCode.setCode(code);
         captchaCode.setSecretCode(randomAlphanumeric(10));

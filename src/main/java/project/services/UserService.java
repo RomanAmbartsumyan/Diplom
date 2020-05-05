@@ -41,6 +41,7 @@ public class UserService {
         createUser.setPassword(password);
         createUser.setModerator((byte) 1);
         createUser.setName("Roman");
+        createUser.setRegTime(LocalDateTime.now());
         userRepository.save(createUser);
     }
 
@@ -98,8 +99,7 @@ public class UserService {
         createUser.setPassword(password);
         createUser.setModerator((byte) 0);
         createUser.setName(name);
-        LocalDateTime time = LocalDateTime.now();
-        createUser.setRegTime(time);
+        createUser.setRegTime(LocalDateTime.now());
         userRepository.save(createUser);
         return createUser;
     }
