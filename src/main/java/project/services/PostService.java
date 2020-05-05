@@ -33,14 +33,15 @@ public class PostService {
     public Post createPost(User user, AddPostDto addPost) {
         Post post = new Post();
         String strTime = addPost.getTime();
+        LocalDateTime time = LocalDateTime.now();
         if (!strTime.isEmpty()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
             if (dateTime.isBefore(LocalDateTime.now())) {
-                post.setTime(LocalDateTime.now());
+                post.setTime(time);
             }
         } else {
-            post.setTime(LocalDateTime.now());
+            post.setTime(time);
         }
 
         setPost(user, addPost, post);
