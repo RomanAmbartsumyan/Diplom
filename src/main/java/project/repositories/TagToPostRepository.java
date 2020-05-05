@@ -33,7 +33,7 @@ public interface TagToPostRepository extends CrudRepository<TagToPost, Integer> 
             "ON post.id = tag2post.post_id " +
             "WHERE is_active = 1 " +
             "AND moderation_status = 'ACCEPTED' " +
-            "AND time <= NOW()", nativeQuery = true)
+            "AND time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
     List<Integer> getTagIds();
 
 }

@@ -29,7 +29,7 @@ public class PostCommentService {
 
     public PostComment addComment(Post post, Integer parentId, Integer userId, String text){
         PostComment postComment = new PostComment();
-        postComment.setTime(LocalDateTime.now());
+        postComment.setTime(LocalDateTime.now().plusHours(3));
         postComment.setParenId(parentId);
         postComment.setPostId(post);
         postComment.setUserId(userId);

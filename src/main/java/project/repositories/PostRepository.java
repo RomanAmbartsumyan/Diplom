@@ -78,7 +78,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "ON post.id = post_vote.post_id " +
             "WHERE moderation_status = 'ACCEPTED'" +
             "AND is_active = 1 " +
-            "AND post.time <= NOW()" +
+            "AND post.time <= NOW() + INTERVAL 3 HOUR " +
             "GROUP BY post.id ORDER BY SUM(post_vote.value) DESC", nativeQuery = true)
     List<Post> bestPosts(Pageable pageable);
 
@@ -86,7 +86,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "ON post.id = post_comment.post_id " +
             "WHERE moderation_status = 'ACCEPTED' " +
             "AND is_active = 1 " +
-            "AND post.time <= NOW()" +
+            "AND post.time <= NOW() + INTERVAL 3 HOUR " +
             "GROUP BY post.id " +
             "ORDER BY COUNT(post_comment.id) DESC", nativeQuery = true)
     List<Post> mostPopularPosts(Pageable pageable);

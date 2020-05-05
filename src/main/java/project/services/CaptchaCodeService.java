@@ -24,7 +24,7 @@ public class CaptchaCodeService {
 
     public CaptchaCode createCaptcha() {
         CaptchaCode captchaCode = new CaptchaCode();
-        captchaCode.setTime(LocalDateTime.now());
+        captchaCode.setTime(LocalDateTime.now().plusHours(3));
         String code = randomNumeric(4);
         captchaCode.setCode(code);
         captchaCode.setSecretCode(randomAlphanumeric(10));
