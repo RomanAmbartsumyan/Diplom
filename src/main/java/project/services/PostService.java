@@ -37,12 +37,10 @@ public class PostService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
             if (dateTime.isBefore(LocalDateTime.now())) {
-                LocalDateTime time = LocalDateTime.now();
-                post.setTime(time);
+                post.setTime(LocalDateTime.now());
             }
         } else {
-            LocalDateTime time = LocalDateTime.now();
-            post.setTime(time);
+            post.setTime(LocalDateTime.now());
         }
 
         setPost(user, addPost, post);
