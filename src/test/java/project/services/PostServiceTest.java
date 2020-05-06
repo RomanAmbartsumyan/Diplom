@@ -75,7 +75,7 @@ public class PostServiceTest {
     @Test
     public void findAllAndSort() {
         List<Post> post = postService.findAllAndSort(0, 10, "popular");
-        assertEquals(5, post.size());
+        assertEquals(3, post.size());
     }
 
     @Test

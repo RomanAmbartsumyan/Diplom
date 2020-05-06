@@ -38,6 +38,6 @@ public class ApiGeneralControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.title").value("DevPub"))
-                .andExpect(jsonPath("$.email").value("mail@mail.ru"));
+                .andExpect(jsonPath("$.email").value("r9854334307@mail.ru"));
     }
 }
