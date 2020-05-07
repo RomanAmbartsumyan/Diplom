@@ -86,6 +86,7 @@ public class UserService {
             if (auth) {
                 return optionalUser.get();
             }
+            throw new BadRequestException();
         }
         throw new BadRequestException();
     }

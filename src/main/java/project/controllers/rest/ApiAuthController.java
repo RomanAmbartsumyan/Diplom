@@ -78,7 +78,7 @@ public class ApiAuthController {
 
         ErrorsMessageDto errorsMessage = errorsOnRegistration(register);
         if (errorsMessage != null) {
-            return ResponseEntity.ok(errorsMessage);
+            return ResponseEntity.badRequest().body(errorsMessage);
         }
         userService.createUser(register.getEmail(), register.getPassword(), register.getName());
         result.setResult(true);
@@ -147,14 +147,21 @@ public class ApiAuthController {
         ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
         boolean isUserPresent = userService.isUserByEmailPresent(register.getEmail());
         boolean isCaptchaValid = captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret());
+        boolean validName = register.getName().replaceAll("\\w", "").isEmpty();
 
         if (isUserPresent) {
             errors.put("email", "Этот e-mail уже зарегистрирован");
         }
+
         if (!isCaptchaValid) {
             errors.put("captcha", "Код с картинки введён неверно");
         }
-        if (errors.size() != 0) {
+
+        if (!validName) {
+            errors.put("name", "Имя указанно неверно");
+        }
+
+        if (!errors.isEmpty()) {
             return errorsMessage;
         }
         return null;

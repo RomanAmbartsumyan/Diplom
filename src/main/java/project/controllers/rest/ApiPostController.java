@@ -37,7 +37,7 @@ public class ApiPostController {
         authService.checkSession();
         ErrorsMessageDto errorsMessage = errorOperationWithPost(addPost);
         if (errorsMessage != null) {
-            return ResponseEntity.ok(errorsMessage);
+            return ResponseEntity.badRequest().body(errorsMessage);
         }
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
@@ -128,7 +128,7 @@ public class ApiPostController {
         Post post = postService.editingPost(id, user, addPost);
         ErrorsMessageDto errorsMessage = errorOperationWithPost(addPost);
         if (errorsMessage != null) {
-            return ResponseEntity.ok(errorsMessage);
+            return ResponseEntity.badRequest().body(errorsMessage);
         }
 
         addTags(addPost.getTags(), post.getId());

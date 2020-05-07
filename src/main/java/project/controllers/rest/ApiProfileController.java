@@ -25,13 +25,13 @@ public class ApiProfileController {
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> editProfile(@RequestParam(value = "photo", required = false) MultipartFile file,
-                                         @ModelAttribute ProfileDto dto) {
+                                         @RequestBody ProfileDto dto) {
         authService.checkSession();
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
         ErrorsMessageDto errorsMessageDto = errorMessage(dto, user, file);
         if (errorsMessageDto != null) {
-            return ResponseEntity.ok(errorsMessageDto);
+            return ResponseEntity.badRequest().body(errorsMessageDto);
         }
 
         String image = imgService.saveImg(file);
@@ -43,18 +43,27 @@ public class ApiProfileController {
         HashMap<String, String> errors = new HashMap<>();
         ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
         boolean isEmailPresent = userService.isUserByEmailPresent(dto.getEmail());
-        boolean isPhotoValid = file.getSize() > 5_242_880;
+
+        if (file != null) {
+            boolean isPhotoValid = file.getSize() > 5_242_880;
+
+            if (isPhotoValid) {
+                errors.put("photo", "Фото слишком большое, нужно не более 5 Мб");
+            }
+        }
+
+        if(dto.getName() != null){
+            boolean validName = dto.getName().replaceAll("\\w", "").isEmpty();
+            if (!validName) {
+                errors.put("name", "Имя указанно неверно");
+            }
+        }
 
         if (isEmailPresent && !user.getEmail().equals(dto.getEmail())) {
             errors.put("email", "Этот e-mail уже зарегистрирован");
         }
 
-
-            if (isPhotoValid) {
-                errors.put("photo", "Фото слишком большое, нужно не более 5 Мб");
-            }
-
-        if (errors.size() != 0) {
+        if (!errors.isEmpty()) {
             return errorsMessageDto;
         }
         return null;
