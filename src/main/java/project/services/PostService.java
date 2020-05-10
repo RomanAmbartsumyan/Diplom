@@ -284,4 +284,8 @@ public class PostService {
         }
         return "Еще нет публикаций";
     }
+
+    public List<Post> activePostsWithByTag(String tagName) {
+        return postRepository.activePostsWithTagByName(tagName);
+    }
 }

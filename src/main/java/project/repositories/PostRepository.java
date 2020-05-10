@@ -102,9 +102,9 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
                                                                        Pageable pageable);
 
     List<Post> findAllByModerationStatusAndActiveAndTimeBeforeOrderByTimeDesc(ModerationStatus moderationStatus,
-                                                                        Byte active,
-                                                                        LocalDateTime time,
-                                                                        Pageable pageable);
+                                                                              Byte active,
+                                                                              LocalDateTime time,
+                                                                              Pageable pageable);
 
     Integer countAllByUserId(Integer userId);
 
@@ -113,4 +113,14 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
 
     @Query(value = "SELECT * FROM post WHERE user_id = :user_id ORDER BY time ASC limit 1", nativeQuery = true)
     Optional<Post> myFirstPublication(@Param("user_id") Integer userId);
+
+    @Query(value = "SELECT DISTINCT post.* FROM post " +
+            "LEFT JOIN tag2post " +
+            "ON post.id = tag2post.post_id " +
+            "LEFT JOIN tag " +
+            "ON tag2post.tag_id = tag.id " +
+            "WHERE is_active = 1 " +
+            "AND name = :tag_name " +
+            "AND time <= NOW() + INTERVAL 3 HOUR;", nativeQuery = true)
+    List<Post> activePostsWithTagByName(@Param("tag_name") String tagName);
 }

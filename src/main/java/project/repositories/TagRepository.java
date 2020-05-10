@@ -1,5 +1,6 @@
 package project.repositories;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import project.models.Tag;
@@ -31,4 +32,14 @@ public interface TagRepository extends CrudRepository<Tag, Integer> {
      * Выдает все тэги по наименованию
      */
     List<Tag> findAll();
+
+    @Query(value = "SELECT DISTINCT tag.* FROM tag " +
+            "LEFT JOIN tag2post " +
+            "ON tag.id = tag2post.tag_id " +
+            "LEFT JOIN post " +
+            "ON tag2post.post_id = post.id " +
+            "WHERE is_active = 1 " +
+            "AND moderation_status = 'ACCEPTED' " +
+            "AND post.time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
+    List<Tag> tagsOnActivePosts();
 }

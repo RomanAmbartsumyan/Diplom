@@ -34,12 +34,6 @@ public class TagToPostService {
         return tagToPostRepository.findAllByPostId(id);
     }
 
-    /**
-     * Выдает колекцию связей постов и тегов по id тэга
-     */
-    public List<TagToPost> getTagToPostByTagId(Integer id) {
-        return tagToPostRepository.findAllByTagId(id);
-    }
 
     /**
      * Выдает кол-во постов с коннкретным тэгом наденым по его id
@@ -51,9 +45,5 @@ public class TagToPostService {
     public boolean isTagToPostPresent(Integer postId, Integer tagId){
         Optional<TagToPost> optionalTagToPost = tagToPostRepository.findByPostIdAndTagId(postId, tagId);
         return optionalTagToPost.isPresent();
-    }
-
-    public List<Integer> getTagIdsWithActivePosts(){
-        return tagToPostRepository.getTagIds();
     }
 }

@@ -39,9 +39,7 @@ public class ApiTagController {
         Integer countPostsActiveAndModerationAccept =
                 postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
 
-        List<Integer> tagIds = tagToPostService.getTagIdsWithActivePosts();
-
-        List<Tag> tags = tagIds.stream().map(tagService::getTagById).collect(toList());
+        List<Tag> tags = tagService.tagsOnActivePosts();
 
         Map<String, Integer> tagsAngPosts = tags.stream()
                 .collect(toMap(Tag::getName, tag -> tagToPostService.countPostsWithTag(tag.getId())));

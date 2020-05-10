@@ -41,12 +41,6 @@ public class TagToPostServiceTest {
     }
 
     @Test
-    public void getTagToPostByTagId() {
-        List<TagToPost> tagToPostList = tagToPostService.getTagToPostByTagId(3);
-        assertEquals(3, tagToPostList.size());
-    }
-
-    @Test
     public void countPostsWithTag() {
         Integer countPostsWithTag = tagToPostService.countPostsWithTag(3);
         Integer count = 3;

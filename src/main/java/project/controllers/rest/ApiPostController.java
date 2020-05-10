@@ -160,14 +160,10 @@ public class ApiPostController {
                                                          @RequestParam(required = false) String tag) {
 
 
-        Tag tagByName = tagService.getByName(tag);
-        List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tagByName.getId());
-        List<Integer> postsId = tagToPosts.stream().map(TagToPost::getPostId).collect(toList());
+//        Tag tagByName = tagService.getByName(tag);
+//        List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tagByName.getId());
 
-        List<Post> posts = postsId.stream()
-                .map(postService::getPostById)
-                .filter(post -> post.getActive() == 1)
-                .collect(toList());
+        List<Post> posts = postService.activePostsWithByTag(tag);
 
         List<PostDto> allPosts = transformCollectionForFront(posts);
         Integer quantityPosts = allPosts.size();
