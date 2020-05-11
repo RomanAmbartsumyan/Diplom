@@ -37,7 +37,8 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Выдает значение кол-во постов
      */
-    Integer countAllByActiveAndModerationStatus(Byte active, ModerationStatus moderationStatus);
+    Integer countAllByActiveAndModerationStatusAndTimeBefore(Byte active, ModerationStatus moderationStatus,
+                                                             LocalDateTime time);
 
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату без ограничения вывода
@@ -55,7 +56,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Список годов в которых были посты
      */
-    @Query(value = "SELECT DISTINCT YEAR (time) FROM post", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT YEAR (time) FROM post WHERE time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
     List<String> findAllYear();
 
     /**

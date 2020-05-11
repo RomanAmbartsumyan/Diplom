@@ -7,18 +7,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.dto.TagDto;
 import project.dto.TagsDto;
-import project.models.Tag;
 import project.models.enums.ModerationStatus;
 import project.services.PostService;
 import project.services.TagService;
 import project.services.TagToPostService;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Контроллер тэгов
@@ -35,18 +32,14 @@ public class ApiTagController {
      * Выдает тэги
      */
     @GetMapping
-    public ResponseEntity<TagsDto> getTagByName() {
+    public ResponseEntity<TagsDto> getTagsByName() {
         Integer countPostsActiveAndModerationAccept =
                 postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
 
-        List<Tag> tags = tagService.tagsOnActivePosts();
-
-        Map<String, Integer> tagsAngPosts = tags.stream()
-                .collect(toMap(Tag::getName, tag -> tagToPostService.countPostsWithTag(tag.getId())));
-
-        List<TagDto> tagsDto = tagsAngPosts.entrySet().stream().map(pair -> {
-            Float weight = (float) pair.getValue() / countPostsActiveAndModerationAccept;
-            return new TagDto(pair.getKey(), weight);
+        List<TagDto> tagsDto = tagService.tagsOnActivePosts().stream().map(tag -> {
+            Integer count = tagToPostService.countPostsWithTag(tag.getId());
+            Float weight = (float) count / countPostsActiveAndModerationAccept;
+            return new TagDto(tag.getName(), weight);
         }).sorted(comparing(TagDto::getWeight).reversed()).collect(toList());
 
         return ResponseEntity.ok(new TagsDto(tagsDto));

@@ -42,16 +42,6 @@ public class TagService {
         return optionalTag.orElse(null);
     }
 
-    /**
-     * Если запрос пустой выдает все теги, если нет, то конкретные содержащие данное название
-     */
-    public List<Tag> getAllTagsOrFindByName(String query) {
-        if (query == null || query.isEmpty()) {
-            return tagRepository.findAll();
-        }
-        return tagRepository.findAllByNameContains(query);
-    }
-
     public List<Tag> tagsOnActivePosts() {
         return tagRepository.tagsOnActivePosts();
     }

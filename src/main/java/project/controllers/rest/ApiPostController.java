@@ -159,10 +159,6 @@ public class ApiPostController {
                                                          @RequestParam Integer limit,
                                                          @RequestParam(required = false) String tag) {
 
-
-//        Tag tagByName = tagService.getByName(tag);
-//        List<TagToPost> tagToPosts = tagToPostService.getTagToPostByTagId(tagByName.getId());
-
         List<Post> posts = postService.activePostsWithByTag(tag);
 
         List<PostDto> allPosts = transformCollectionForFront(posts);

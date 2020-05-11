@@ -111,7 +111,7 @@ public class ApiAuthController {
     }
 
     /**
-     * Выдает в контроллер результат авторизации
+     * Выдает в контроллеру результат авторизации
      * (устраняет дублирование кода)
      */
     private ResponseEntity<?> getUserResponseEntity(User userFromDB) {

@@ -146,7 +146,8 @@ public class PostService {
 
 
     public Integer countPostsByActiveAndModerationStatus(Byte active, ModerationStatus moderationStatus) {
-        return postRepository.countAllByActiveAndModerationStatus(active, moderationStatus);
+        return postRepository.countAllByActiveAndModerationStatusAndTimeBefore(active, moderationStatus,
+                LocalDateTime.now().plusHours(3));
     }
 
     /**

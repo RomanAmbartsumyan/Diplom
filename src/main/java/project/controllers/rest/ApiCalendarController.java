@@ -15,9 +15,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.Comparator.reverseOrder;
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Контроллер тэгов
@@ -39,11 +40,12 @@ public class ApiCalendarController {
             Integer countPostsByDate = postService.countPostsByDate(postDate);
             postsAndCount.put(postDate, countPostsByDate);
         });
+
         Map<String, Integer> sortedPostsAndCountByValue = postsAndCount
                 .entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByValue(reverseOrder()))
-                .collect(Collectors.toMap(
+                .sorted(comparingByValue(reverseOrder()))
+                .collect(toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (k, v) -> k, LinkedHashMap::new
