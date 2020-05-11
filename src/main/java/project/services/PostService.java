@@ -131,7 +131,7 @@ public class PostService {
         throw new NotFountException();
     }
 
-    public void setViewsToPost(Post post){
+    public void setViewsToPost(Post post) {
         post.setViewCount(post.getViewCount() + 1);
         postRepository.save(post);
     }
@@ -208,7 +208,7 @@ public class PostService {
         return "Еще нет публикаций";
     }
 
-    public Integer getCountPostsForModerator(String status){
+    public Integer getCountPostsForModerator(String status) {
         switch (status) {
             case "declined":
                 return countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.DECLINED);
@@ -271,7 +271,7 @@ public class PostService {
 
     public Integer getCountMyViews(Integer userId) {
         Integer countViews = postRepository.countMyViews(userId);
-        if(countViews != null){
+        if (countViews != null) {
             return countViews;
         }
         return 0;

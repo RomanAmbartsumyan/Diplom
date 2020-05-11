@@ -3,6 +3,7 @@ package project.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.dto.SettingsDto;
+import project.exceptions.BadRequestException;
 import project.models.GlobalSetting;
 import project.models.User;
 import project.models.enums.Decision;
@@ -99,7 +100,7 @@ public class GlobalSettingService {
 
             return settingsDto;
         }
-        return null;
+        throw new BadRequestException();
     }
 
     public boolean isMultiUserModeOn() {

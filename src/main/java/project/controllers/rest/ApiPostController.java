@@ -58,11 +58,11 @@ public class ApiPostController {
                                                 @RequestParam Integer limit,
                                                 @RequestParam String mode) {
 
-        List<Post> posts = postService.findAllAndSort(offset, limit, mode);
-        List<PostDto> allPosts = transformCollectionForFront(posts);
+        List<Post> postsFromDB = postService.findAllAndSort(offset, limit, mode);
+        List<PostDto> posts = transformCollectionForFront(postsFromDB);
         Integer quantityPosts = postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
 
-        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, mode));
+        return ResponseEntity.ok(new PostListDto(quantityPosts, posts, offset, limit, mode));
     }
 
     /**
@@ -72,11 +72,11 @@ public class ApiPostController {
     public ResponseEntity<PostSearchDto> postsBySearch(@RequestParam Integer offset,
                                                        @RequestParam Integer limit,
                                                        @RequestParam(required = false) String query) {
-        List<Post> findingPost = postService.findBySearch(offset, limit, query);
-        List<PostDto> allFindingPost = transformCollectionForFront(findingPost);
-        Integer quantityPosts = allFindingPost.size();
+        List<Post> findingPostsFromDB = postService.findBySearch(offset, limit, query);
+        List<PostDto> posts = transformCollectionForFront(findingPostsFromDB);
+        Integer quantityPosts = posts.size();
 
-        return ResponseEntity.ok(new PostSearchDto(quantityPosts, allFindingPost, offset, limit, query));
+        return ResponseEntity.ok(new PostSearchDto(quantityPosts, posts, offset, limit, query));
     }
 
     /**
@@ -144,11 +144,11 @@ public class ApiPostController {
                                                       @RequestParam Integer limit,
                                                       @RequestParam String date) {
 
-        List<Post> posts = postService.findPostsByDate(offset, limit, date);
-        List<PostDto> allPosts = transformCollectionForFront(posts);
-        Integer quantityPosts = allPosts.size();
+        List<Post> postsFromDb = postService.findPostsByDate(offset, limit, date);
+        List<PostDto> posts = transformCollectionForFront(postsFromDb);
+        Integer quantityPosts = posts.size();
 
-        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, date));
+        return ResponseEntity.ok(new PostListDto(quantityPosts, posts, offset, limit, date));
     }
 
     /**
