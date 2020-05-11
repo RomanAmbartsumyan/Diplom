@@ -31,7 +31,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
      * Поиск постов по активности, статусу модерации и за конкретную дату с ограничением вывода
      */
     @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED' " +
-            "and time like :like_time", nativeQuery = true)
+            "and time like :like_time AND time <= NOW() + INTERVAL 3 HOUR ORDER BY time DESC", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time, Pageable pageable);
 
     /**
@@ -43,14 +43,14 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату без ограничения вывода
      */
-    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED' " +
-            "and time like :like_time", nativeQuery = true)
+    @Query(value = "SELECT * FROM post WHERE is_active = 1 and moderation_status = 'ACCEPTED' " +
+            "and time like :like_time AND time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time);
 
     /**
      * Выдает кол-во постов за конкретное время
      */
-    @Query(value = "SELECT COUNT(*) FROM post WHERE time like :like_time", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM post WHERE time like :like_time AND time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
     Integer countAllByTimeContaining(@Param("like_time") String time);
 
     /**
