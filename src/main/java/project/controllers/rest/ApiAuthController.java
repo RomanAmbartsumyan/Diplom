@@ -85,6 +85,31 @@ public class ApiAuthController {
         return ResponseEntity.ok(result);
     }
 
+    private ErrorsMessageDto errorsOnRegistration(RegisterDto register) {
+        HashMap<String, String> errors = new HashMap<>();
+        ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
+        boolean isUserPresent = userService.isUserByEmailPresent(register.getEmail());
+        boolean isCaptchaValid = captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret());
+        boolean validName = register.getName().replaceAll("\\w", "").isEmpty();
+
+        if (isUserPresent) {
+            errors.put("email", "Этот e-mail уже зарегистрирован");
+        }
+
+        if (!isCaptchaValid) {
+            errors.put("captcha", "Код с картинки введён неверно");
+        }
+
+        if (!validName) {
+            errors.put("name", "Имя указанно неверно");
+        }
+
+        if (!errors.isEmpty()) {
+            return errorsMessage;
+        }
+        return null;
+    }
+
 
     @PostMapping(value = "password",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -140,30 +165,5 @@ public class ApiAuthController {
         authService.saveSession(sessionId, userFromDB.getId());
 
         return ResponseEntity.ok(new AuthUserDto(userFullInformation));
-    }
-
-    private ErrorsMessageDto errorsOnRegistration(RegisterDto register) {
-        HashMap<String, String> errors = new HashMap<>();
-        ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
-        boolean isUserPresent = userService.isUserByEmailPresent(register.getEmail());
-        boolean isCaptchaValid = captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret());
-        boolean validName = register.getName().replaceAll("\\w", "").isEmpty();
-
-        if (isUserPresent) {
-            errors.put("email", "Этот e-mail уже зарегистрирован");
-        }
-
-        if (!isCaptchaValid) {
-            errors.put("captcha", "Код с картинки введён неверно");
-        }
-
-        if (!validName) {
-            errors.put("name", "Имя указанно неверно");
-        }
-
-        if (!errors.isEmpty()) {
-            return errorsMessage;
-        }
-        return null;
     }
 }

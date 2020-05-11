@@ -50,6 +50,58 @@ public class ApiPostController {
         throw new BadRequestException();
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<?> editPost(@RequestBody AddPostDto addPost, @PathVariable Integer id) {
+        authService.checkSession();
+        Integer userId = authService.getUserId();
+        User user = userService.getUserById(userId);
+        Post post = postService.editingPost(id, user, addPost);
+        ErrorsMessageDto errorsMessage = errorOperationWithPost(addPost);
+        if (errorsMessage != null) {
+            return ResponseEntity.badRequest().body(errorsMessage);
+        }
+
+        addTags(addPost.getTags(), post.getId());
+        return ResponseEntity.ok(new ResultDto(true));
+    }
+
+
+    private void addTags(String[] tags, Integer postId) {
+        for (String s : tags) {
+            Tag tagFromDb = tagService.getByName(s);
+            if (tagFromDb != null) {
+                if (!tagToPostService.isTagToPostPresent(postId, tagFromDb.getId())) {
+                    tagToPostService.saveTagToPost(postId, tagFromDb.getId());
+                }
+                continue;
+            }
+            Tag tag = tagService.saveTag(s);
+            tagToPostService.saveTagToPost(postId, tag.getId());
+        }
+    }
+
+    private ErrorsMessageDto errorOperationWithPost(AddPostDto addPost) {
+        HashMap<String, String> errors = new HashMap<>();
+        ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
+
+        boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
+                addPost.getTitle().length() > 500;
+        boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
+                addPost.getText().length() > 500;
+
+        if (tittle) {
+            errors.put("title", "Заголовок не установлен");
+        }
+
+        if (text) {
+            errors.put("text", "Текст публикации слишком короткий");
+        }
+        if (errors.size() != 0) {
+            return errorsMessage;
+        }
+        return null;
+    }
+
     /**
      * Вывод всех постов на главную страницу
      */
@@ -77,6 +129,87 @@ public class ApiPostController {
         Integer quantityPosts = posts.size();
 
         return ResponseEntity.ok(new PostSearchDto(quantityPosts, posts, offset, limit, query));
+    }
+
+    /**
+     * Выдает посты за конкретную дату
+     */
+    @GetMapping("byDate")
+    public ResponseEntity<PostListDto> getPostsByDate(@RequestParam Integer offset,
+                                                      @RequestParam Integer limit,
+                                                      @RequestParam String date) {
+
+        List<Post> postsFromDb = postService.findPostsByDate(offset, limit, date);
+        List<PostDto> posts = transformCollectionForFront(postsFromDb);
+        Integer quantityPosts = posts.size();
+
+        return ResponseEntity.ok(new PostListDto(quantityPosts, posts, offset, limit, date));
+    }
+
+    /**
+     * Выдает посты по тегу
+     */
+    @GetMapping("byTag")
+    public ResponseEntity<PostListDto> getPostsByTagName(@RequestParam Integer offset,
+                                                         @RequestParam Integer limit,
+                                                         @RequestParam(required = false) String tag) {
+
+        List<Post> posts = postService.activePostsWithByTag(tag);
+
+        List<PostDto> allPosts = transformCollectionForFront(posts);
+        Integer quantityPosts = allPosts.size();
+
+        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, tag));
+    }
+
+    @GetMapping("my")
+    public ResponseEntity<?> getMyPosts(@RequestParam Integer offset,
+                                        @RequestParam Integer limit,
+                                        @RequestParam String status) {
+        authService.checkSession();
+        Integer userId = authService.getUserId();
+        List<Post> posts = postService.getMyPosts(userId, offset, limit, status);
+        List<PostDto> myPosts = transformCollectionForFront(posts);
+        Integer quantityPosts = myPosts.size();
+
+        return ResponseEntity.ok(new MyPostListDto(quantityPosts, myPosts, offset, limit, status));
+    }
+
+    /**
+     * Метод устраняет дублирование
+     */
+    private List<PostDto> transformCollectionForFront(List<Post> posts) {
+        return posts.stream().map(post -> {
+            UserDto userDto = userService.getUserDtoById(post.getUserId());
+            List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post);
+
+            int quantityComment = postCommentService.allPostComments(post).size();
+            byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
+            byte quantityDislike = (byte) (postVotes.size() - quantityLike);
+
+            return new PostDto(post.getId(), post.getTime(), userDto,
+                    post.getTitle(), post.getText(), quantityLike,
+                    quantityDislike, quantityComment, post.getViewCount());
+        }).collect(toList());
+    }
+
+    @GetMapping("moderation")
+    public ResponseEntity<ModerationPostsDto> getPostsListOnModeration(@RequestParam Integer offset,
+                                                                       @RequestParam Integer limit,
+                                                                       @RequestParam String status) {
+        authService.checkSession();
+
+        List<Post> posts = postService.activePostsOnModeration(offset, limit, status);
+
+        List<PostsOnModerationDto> postsOnModeration = posts.stream().map(post -> {
+            User user = userService.getUserById(post.getUserId());
+            UserDto userDto = new UserDto(user.getId(), user.getName());
+            return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
+        }).collect(toList());
+
+        Integer countPosts = postService.getCountPostsForModerator(status);
+
+        return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
     }
 
     /**
@@ -119,86 +252,6 @@ public class ApiPostController {
                 quantityLike, quantityDislike, countComments, viewCount, comments, tagNames));
     }
 
-
-    @PutMapping("{id}")
-    public ResponseEntity<?> editPost(@RequestBody AddPostDto addPost, @PathVariable Integer id) {
-        authService.checkSession();
-        Integer userId = authService.getUserId();
-        User user = userService.getUserById(userId);
-        Post post = postService.editingPost(id, user, addPost);
-        ErrorsMessageDto errorsMessage = errorOperationWithPost(addPost);
-        if (errorsMessage != null) {
-            return ResponseEntity.badRequest().body(errorsMessage);
-        }
-
-        addTags(addPost.getTags(), post.getId());
-        return ResponseEntity.ok(new ResultDto(true));
-    }
-
-
-    /**
-     * Выдает посты за конкретную дату
-     */
-    @GetMapping("byDate")
-    public ResponseEntity<PostListDto> getPostsByDate(@RequestParam Integer offset,
-                                                      @RequestParam Integer limit,
-                                                      @RequestParam String date) {
-
-        List<Post> postsFromDb = postService.findPostsByDate(offset, limit, date);
-        List<PostDto> posts = transformCollectionForFront(postsFromDb);
-        Integer quantityPosts = posts.size();
-
-        return ResponseEntity.ok(new PostListDto(quantityPosts, posts, offset, limit, date));
-    }
-
-    /**
-     * Выдает посты по тегу
-     */
-    @GetMapping("byTag")
-    public ResponseEntity<PostListDto> getPostsByTagName(@RequestParam Integer offset,
-                                                         @RequestParam Integer limit,
-                                                         @RequestParam(required = false) String tag) {
-
-        List<Post> posts = postService.activePostsWithByTag(tag);
-
-        List<PostDto> allPosts = transformCollectionForFront(posts);
-        Integer quantityPosts = allPosts.size();
-
-        return ResponseEntity.ok(new PostListDto(quantityPosts, allPosts, offset, limit, tag));
-    }
-
-    @GetMapping("moderation")
-    public ResponseEntity<ModerationPostsDto> getPostsListOnModeration(@RequestParam Integer offset,
-                                                                       @RequestParam Integer limit,
-                                                                       @RequestParam String status) {
-        authService.checkSession();
-
-        List<Post> posts = postService.activePostsOnModeration(offset, limit, status);
-
-        List<PostsOnModerationDto> postsOnModeration = posts.stream().map(post -> {
-            User user = userService.getUserById(post.getUserId());
-            UserDto userDto = new UserDto(user.getId(), user.getName());
-            return new PostsOnModerationDto(post.getId(), post.getTime(), userDto, post.getTitle(), post.getText());
-        }).collect(toList());
-
-        Integer countPosts = postService.getCountPostsForModerator(status);
-
-        return ResponseEntity.ok(new ModerationPostsDto(countPosts, postsOnModeration));
-    }
-
-    @GetMapping("my")
-    public ResponseEntity<?> getMyPosts(@RequestParam Integer offset,
-                                        @RequestParam Integer limit,
-                                        @RequestParam String status) {
-        authService.checkSession();
-        Integer userId = authService.getUserId();
-        List<Post> posts = postService.getMyPosts(userId, offset, limit, status);
-        List<PostDto> myPosts = transformCollectionForFront(posts);
-        Integer quantityPosts = myPosts.size();
-
-        return ResponseEntity.ok(new MyPostListDto(quantityPosts, myPosts, offset, limit, status));
-    }
-
     @PostMapping("like")
     public ResponseEntity<ResultDto> addLike(@RequestBody PostVoteDto postVote) {
         authService.checkSession();
@@ -215,62 +268,5 @@ public class ApiPostController {
         Integer userId = authService.getUserId();
         boolean isDislikeAdded = postVoteService.addDislike(post, userId);
         return ResponseEntity.ok(new ResultDto(isDislikeAdded));
-    }
-
-
-    /**
-     * Метод устраняет дублирование
-     */
-    private List<PostDto> transformCollectionForFront(List<Post> posts) {
-        return posts.stream().map(post -> {
-            UserDto userDto = userService.getUserDtoById(post.getUserId());
-            List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post);
-
-            int quantityComment = postCommentService.allPostComments(post).size();
-            byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
-            byte quantityDislike = (byte) (postVotes.size() - quantityLike);
-
-            return new PostDto(post.getId(), post.getTime(), userDto,
-                    post.getTitle(), post.getText(), quantityLike,
-                    quantityDislike, quantityComment, post.getViewCount());
-        }).collect(toList());
-    }
-
-    private ErrorsMessageDto errorOperationWithPost(AddPostDto addPost) {
-        HashMap<String, String> errors = new HashMap<>();
-        ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
-
-        boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
-                addPost.getTitle().length() > 500;
-        boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
-                addPost.getText().length() > 500;
-
-        if (tittle) {
-            errors.put("title", "Заголовок не установлен");
-        }
-
-        if (text) {
-            errors.put("text", "Текст публикации слишком короткий");
-        }
-        if (errors.size() != 0) {
-            return errorsMessage;
-        }
-        return null;
-    }
-
-    private void addTags(String[] tags, Integer postId) {
-        if (tags.length != 0) {
-            for (String s : tags) {
-                Tag tagFromDb = tagService.getByName(s);
-                if (tagFromDb != null) {
-                    if (!tagToPostService.isTagToPostPresent(postId, tagFromDb.getId())) {
-                        tagToPostService.saveTagToPost(postId, tagFromDb.getId());
-                    }
-                    continue;
-                }
-                Tag tag = tagService.saveTag(s);
-                tagToPostService.saveTagToPost(postId, tag.getId());
-            }
-        }
     }
 }

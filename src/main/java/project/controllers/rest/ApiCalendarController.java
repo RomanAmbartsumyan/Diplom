@@ -34,6 +34,7 @@ public class ApiCalendarController {
         List<String> years = postService.getYears();
         List<Post> posts = postService.findPostsByYear(year);
         Map<String, Integer> postsAndCount = new HashMap<>();
+
         posts.forEach(post ->{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String postDate = post.getTime().format(formatter);
