@@ -15,8 +15,11 @@ import project.repositories.PostRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Сервис для работы с БД постов
@@ -29,9 +32,46 @@ public class PostService {
      */
     private final PostRepository postRepository;
     private final GlobalSettingService globalSettingService;
+    private final ImageService imageService;
 
     public Post createPost(User user, AddPostDto addPost) {
         Post post = new Post();
+        setPost(user, addPost, post);
+        post.setViewCount(0);
+        postRepository.save(post);
+        return post;
+    }
+
+    public Post editingPost(Integer postId, User user, AddPostDto editPost) {
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) {
+            throw new NotFountException();
+        }
+
+        deletePhotoFromPost(post, editPost.getText());
+        setPost(user, editPost, post);
+        postRepository.save(post);
+        return post;
+    }
+
+    public void deletePhotoFromPost(Post post, String newText) {
+        List<String> strings = new ArrayList<>();
+        String text = post.getText();
+        Pattern path = Pattern.compile("src/([\\s\\S]*?).(jpg|png)");
+        Matcher matcher = path.matcher(text);
+        while (matcher.find()) {
+            strings.add(matcher.group());
+        }
+
+        strings.forEach(string -> {
+            if (!newText.contains(string)) {
+                imageService.removePhoto(string);
+            }
+        });
+    }
+
+
+    private void setPost(User user, AddPostDto addPost, Post post) {
         String strTime = addPost.getTime();
         if (!strTime.isEmpty()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -44,36 +84,6 @@ public class PostService {
             post.setTime(LocalDateTime.now().plusHours(3));
         }
 
-        setPost(user, addPost, post);
-        post.setViewCount(0);
-        postRepository.save(post);
-        return post;
-    }
-
-    public Post editingPost(Integer postId, User user, AddPostDto addPost) {
-        Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            throw new NotFountException();
-        }
-        String strTime = addPost.getTime();
-        if (!strTime.equals("NaN-NaN-NaN NaN:NaN")) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime dateTime = LocalDateTime.parse(strTime, formatter);
-            if (dateTime.isBefore(LocalDateTime.now().plusHours(3))) {
-                post.setTime(LocalDateTime.now().plusHours(3));
-            }
-            post.setTime(dateTime);
-        } else {
-            post.setTime(LocalDateTime.now().plusHours(3));
-        }
-
-        setPost(user, addPost, post);
-        postRepository.save(post);
-        return post;
-    }
-
-
-    private void setPost(User user, AddPostDto addPost, Post post) {
         if (globalSettingService.isPostPreModerationOn() || user.getModerator() == 1) {
             post.setModerationStatus(ModerationStatus.ACCEPTED);
         } else {

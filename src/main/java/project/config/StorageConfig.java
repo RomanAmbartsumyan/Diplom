@@ -1,6 +1,5 @@
 package project.config;
 
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -13,7 +12,6 @@ import project.services.ImageService;
 @Configuration
 public class StorageConfig implements WebMvcConfigurer, CommandLineRunner {
 
-    @Getter
     @Value("${upload.path}")
     private String location;
 

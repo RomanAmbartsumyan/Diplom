@@ -23,23 +23,67 @@ public class ApiProfileController {
     private final AuthService authService;
     private final ImageService imageService;
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> editProfile(@RequestParam(value = "photo", required = false) MultipartFile file,
-                                         @ModelAttribute ProfileDto dto) {
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> editProfileWithPhoto(@RequestParam(value = "photo", required = false) MultipartFile file,
+                                                  @ModelAttribute ProfileDto dto) {
         authService.checkSession();
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
-        ErrorsMessageDto errorsMessageDto = errorMessage(dto, user, file);
+        ErrorsMessageDto errorsMessageDto = errorMessageWithPhoto(dto, user, file);
         if (errorsMessageDto != null) {
             return ResponseEntity.badRequest().body(errorsMessageDto);
         }
 
+        if (user.getPhoto() != null) {
+            imageService.removePhoto(user.getPhoto().substring(22));
+        }
+
         String image = imageService.saveImg(file);
-        userService.editUserProfile(user, dto, image);
+        userService.editUserProfileWithPhoto(user, dto, image);
         return ResponseEntity.ok(new ResultDto(true));
     }
 
-    private ErrorsMessageDto errorMessage(ProfileDto dto, User user, MultipartFile file) {
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> editProfile(@RequestBody ProfileDto dto) {
+        authService.checkSession();
+        Integer userId = authService.getUserId();
+        User user = userService.getUserById(userId);
+        ErrorsMessageDto errorsMessageDto = errorMessageWithoutPhoto(dto, user);
+        if (errorsMessageDto != null) {
+            return ResponseEntity.badRequest().body(errorsMessageDto);
+        }
+        if (dto.getRemovePhoto() == 1) {
+            imageService.removePhoto(user.getPhoto().substring(22));
+        }
+
+        userService.editUserProfileWithoutPhoto(user, dto);
+        return ResponseEntity.ok(new ResultDto(true));
+    }
+
+    private ErrorsMessageDto errorMessageWithoutPhoto(ProfileDto dto, User user) {
+        HashMap<String, String> errors = new HashMap<>();
+        ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
+        boolean isEmailPresent = userService.isUserByEmailPresent(dto.getEmail());
+
+        if (dto.getName() != null) {
+            boolean validName = dto.getName().replaceAll("\\w", "").isEmpty();
+            if (!validName) {
+                errors.put("name", "Имя указанно неверно");
+            }
+        }
+
+        if (isEmailPresent && !user.getEmail().equals(dto.getEmail())) {
+            errors.put("email", "Этот e-mail уже зарегистрирован");
+        }
+
+        if (!errors.isEmpty()) {
+            return errorsMessageDto;
+        }
+        return null;
+    }
+
+
+    private ErrorsMessageDto errorMessageWithPhoto(ProfileDto dto, User user, MultipartFile file) {
         HashMap<String, String> errors = new HashMap<>();
         ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
         boolean isEmailPresent = userService.isUserByEmailPresent(dto.getEmail());
@@ -52,7 +96,7 @@ public class ApiProfileController {
             }
         }
 
-        if(dto.getName() != null){
+        if (dto.getName() != null) {
             boolean validName = dto.getName().replaceAll("\\w", "").isEmpty();
             if (!validName) {
                 errors.put("name", "Имя указанно неверно");

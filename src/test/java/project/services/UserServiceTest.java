@@ -78,7 +78,7 @@ public class UserServiceTest {
         User user = userService.createUser("asd@mail.ru", "qweasd", "Hello world");
         ProfileDto dto = new ProfileDto();
         dto.setName("qwe");
-        userService.editUserProfile(user, dto, null);
+        userService.editUserProfileWithPhoto(user, dto, null);
 
         assertEquals("qwe", user.getName());
     }

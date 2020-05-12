@@ -32,7 +32,7 @@ public class UserService {
     private final MailSender mailSender;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         User createUser = new User();
         createUser.setEmail("r9854334307@mail.ru");
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -95,7 +95,6 @@ public class UserService {
         createUser.setEmail(email);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String password = passwordEncoder.encode(passwordFromUser);
-        createUser.setPhoto("img/default.c66f8640.jpg");
         createUser.setPassword(password);
         createUser.setModerator((byte) 0);
         createUser.setName(name);
@@ -104,7 +103,7 @@ public class UserService {
         return createUser;
     }
 
-    public void editUserProfile(User user, ProfileDto dto, String img) {
+    public void editUserProfileWithPhoto(User user, ProfileDto dto, String img) {
         user.setEmail(dto.getEmail());
         user.setName(dto.getName());
         if (dto.getPassword() != null) {
@@ -112,11 +111,29 @@ public class UserService {
             String editPassword = passwordEncoder.encode(dto.getPassword());
             user.setPassword(editPassword);
         }
-        if(img != null){
+        if (img != null) {
             user.setPhoto(img);
+        }
+        if (dto.getRemovePhoto() == null) {
+            user.setPhoto("");
         }
         userRepository.save(user);
     }
+
+    public void editUserProfileWithoutPhoto(User user, ProfileDto dto) {
+        user.setEmail(dto.getEmail());
+        user.setName(dto.getName());
+        if (dto.getPassword() != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String editPassword = passwordEncoder.encode(dto.getPassword());
+            user.setPassword(editPassword);
+        }
+        if (dto.getRemovePhoto() == 1) {
+            user.setPhoto(null);
+        }
+        userRepository.save(user);
+    }
+
 
     /**
      * Проверка пользователя в базе для восстановления пароля
