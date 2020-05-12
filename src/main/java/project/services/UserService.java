@@ -145,7 +145,7 @@ public class UserService {
         if (userFromDb != null) {
             String hashCode = UUID.randomUUID().toString();
             userFromDb.setCode(hashCode);
-            String url = "http://localhost:8080/login/change-password/" + hashCode;
+            String url = "https://ambartsumyan-java-skillbox.herokuapp.com/login/change-password/" + hashCode;
             String message = "<a href=\"" + url + "\">Восстановить пароль</a>";
             mailSender.send(userFromDb.getEmail(), "Восстановление пароля", message);
             userRepository.save(userFromDb);

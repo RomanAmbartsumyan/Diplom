@@ -65,8 +65,9 @@ public class ApiProfileController {
 
 
     private void deletePhoto(User user) {
-        Pattern path = Pattern.compile("src/([\\s\\S]*?).jpg");
-        Matcher matcher = path.matcher(user.getPhoto());
+        Pattern path = Pattern.compile("src/([\\s\\S]*?).(jpg|png)");
+        String photo = user.getPhoto();
+        Matcher matcher = path.matcher(photo);
         String actualPath = null;
 
         while (matcher.find()) {

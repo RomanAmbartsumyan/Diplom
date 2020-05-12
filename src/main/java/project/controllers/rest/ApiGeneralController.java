@@ -19,7 +19,7 @@ public class ApiGeneralController {
      */
     @GetMapping("api/init")
     public ResponseEntity<BlogGeneralInfoDto> mainPage() {
-        return ResponseEntity.ok(new BlogGeneralInfoDto("DevPub", "Рассказы разботчиков",
+        return ResponseEntity.ok(new BlogGeneralInfoDto("DevPub", "Рассказы разработчиков",
                 "+7 985 433-43-07", "r9854334307@mail.ru", "Роман Амбарцумян", "2020"));
     }
 }
