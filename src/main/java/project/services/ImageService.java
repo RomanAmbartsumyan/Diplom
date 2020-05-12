@@ -44,7 +44,7 @@ public class ImageService {
             }
             String resultFileName = actualPath + file.getOriginalFilename();
             FileUtils.writeByteArrayToFile(new File(resultFileName), file.getBytes());
-            return "http://localhost:8080/" + resultFileName;
+            return "http://ambartsumyan-java-skillbox.herokuapp.com/" + resultFileName;
         }
         return null;
     }
