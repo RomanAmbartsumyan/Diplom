@@ -70,7 +70,6 @@ public class PostService {
         });
     }
 
-
     private void setPost(User user, AddPostDto addPost, Post post) {
         String strTime = addPost.getTime();
         if (!strTime.isEmpty()) {

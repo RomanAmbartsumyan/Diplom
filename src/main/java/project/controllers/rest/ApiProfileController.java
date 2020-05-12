@@ -14,6 +14,8 @@ import project.services.ImageService;
 import project.services.UserService;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/profile/my")
@@ -35,7 +37,7 @@ public class ApiProfileController {
         }
 
         if (user.getPhoto() != null) {
-            imageService.removePhoto(user.getPhoto().substring(22));
+            deletePhoto(user);
         }
 
         String image = imageService.saveImg(file);
@@ -52,12 +54,26 @@ public class ApiProfileController {
         if (errorsMessageDto != null) {
             return ResponseEntity.badRequest().body(errorsMessageDto);
         }
+
         if (dto.getRemovePhoto() == 1) {
-            imageService.removePhoto(user.getPhoto().substring(22));
+            deletePhoto(user);
         }
 
         userService.editUserProfileWithoutPhoto(user, dto);
         return ResponseEntity.ok(new ResultDto(true));
+    }
+
+
+    private void deletePhoto(User user) {
+        Pattern path = Pattern.compile("src/([\\s\\S]*?).jpg");
+        Matcher matcher = path.matcher(user.getPhoto());
+        String actualPath = null;
+
+        while (matcher.find()) {
+            actualPath = matcher.group();
+        }
+
+        imageService.removePhoto(actualPath);
     }
 
     private ErrorsMessageDto errorMessageWithoutPhoto(ProfileDto dto, User user) {
@@ -65,21 +81,7 @@ public class ApiProfileController {
         ErrorsMessageDto errorsMessageDto = new ErrorsMessageDto(errors);
         boolean isEmailPresent = userService.isUserByEmailPresent(dto.getEmail());
 
-        if (dto.getName() != null) {
-            boolean validName = dto.getName().replaceAll("\\w", "").isEmpty();
-            if (!validName) {
-                errors.put("name", "Имя указанно неверно");
-            }
-        }
-
-        if (isEmailPresent && !user.getEmail().equals(dto.getEmail())) {
-            errors.put("email", "Этот e-mail уже зарегистрирован");
-        }
-
-        if (!errors.isEmpty()) {
-            return errorsMessageDto;
-        }
-        return null;
+        return getErrorsMessageDto(dto, user, errors, errorsMessageDto, isEmailPresent);
     }
 
 
@@ -96,6 +98,11 @@ public class ApiProfileController {
             }
         }
 
+        return getErrorsMessageDto(dto, user, errors, errorsMessageDto, isEmailPresent);
+    }
+
+    private ErrorsMessageDto getErrorsMessageDto(ProfileDto dto, User user, HashMap<String, String> errors,
+                                                 ErrorsMessageDto errorsMessageDto, boolean isEmailPresent) {
         if (dto.getName() != null) {
             boolean validName = dto.getName().replaceAll("\\w", "").isEmpty();
             if (!validName) {
