@@ -10,20 +10,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import project.services.AuthService;
-import project.services.ImgService;
+import project.services.ImageService;
 
 @RestController
 @RequestMapping("/api/image")
 @AllArgsConstructor
 public class ApiImageController {
-    private final ImgService imgService;
+    private final ImageService imageService;
     private final AuthService authService;
 
     @SneakyThrows
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> saveImage(@RequestParam(value = "image", required = false) MultipartFile file) {
         authService.checkSession();
-        String resultFileName = imgService.saveImg(file);
+        String resultFileName = imageService.saveImg(file);
         return ResponseEntity.ok(resultFileName);
     }
 }

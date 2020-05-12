@@ -37,7 +37,6 @@ public class UserService {
         createUser.setEmail("r9854334307@mail.ru");
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String password = passwordEncoder.encode("qweasdzxc");
-        createUser.setPhoto("img/default.c66f8640.jpg");
         createUser.setPassword(password);
         createUser.setModerator((byte) 1);
         createUser.setName("Roman");

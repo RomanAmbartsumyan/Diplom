@@ -10,7 +10,7 @@ import project.dto.ProfileDto;
 import project.dto.ResultDto;
 import project.models.User;
 import project.services.AuthService;
-import project.services.ImgService;
+import project.services.ImageService;
 import project.services.UserService;
 
 import java.util.HashMap;
@@ -21,11 +21,11 @@ import java.util.HashMap;
 public class ApiProfileController {
     private final UserService userService;
     private final AuthService authService;
-    private final ImgService imgService;
+    private final ImageService imageService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> editProfile(@RequestParam(value = "photo", required = false) MultipartFile file,
-                                         @RequestBody ProfileDto dto) {
+                                         @ModelAttribute ProfileDto dto) {
         authService.checkSession();
         Integer userId = authService.getUserId();
         User user = userService.getUserById(userId);
@@ -34,7 +34,7 @@ public class ApiProfileController {
             return ResponseEntity.badRequest().body(errorsMessageDto);
         }
 
-        String image = imgService.saveImg(file);
+        String image = imageService.saveImg(file);
         userService.editUserProfile(user, dto, image);
         return ResponseEntity.ok(new ResultDto(true));
     }
