@@ -105,7 +105,7 @@ public class ApiProfileController {
     private ErrorsMessageDto getErrorsMessageDto(ProfileDto dto, User user, HashMap<String, String> errors,
                                                  ErrorsMessageDto errorsMessageDto, boolean isEmailPresent) {
         if (dto.getName() != null) {
-            boolean validName = dto.getName().replaceAll("\\w", "").isEmpty();
+            boolean validName = dto.getName().replaceAll("[а-яА-ЯёЁa-zA-Z0-9]", "").isEmpty();
             if (!validName) {
                 errors.put("name", "Имя указанно неверно");
             }

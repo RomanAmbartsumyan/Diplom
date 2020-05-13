@@ -90,7 +90,7 @@ public class ApiAuthController {
         ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
         boolean isUserPresent = userService.isUserByEmailPresent(register.getEmail());
         boolean isCaptchaValid = captchaCodeService.isValid(register.getCaptcha(), register.getCaptchaSecret());
-        boolean validName = register.getName().replaceAll("\\w", "").isEmpty();
+        boolean validName = register.getName().replaceAll("[а-яА-ЯёЁa-zA-Z0-9]", "").isEmpty();
 
         if (isUserPresent) {
             errors.put("email", "Этот e-mail уже зарегистрирован");
