@@ -20,7 +20,6 @@ public class ApiStatisticsController {
 
     @GetMapping("all")
     public ResponseEntity<StatisticsDto> getAllStatistics (){
-        authService.checkSession();
         Integer countPosts = postService.getCountAllPosts();
         Integer likesCount = postVoteService.countLikes();
         Integer dislikesCount = postVoteService.countDislikes();
