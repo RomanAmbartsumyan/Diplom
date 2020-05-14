@@ -38,12 +38,16 @@ public class TagToPostService {
     /**
      * Выдает кол-во постов с коннкретным тэгом наденым по его id
      */
-    public Integer countPostsWithTag(Integer tagId){
+    public Integer countPostsWithTag(Integer tagId) {
         return tagToPostRepository.countAllByTagId(tagId);
     }
 
-    public boolean isTagToPostPresent(Integer postId, Integer tagId){
+    public boolean isTagToPostPresent(Integer postId, Integer tagId) {
         Optional<TagToPost> optionalTagToPost = tagToPostRepository.findByPostIdAndTagId(postId, tagId);
         return optionalTagToPost.isPresent();
+    }
+
+    public void deleteTagOnPost(Integer postId) {
+        tagToPostRepository.deleteAllByPostId(postId);
     }
 }

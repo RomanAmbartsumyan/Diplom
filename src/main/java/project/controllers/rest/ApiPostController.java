@@ -61,10 +61,10 @@ public class ApiPostController {
             return ResponseEntity.badRequest().body(errorsMessage);
         }
 
+        tagToPostService.deleteTagOnPost(post.getId());
         addTags(addPost.getTags(), post.getId());
         return ResponseEntity.ok(new ResultDto(true));
     }
-
 
     private void addTags(String[] tags, Integer postId) {
         for (String s : tags) {

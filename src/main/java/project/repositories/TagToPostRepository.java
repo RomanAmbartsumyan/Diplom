@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import project.models.TagToPost;
 
 import java.util.List;
@@ -28,4 +29,7 @@ public interface TagToPostRepository extends CrudRepository<TagToPost, Integer> 
     Integer countAllByTagId(@Param("tag_id") Integer tagId);
 
     Optional<TagToPost> findByPostIdAndTagId(Integer postId, Integer tagId);
+
+    @Transactional
+    void deleteAllByPostId(Integer postId);
 }
