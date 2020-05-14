@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.dto.TagDto;
 import project.dto.TagsDto;
-import project.models.enums.ModerationStatus;
-import project.services.PostService;
 import project.services.TagService;
 import project.services.TagToPostService;
 
@@ -25,7 +23,6 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor
 public class ApiTagController {
     private final TagService tagService;
-    private final PostService postService;
     private final TagToPostService tagToPostService;
 
     /**
@@ -33,11 +30,10 @@ public class ApiTagController {
      */
     @GetMapping
     public ResponseEntity<TagsDto> getTagsByName() {
-        Integer countPostsActiveAndModerationAccept =
-                postService.countPostsByActiveAndModerationStatus((byte) 1, ModerationStatus.ACCEPTED);
+        Integer countPostsActiveAndModerationAccept = tagToPostService.countPostsWithTags();
 
         List<TagDto> tagsDto = tagService.tagsOnActivePosts().stream().map(tag -> {
-            Integer count = tagToPostService.countPostsWithTag(tag.getId());
+            Integer count = tagToPostService.countPostsWithTagByTagId(tag.getId());
             Float weight = (float) count / countPostsActiveAndModerationAccept;
             return new TagDto(tag.getName(), weight);
         }).sorted(comparing(TagDto::getWeight).reversed()).collect(toList());

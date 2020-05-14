@@ -42,7 +42,7 @@ public class TagToPostServiceTest {
 
     @Test
     public void countPostsWithTag() {
-        Integer countPostsWithTag = tagToPostService.countPostsWithTag(3);
+        Integer countPostsWithTag = tagToPostService.countPostsWithTagByTagId(3);
         Integer count = 3;
         assertEquals(count, countPostsWithTag);
     }

@@ -32,4 +32,12 @@ public interface TagToPostRepository extends CrudRepository<TagToPost, Integer> 
 
     @Transactional
     void deleteAllByPostId(Integer postId);
+
+    @Query(value = "SELECT COUNT(DISTINCT post_id) FROM tag2post " +
+            "LEFT JOIN post " +
+            "ON post.id = tag2post.post_id " +
+            "WHERE moderation_status = 'ACCEPTED' " +
+            "AND is_active = 1 " +
+            "AND post.time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
+    Integer countPostsWithTags();
 }

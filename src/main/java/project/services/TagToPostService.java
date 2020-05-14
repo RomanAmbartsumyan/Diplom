@@ -19,7 +19,7 @@ public class TagToPostService {
      */
     private final TagToPostRepository tagToPostRepository;
 
-    public TagToPost saveTagToPost(Integer postId, Integer tagId){
+    public TagToPost saveTagToPost(Integer postId, Integer tagId) {
         TagToPost tagToPost = new TagToPost();
         tagToPost.setPostId(postId);
         tagToPost.setTagId(tagId);
@@ -38,7 +38,7 @@ public class TagToPostService {
     /**
      * Выдает кол-во постов с коннкретным тэгом наденым по его id
      */
-    public Integer countPostsWithTag(Integer tagId) {
+    public Integer countPostsWithTagByTagId(Integer tagId) {
         return tagToPostRepository.countAllByTagId(tagId);
     }
 
@@ -49,5 +49,9 @@ public class TagToPostService {
 
     public void deleteTagOnPost(Integer postId) {
         tagToPostRepository.deleteAllByPostId(postId);
+    }
+
+    public Integer countPostsWithTags() {
+        return tagToPostRepository.countPostsWithTags();
     }
 }
