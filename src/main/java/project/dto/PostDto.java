@@ -37,11 +37,11 @@ public class PostDto {
     /**
      * Количество лайков
      */
-    private Byte likeCount;
+    private Integer likeCount;
     /**
      * Количество дизлайков
      */
-    private Byte dislikeCount;
+    private Integer dislikeCount;
     /**
      * Количество комментариев
      */

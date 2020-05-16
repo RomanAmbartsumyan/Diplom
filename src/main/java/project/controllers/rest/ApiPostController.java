@@ -1,6 +1,7 @@
 package project.controllers.rest;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.dto.*;
@@ -20,7 +21,7 @@ import static java.util.stream.Collectors.toList;
  */
 @RestController
 @RequestMapping("/api/post")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ApiPostController {
     private final PostService postService;
     private final UserService userService;
@@ -31,6 +32,11 @@ public class ApiPostController {
     private final AuthService authService;
     private final GlobalSettingService globalSettingService;
 
+    @Value("${text.min.length}")
+    private Integer textMinLength;
+
+    @Value("${text.max.length}")
+    private Integer textMaxLength;
 
     @PostMapping
     public ResponseEntity<?> addPost(@RequestBody AddPostDto addPost) {
@@ -84,10 +90,10 @@ public class ApiPostController {
         HashMap<String, String> errors = new HashMap<>();
         ErrorsMessageDto errorsMessage = new ErrorsMessageDto(errors);
 
-        boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < 10 ||
-                addPost.getTitle().length() > 500;
-        boolean text = addPost.getText().isEmpty() || addPost.getText().length() < 10 ||
-                addPost.getText().length() > 500;
+        boolean tittle = addPost.getTitle().isEmpty() || addPost.getTitle().length() < textMinLength ||
+                addPost.getTitle().length() > textMaxLength;
+        boolean text = addPost.getText().isEmpty() || addPost.getText().length() < textMinLength ||
+                addPost.getText().length() > textMaxLength;
 
         if (tittle) {
             errors.put("title", "Заголовок не установлен");
@@ -184,8 +190,8 @@ public class ApiPostController {
             List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(post);
 
             int quantityComment = postCommentService.allPostComments(post).size();
-            byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
-            byte quantityDislike = (byte) (postVotes.size() - quantityLike);
+            int quantityLike = (int) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
+            int quantityDislike = postVotes.size() - quantityLike;
 
             return new PostDto(post.getId(), post.getTime(), userDto,
                     post.getTitle(), post.getText(), quantityLike,
@@ -227,8 +233,8 @@ public class ApiPostController {
         Integer viewCount = postById.getViewCount();
         List<PostVote> postVotes = postVoteService.getAllPostVotesByPostId(postById);
 
-        byte quantityLike = (byte) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
-        byte quantityDislike = (byte) (postVotes.size() - quantityLike);
+        int quantityLike = (int) postVotes.stream().filter(postVote -> postVote.getValue() == 1).count();
+        int quantityDislike = postVotes.size() - quantityLike;
 
         List<PostComment> postComments = postCommentService.allPostComments(postById);
 
