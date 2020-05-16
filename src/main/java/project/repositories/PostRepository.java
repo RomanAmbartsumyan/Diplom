@@ -30,8 +30,12 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату с ограничением вывода
      */
-    @Query(value = "SELECT * FROM post WHERE is_active like 1 and moderation_status like 'ACCEPTED' " +
-            "and time like :like_time AND time <= NOW() + INTERVAL 3 HOUR ORDER BY time DESC", nativeQuery = true)
+    @Query(value = "SELECT * FROM post " +
+            "WHERE is_active = 1 " +
+            "AND moderation_status = 'ACCEPTED' " +
+            "AND time like :like_time " +
+            "AND time <= NOW() + INTERVAL 3 HOUR " +
+            "ORDER BY time DESC", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time, Pageable pageable);
 
     /**
@@ -43,8 +47,11 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     /**
      * Поиск постов по активности, статусу модерации и за конкретную дату без ограничения вывода
      */
-    @Query(value = "SELECT * FROM post WHERE is_active = 1 and moderation_status = 'ACCEPTED' " +
-            "and time like :like_time AND time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
+    @Query(value = "SELECT * FROM post " +
+            "WHERE is_active = 1 " +
+            "AND moderation_status = 'ACCEPTED' " +
+            "AND time like :like_time " +
+            "AND time <= NOW() + INTERVAL 3 HOUR", nativeQuery = true)
     List<Post> findAllByTimeContaining(@Param("like_time") String time);
 
     /**
@@ -74,8 +81,8 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     @Query(value = "SELECT * FROM post ORDER BY time ASC limit 1", nativeQuery = true)
     Optional<Post> firstPublication();
 
-    @Query(value = "SELECT post.* FROM post LEFT JOIN (SELECT * FROM post_vote " +
-            "WHERE post_vote.value = 1) AS post_vote " +
+    @Query(value = "SELECT post.* FROM post " +
+            "LEFT JOIN (SELECT * FROM post_vote WHERE post_vote.value = 1) AS post_vote " +
             "ON post.id = post_vote.post_id " +
             "WHERE moderation_status = 'ACCEPTED'" +
             "AND is_active = 1 " +

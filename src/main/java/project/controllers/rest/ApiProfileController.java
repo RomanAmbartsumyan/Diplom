@@ -1,6 +1,7 @@
 package project.controllers.rest;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,14 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/profile/my")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ApiProfileController {
     private final UserService userService;
     private final AuthService authService;
     private final ImageService imageService;
+
+    @Value("${image.max.size}")
+    private Long maxImageSize;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> editProfileWithPhoto(@RequestParam(value = "photo", required = false) MultipartFile file,
@@ -92,7 +96,7 @@ public class ApiProfileController {
         boolean isEmailPresent = userService.isUserByEmailPresent(dto.getEmail());
 
         if (file != null) {
-            boolean isPhotoValid = file.getSize() > 5_242_880;
+            boolean isPhotoValid = file.getSize() > maxImageSize;
 
             if (isPhotoValid) {
                 errors.put("photo", "Фото слишком большое, нужно не более 5 Мб");

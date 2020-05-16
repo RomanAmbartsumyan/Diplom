@@ -34,11 +34,11 @@ public class PostByIdDto {
     /**
      * Кол-во лайков поставленных на пост
      */
-    private Byte likeCount;
+    private Integer likeCount;
     /**
      * Кол-во дизлайков поставленных на пост
      */
-    private Byte dislikeCount;
+    private Integer dislikeCount;
     /**
      * Кол-вол клмментариев
      */
